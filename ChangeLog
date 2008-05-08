@@ -1,0 +1,34 @@
+2008-05-08 12:17  Martin Krauskopf
+
+	* ., CHANGES, ChangeLog, MIT-LICENSE, Rakefile, bin,
+	  bin/rdebug-ide, config.yaml, etc, etc/build_and_install.sh,
+	  etc/kill_debugger, lib, lib/ruby-debug, lib/ruby-debug.rb,
+	  lib/ruby-debug/command.rb, lib/ruby-debug/commands,
+	  lib/ruby-debug/commands/breakpoints.rb,
+	  lib/ruby-debug/commands/catchpoint.rb,
+	  lib/ruby-debug/commands/control.rb,
+	  lib/ruby-debug/commands/eval.rb,
+	  lib/ruby-debug/commands/frame.rb,
+	  lib/ruby-debug/commands/inspect.rb,
+	  lib/ruby-debug/commands/load.rb,
+	  lib/ruby-debug/commands/stepping.rb,
+	  lib/ruby-debug/commands/threads.rb,
+	  lib/ruby-debug/commands/variables.rb,
+	  lib/ruby-debug/event_processor.rb, lib/ruby-debug/helper.rb,
+	  lib/ruby-debug/interface.rb, lib/ruby-debug/printers.rb,
+	  lib/ruby-debug/processor.rb, lib/ruby-debug/xml_printer.rb, test,
+	  test-base, test-base/basic_test.rb, test-base/inspect_test.rb,
+	  test-base/readers.rb, test-base/stepping_breakpoints_test.rb,
+	  test-base/test_base.rb, test-base/threads_and_frames_test.rb,
+	  test-base/variables_test.rb, test/rd_basic_test.rb,
+	  test/rd_inspect_test.rb, test/rd_stepping_breakpoints_test.rb,
+	  test/rd_test_base.rb, test/rd_threads_and_frames_test.rb,
+	  test/rd_variables_test.rb: Dividing 'debug-commons' into two
+	  projects:
+	  - ruby-debug-ide: wrapper for ruby-debug-base
+	  - classic-debug-ide: wrapper for classic debug.rb
+	  to make further development more smooth. classic-debug-ide is
+	  getting
+	  deprecated by availability of ruby-debug-base for MRI, JRuby and
+	  Rubinius
+
