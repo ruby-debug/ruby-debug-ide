@@ -1,0 +1,25 @@
+# Do not commit personal changes here back to the repository. Create
+# config.private.yaml which, if exists, is preferred to this one.
+
+# full path to the rdebug-ide executable. You don't need to set it if the
+# rdebug-ide is on the system path ($PATH, %PATH%)
+#rdebug_ide: /path/to/rubygems/gemrepo/bin/rdebug-ide
+
+# verbose output from test
+debug: false
+
+# verbose output from the backend
+verbose_server: false
+
+# timeout for the server to start up (in seconds)
+server_start_up_timeout: 5
+
+# either should be on the $PATH or use full path
+interpreter: ruby
+
+# whether the interpreter is JRuby (XXX poll the interpreter for this info)
+is_jruby: false
+
+# whether to run JRuby instance in debug mode
+debug_jruby: false
+

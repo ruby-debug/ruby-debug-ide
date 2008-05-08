@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Trivial, but handy, script which might become helpful during testing phase.
+# Use with care ;)
+
+pgrep -f ruby.*\ -I.*classic-debug && echo Killing... && pkill -9 -f ruby.*\ -I.*classic-debug
+pgrep -f rdebug-ide.*-p && echo Killing... && pkill -9 -f rdebug-ide.*-p
