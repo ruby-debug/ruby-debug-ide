@@ -8,11 +8,10 @@ desc 'Default: run unit tests.'
 task :default => [:test]
 
 # ------- Default Package ----------
-RUBY_DEBUG_BASE="0.10.0"
+RUBY_DEBUG_BASE="0.10.1"
 RUBY_DEBUG_IDE_VERSION = "0.1.11"
 
 FILES = FileList[
-  'README',
   'bin/*',
   'lib/**/*'
 ]
