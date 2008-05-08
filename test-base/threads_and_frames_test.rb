@@ -41,6 +41,14 @@ module ThreadsAndFrames
     assert_equal(2, read_frames.length)
     send_cont
   end
+  
+  def test_frames_finish
+    create_socket ['def a', 'sleep 0.001', 'sleep 0.001', 'end', 'a', 'sleep 0.001', 'sleep 0.001']
+    run_to_line(2)
+    send_ruby('fin')
+    assert_suspension(@test_path, 6, 1)
+    send_cont
+  end
 
 end
 
