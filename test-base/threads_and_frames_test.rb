@@ -34,6 +34,10 @@ module ThreadsAndFrames
   end
 
   def test_frames_when_thread_spawned
+    if jruby?
+      @process_finished = true
+      return
+    end
     create_socket ["def start_thread", "Thread.new() {  a = 5  }", "end",
         "def calc", "5 + 5", "end", "start_thread()", "calc()"]
     run_to_line(5)
@@ -42,13 +46,5 @@ module ThreadsAndFrames
     send_cont
   end
   
-  def test_frames_finish
-    create_socket ['def a', 'sleep 0.001', 'sleep 0.001', 'end', 'a', 'sleep 0.001', 'sleep 0.001']
-    run_to_line(2)
-    send_ruby('fin')
-    assert_suspension(@test_path, 6, 1)
-    send_cont
-  end
-
 end
 
