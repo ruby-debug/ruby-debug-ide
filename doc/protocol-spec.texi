@@ -1,0 +1,232 @@
+\input texinfo
+@setfilename protocol-spec.texi
+@settitle ruby-debug-ide protocol
+
+@titlepage
+@title ruby-debug-ide protocol
+@subtitle @value{EDITION} Edition
+@subtitle @value{UPDATED-MONTH}
+@author Markus Barchfeld and Martin Krauskopf
+@end titlepage
+
+@page
+
+@node Top, Summary, (dir), (dir)
+@top ruby-debug-ide protocol
+
+This file contains specification of the protocol used by ruby-debug-ide.
+
+@menu
+* Summary::
+* Specification::
+@end menu
+
+@node Summary
+@chapter Summary
+
+This document describes protocol used by ruby-debug-ide for communication
+between debugger engine and a frontend. It is a work in progress and might, and
+very likely will, change in the future. If you have any comments or questions
+please @email{martin.krauskopf@@gmail.com, send me} an email.
+
+The communication has two parts/sides. First ones are @emph{commands} sent from
+a frontend to the debugger engine and the second is the opposite way,
+@emph{answers} and @emph{events} sent from the debugger engine to the frontend.
+
+@emph{commands} are almost the same to the ones used by
+@url{http://bashdb.sourceforge.net/ruby-debug.html, CLI ruby-debug}.
+@emph{answers} and @emph{events} are sent in XML protocol described below.
+
+@strong{Specification is far from complete.} Will be completed as time permits.
+In the meantime, source code is always the best spec.
+
+@node Specification
+@chapter Specification
+
+@menu
+* Commands::
+* Events::
+@end menu
+
+Terms:
+@itemize @bullet
+@item @emph{Command} is what frontend sends to the debugger engine
+@item @emph{Answer} is what debugger engine sends back to the frontend
+@item @emph{Example} shows simple example
+@end itemize
+
+
+@c Commands 
+@node Commands
+@section Commands
+
+@menu
+* Adding Breakpoint::
+* Condition::
+* Threads::
+* Frames::
+* Variables::
+@end menu
+
+@c Adding Breakpoint
+@node Adding Breakpoint
+@subsection Adding Breakpoint
+
+Command: 
+
+@smallexample
+  break <script>:<line_no>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <breakpointAdded no="<id>" location="<script>:<line_no>"/>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: break test.rb:2
+  A: <breakpointAdded no="1" location="test.rb:2"/>
+@end smallexample
+
+
+@c Condition
+@node Condition
+@subsection Setting Condition for Breakpoint
+
+Command: 
+
+@smallexample
+  condition <script>:<line_no>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <breakpointAdded no="<id>" location="<script>:<line_no>"/>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: condition 1 x>5   # Stop on breakpoint 1 only if x>5 is true.
+  A: <conditionSet bp_id="1"/>
+@end smallexample
+
+
+@c Threads
+@node Threads
+@subsection Threads Listing
+
+Command: 
+
+@smallexample
+  thread list
+@end smallexample
+
+Answer:
+
+@smallexample
+  <threads>
+    <thread id="<id>" status="<status>"/>
+    ....
+  </threads>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: thread list
+  A: <threads>
+       <thread id="1" status="run"/>
+       <thread id="2" status="sleep"/>
+     </threads>
+@end smallexample
+
+
+@c Frames
+@node Frames
+@subsection Frames Listing
+
+Command: 
+
+@smallexample
+  where
+@end smallexample
+
+Answer:
+
+@smallexample
+  <frames>
+    <frame no="<frame_no>" file="<script>" line="<line_no>" current="<boolean>"/>
+    <frame no="<frame_no>" file="<script>" line="<line_no>"/>
+    ...
+  </frames>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: where
+  A: <frames>
+       <frame no="1" file="/path/to/test2.rb" line="3" current="true" />
+       <frame no="2" file="/path/to/test.rb" line="3" />
+     </frames>
+@end smallexample
+
+
+@c Variables
+@node Variables
+@subsection Variables Listing
+
+@subsubsection Local Variables
+
+Example:
+
+@smallexample
+  C: var local
+  A: <variables>
+       <variable name="array" kind="local" value="Array (2 element(s))" type="Array" hasChildren="true" objectId="-0x2418a904"/>
+     </variables>
+@end smallexample
+
+@subsubsection Instance Variables
+
+Example:
+
+@smallexample
+  C: var instance some_array
+  A: <variables>
+       <variable name="[0]" kind="instance" value="1" type="Fixnum" hasChildren="false" objectId="+0x3"/>
+       <variable name="[1]" kind="instance" value="2" type="Fixnum" hasChildren="false" objectId="+0x5"/>
+     </variables>
+@end smallexample
+
+@smallexample
+
+  C: var instance some_object
+  A: <variables>
+       <variable name="@@y" kind="instance" value="5" type="Fixnum" hasChildren="false" objectId="+0xb"/>
+     </variables>
+@end smallexample
+
+
+@c Events
+@node Events
+@section Events
+
+@menu
+* Breakpoint::
+* Suspension::
+@end menu
+
+@c Breakpoint
+@node Breakpoint
+@subsection Breakpoint
+
+@c Suspension
+@node Suspension
+@subsection Suspension
+
