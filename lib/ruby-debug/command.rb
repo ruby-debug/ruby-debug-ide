@@ -67,6 +67,11 @@ module Debugger
       end
     end
     
+    # FIXME: use delegate? 
+    def errmsg(*args)
+      @printer.print_error(*args)
+    end
+
     def print(*args)
       @state.print(*args)
     end

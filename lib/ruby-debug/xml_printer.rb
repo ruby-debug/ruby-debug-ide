@@ -136,6 +136,10 @@ module Debugger
       print "<breakpointDeleted no=\"%s\"/>", b.id
     end
     
+    def print_contdition_set(bp_id)
+      print "<conditionSet bp_id=\"%d\"/>", bp_id
+    end
+    
     def print_expressions(exps)
       print_element "expressions" do
         exps.each_with_index do |(exp, value), idx|

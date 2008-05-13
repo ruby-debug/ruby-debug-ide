@@ -188,6 +188,10 @@ class TestBase < Test::Unit::TestCase
     send_ruby("b #{@test_name}:#{line}")
   end
 
+  def set_condition(bp_id, condition)
+    send_ruby("condition #{bp_id} #{condition}")
+  end
+
   def run_to(filename, line_number)
     send_ruby("b #{filename}:#{line_number}")
     read_breakpoint_added_no
@@ -229,6 +233,11 @@ class TestBase < Test::Unit::TestCase
 
   def assert_test_breakpoint(exp_line, exp_thread_id = nil)
     assert_breakpoint(@test_name, exp_line, exp_thread_id)
+  end
+
+  def assert_condition_set(bp_id)
+    condition_set = read_condition_set
+    assert_equal(bp_id, condition_set.bp_id)
   end
 
   def assert_error

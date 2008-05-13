@@ -7,6 +7,7 @@ module Readers
   Breakpoint = Struct.new("Breakpoint", :file, :line, :threadId)
   BreakpointAdded = Struct.new("BreakpointAdded", :number, :file, :line)
   BreakpointDeleted = Struct.new("BreakpointDeleted", :number)
+  ConditionSet = Struct.new("ConditionSet", :bp_id)
   DebugError = Struct.new("Error", :text)
   DebugException = Struct.new("Exception", :type, :message)
   DebugMessage = Struct.new("Message", :text)
@@ -25,6 +26,10 @@ module Readers
 
   def read_breakpoint
     (@breakpoint_reader ||= BreakpointReader.new(parser)).read
+  end
+
+  def read_condition_set
+    (@condition_set_reader ||= ConditionSetReader.new(parser)).read
   end
 
   def read_suspension
@@ -132,6 +137,13 @@ module Readers
       data = read_element_data('breakpointAdded')
       /(.*):(.*)/ =~ data['location']
       BreakpointAdded.new(Integer(data['no']), $1, $2)
+    end
+  end
+
+  class ConditionSetReader < BaseReader
+    def read
+      data = read_element_data('conditionSet')
+      ConditionSet.new(Integer(data['bp_id']))
     end
   end
 
