@@ -50,6 +50,7 @@
          @printer.print_breakpoint n, @last_breakpoint
          @last_breakpoint = nil
        end
+       raise "DebuggerThread are not supposed to be traced (#{context.thread})" if context.thread.is_a?(Debugger::DebugThread)
        @printer.print_debug("Stopping Thread %s", context.thread.to_s)
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
        # will be resumed by commands like `step', `next', `continue', `finish'
