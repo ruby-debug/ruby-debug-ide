@@ -9,11 +9,14 @@
        @printer = XmlPrinter.new(interface)
        @line = nil
        @file = nil
+       @last_breakpoint = nil
      end
     
      def at_breakpoint(context, breakpoint)
-       n = Debugger.breakpoints.index(breakpoint) + 1
-       @printer.print_breakpoint n, breakpoint
+       raise "@last_breakpoint supposed to be nil. is #{@last_breakpoint}" if @last_breakpoint
+       # at_breakpoint is immediately followed by #at_line event in
+       # ruby-debug-base. So postpone breakpoint printing until #at_line.
+       @last_breakpoint = breakpoint
      end
      
      def at_catchpoint(context, excpt)
@@ -39,8 +42,18 @@
        @line = line
        @file = file
        @context = context
+       if @last_breakpoint
+         # followed after #at_breakpoint in the same thread. Print breakpoint
+         # now when @line, @file and @context are correctly set to prevent race
+         # condition with `control thread'.
+         n = Debugger.breakpoints.index(@last_breakpoint) + 1
+         @printer.print_breakpoint n, @last_breakpoint
+         @last_breakpoint = nil
+       end
        @printer.print_debug("Stopping Thread %s", context.thread.to_s)
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
+       # will be resumed by commands like `step', `next', `continue', `finish'
+       # from `control thread'
        Thread.stop
        @printer.print_debug("Resumed Thread %s", context.thread.to_s)
        @line = nil
