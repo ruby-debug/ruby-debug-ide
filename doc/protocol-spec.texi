@@ -35,7 +35,7 @@ a frontend to the debugger engine and the second is the opposite way,
 
 @emph{commands} are almost the same to the ones used by
 @url{http://bashdb.sourceforge.net/ruby-debug.html, CLI ruby-debug}.
-@emph{answers} and @emph{events} are sent in XML protocol described below.
+@emph{answers} and @emph{events} are sent in XML format described below.
 
 @strong{Specification is far from complete.} Will be completed as time permits.
 In the meantime, source code is always the best spec.
@@ -96,6 +96,8 @@ Example:
 @node Condition
 @subsection Setting Condition for Breakpoint
 
+Supported @emph{@strong{since}} ruby-debug-ide @emph{@strong{0.10.1}}
+
 Command: 
 
 @smallexample
@@ -105,7 +107,7 @@ Command:
 Answer:
 
 @smallexample
-  <breakpointAdded no="<id>" location="<script>:<line_no>"/>
+  <conditionSet bp_id="<id>"/>
 @end smallexample
 
 Example:
