@@ -2,6 +2,8 @@
 @setfilename protocol-spec.texi
 @settitle ruby-debug-ide protocol
 
+@set RDEBUG_IDE ruby-debug-ide
+
 @titlepage
 @title ruby-debug-ide protocol
 @subtitle @value{EDITION} Edition
@@ -12,9 +14,9 @@
 @page
 
 @node Top, Summary, (dir), (dir)
-@top ruby-debug-ide protocol
+@top @value{RDEBUG_IDE} protocol
 
-This file contains specification of the protocol used by ruby-debug-ide.
+This file contains specification of the protocol used by @value{RDEBUG_IDE}.
 
 @menu
 * Summary::
@@ -24,7 +26,7 @@ This file contains specification of the protocol used by ruby-debug-ide.
 @node Summary
 @chapter Summary
 
-This document describes protocol used by ruby-debug-ide for communication
+This document describes protocol used by @value{RDEBUG_IDE} for communication
 between debugger engine and a frontend. It is a work in progress and might, and
 very likely will, change in the future. If you have any comments or questions
 please @email{martin.krauskopf@@gmail.com, send me} an email.
@@ -96,7 +98,7 @@ Example:
 @node Condition
 @subsection Setting Condition for Breakpoint
 
-Supported @emph{@strong{since}} ruby-debug-ide @emph{@strong{0.10.1}}
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.1.11}}
 
 Command: 
 
