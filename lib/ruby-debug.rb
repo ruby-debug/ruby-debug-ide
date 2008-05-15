@@ -83,13 +83,15 @@ module Debugger
       
       start_control(host, port)
       
+      raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
+      
       @mutex = Mutex.new
       @proceed = ConditionVariable.new
       
-      # wait for start command
+      # wait for 'start' command
       @mutex.synchronize do
         @proceed.wait(@mutex)
-      end 
+      end
       
       debug_load Debugger::PROG_SCRIPT
     end
@@ -106,6 +108,7 @@ module Debugger
       @control_thread = DebugThread.new do
         host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
         Debugger.print_debug("Waiting for connection on '#{host}:#{port}'")
+        $stderr.puts "Fast Debugger (ruby-debug-ide #{Debugger::VERSION}) listens on #{host}:#{port}"
         server = TCPServer.new(host, port)
         while (session = server.accept)
           begin
