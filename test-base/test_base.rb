@@ -240,6 +240,15 @@ class TestBase < Test::Unit::TestCase
     assert_equal(bp_id, condition_set.bp_id)
   end
 
+  def assert_exception(exp_file, exp_line, exp_type, exp_thread_id=1)
+    exception = read_exception
+    assert_equal(exp_file, exception.file)
+    assert_equal(exp_line, exception.line)
+    assert_equal(exp_type, exception.type)
+    assert_equal(exp_thread_id, exception.threadId)
+    assert_not_nil(exception.message)
+  end
+
   def assert_error
     error = read_error
     assert_not_nil(error)

@@ -9,9 +9,10 @@ module Readers
   BreakpointDeleted = Struct.new("BreakpointDeleted", :number)
   ConditionSet = Struct.new("ConditionSet", :bp_id)
   DebugError = Struct.new("Error", :text)
-  DebugException = Struct.new("Exception", :type, :message)
+  ProcessingException = Struct.new("Exception", :type, :message)
   DebugMessage = Struct.new("Message", :text)
   Suspension = Struct.new("Suspension", :file, :line, :frames, :threadId)
+  DebugException = Struct.new("DebugException", :file, :line, :type, :message, :threadId)
   RubyThread = Struct.new("RubyThread", :id, :status)
   Frame = Struct.new("Frame", :no, :file, :line)
   Variable = Struct.new("Variable", :name, :kind, :value, :type, :hasChildren, :objectId)
@@ -34,6 +35,10 @@ module Readers
 
   def read_suspension
     (@suspension_reader ||= SuspensionReader.new(parser)).read
+  end
+
+  def read_exception
+    (@exception_reader ||= ExceptionReader.new(parser)).read
   end
 
   def thread_info_reader
@@ -64,8 +69,8 @@ module Readers
     (@message_reader ||= MessageReader.new(parser)).read
   end
 
-  def read_exception
-    (@exception_reader ||= ExceptionReader.new(parser)).read
+  def read_processing_exception
+    (@processing_exception_reader ||= ProcessingExceptionReader.new(parser)).read
   end
 
   def parser
@@ -115,6 +120,13 @@ module Readers
     def read
       data = read_element_data('suspended')
       Suspension.new(data['file'], Integer(data['line']), Integer(data['frames']), Integer(data['threadId']))
+    end
+  end
+
+  class ExceptionReader < BaseReader
+    def read
+      data = read_element_data('exception')
+      DebugException.new(data['file'], Integer(data['line']), data['type'], data['message'], Integer(data['threadId']))
     end
   end
 
@@ -245,10 +257,10 @@ module Readers
     end
   end
   
-  class ExceptionReader < BaseReader
+  class ProcessingExceptionReader < BaseReader
     def read
       data = read_element_data('processingException')
-      DebugException.new(data['type'], data['message'])
+      ProcessingException.new(data['type'], data['message'])
     end
   end
 

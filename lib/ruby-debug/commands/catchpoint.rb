@@ -3,24 +3,20 @@ module Debugger
     self.control = true
 
     def regexp
-      /^\s*cat(?:ch)?(?:\s+(.+))?$/
+      /^\s* cat(?:ch)? (?:\s+(.+))? $/x
     end
 
     def execute
-      if excn = @match[1]
-        if excn == 'off'
-          Debugger.catchpoint = nil
-          print_msg "Clear catchpoint."
-        else
-          Debugger.catchpoint = excn
-          print_msg "Set catchpoint %s.", excn
-        end
+      excn = @match[1]
+      unless excn
+        errmsg "Exception class must be specified for 'catch' command"
       else
-        if Debugger.catchpoint
-          print_msg "Catchpoint %s.", Debugger.catchpoint
-        else
-          print_msg "No catchpoint."
+        binding = @state.context ? get_binding : TOPLEVEL_BINDING
+        unless debug_eval("#{excn}.is_a?(Class)", binding)
+          print_msg "Warning #{excn} is not known to be a Class"
         end
+        Debugger.add_catchpoint(excn)
+        print_msg "Set catchpoint %s.", excn
       end
     end
 

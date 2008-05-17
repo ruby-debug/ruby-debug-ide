@@ -42,7 +42,7 @@ module InspectTest
     create_socket ["puts 'test'", "puts 'test'"]
     run_to_line(2)
     send_ruby("v inspect a*2")
-    read_exception
+    read_processing_exception
     send_cont
   end
 
@@ -50,7 +50,7 @@ module InspectTest
     create_socket ["sleep 0.1"]
     run_to_line(1)
     send_ruby('v inspect 1 {1 => "one", 2 => "two" {')
-    read_exception
+    read_processing_exception
     send_cont
   end
 
