@@ -21,6 +21,7 @@ This file contains specification of the protocol used by @value{RDEBUG_IDE}.
 @menu
 * Summary::
 * Specification::
+* Changes::
 @end menu
 
 @node Summary
@@ -35,9 +36,11 @@ The communication has two parts/sides. First ones are @emph{commands} sent from
 a frontend to the debugger engine and the second is the opposite way,
 @emph{answers} and @emph{events} sent from the debugger engine to the frontend.
 
-@emph{commands} are almost the same to the ones used by
-@url{http://bashdb.sourceforge.net/ruby-debug.html, CLI ruby-debug}.
-@emph{answers} and @emph{events} are sent in XML format described below.
+@emph{commands} are almost the same as the ones used by CLI ruby-debug. So you
+might want to contact @url{http://bashdb.sourceforge.net/ruby-debug.html, the
+ruby-debug-ide document}.
+
+@emph{answers} and @emph{events} are sent in XML format described in the specification @ref{Specification, bellow}.
 
 @strong{Specification is far from complete.} Will be completed as time permits.
 In the meantime, source code is always the best spec.
@@ -96,7 +99,7 @@ Example:
 
 @c Condition
 @node Condition
-@subsection Setting Condition for Breakpoint
+@subsection Setting Condition on Breakpoint
 
 Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.1.11}}
 
@@ -224,13 +227,45 @@ Example:
 @menu
 * Breakpoint::
 * Suspension::
+* Exception::
 @end menu
 
 @c Breakpoint
 @node Breakpoint
 @subsection Breakpoint
 
+Event example:
+@smallexample
+  <breakpoint file="test.rb" line="1" threadId="1"/>
+@end smallexample
+
 @c Suspension
 @node Suspension
 @subsection Suspension
+Event example:
+@smallexample
+  <suspended file="/path/to/test.rb" line="2" threadId="1" frames="1"/>
+@end smallexample
 
+@c Exception
+@node Exception
+@subsection Exception
+
+Event example:
+@smallexample
+  <exception file="/path/to/test.rb" line="2" type="ZeroDivisionError" message="divided by 0" threadId="1"/>
+@end smallexample
+
+@node Changes
+@chapter Changes
+
+@section Changes between 0.1.10 and 0.1.11
+
+@subsection New Features
+@itemize @bullet
+@item @ref{Condition}
+@end itemize
+
+@subsection Uncompatible Changes
+
+None.
