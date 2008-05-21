@@ -68,6 +68,8 @@ Terms:
 @menu
 * Adding Breakpoint::
 * Deleting Breakpoint::
+* Enabling Breakpoint::
+* Disabling Breakpoint::
 * Condition::
 * Threads::
 * Frames::
@@ -117,8 +119,56 @@ Answer:
 Example:
 
 @smallexample
-  C: Processing: delete 2
+  C: delete 2
   A: <breakpointDeleted no="2"/>
+@end smallexample
+
+
+@c Enabling Breakpoint
+@node Enabling Breakpoint
+@subsection Enabling Breakpoint
+
+Command: 
+
+@smallexample
+  enable <breakpoint_id>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <breakpointEnabled bp_id="<id>"/>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: enable 2
+  A: <breakpointEnabled bp_id="2"/>
+@end smallexample
+
+
+@c Disabling Breakpoint
+@node Disabling Breakpoint
+@subsection Disabling Breakpoint
+
+Command: 
+
+@smallexample
+  disable <breakpoint_id>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <breakpointDisabled bp_id="<id>"/>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: disable 2
+  A: <breakpointDisabled bp_id="2"/>
 @end smallexample
 
 
@@ -289,6 +339,8 @@ Event example:
 @subsection New Features
 @itemize @bullet
 @item @ref{Condition}
+@item @ref{Enabling Breakpoint}
+@item @ref{Disabling Breakpoint}
 @end itemize
 
 @subsection Uncompatible Changes
