@@ -7,6 +7,8 @@ module Readers
   Breakpoint = Struct.new("Breakpoint", :file, :line, :threadId)
   BreakpointAdded = Struct.new("BreakpointAdded", :number, :file, :line)
   BreakpointDeleted = Struct.new("BreakpointDeleted", :number)
+  BreakpointEnabled = Struct.new("BreakpointEnabled", :bp_id)
+  BreakpointDisabled = Struct.new("BreakpointDisabled", :bp_id)
   ConditionSet = Struct.new("ConditionSet", :bp_id)
   DebugError = Struct.new("Error", :text)
   ProcessingException = Struct.new("Exception", :type, :message)
@@ -17,12 +19,20 @@ module Readers
   Frame = Struct.new("Frame", :no, :file, :line)
   Variable = Struct.new("Variable", :name, :kind, :value, :type, :hasChildren, :objectId)
 
-  def read_breakpoint_added_no
-    (@breakpoint_added_reader ||= BreakPointAddedReader.new(parser)).read.number
+  def read_breakpoint_added
+    (@breakpoint_added_reader ||= BreakPointAddedReader.new(parser)).read
   end
 
   def read_breakpoint_deleted
     (@breakpoint_deleted_reader ||= BreakpointDeletedReader.new(parser)).read
+  end
+
+  def read_breakpoint_enabled
+    (@breakpoint_enabled_reader ||= BreakpointEnabledReader.new(parser)).read
+  end
+
+  def read_breakpoint_disabled
+    (@breakpoint_disabled_reader ||= BreakpointDisabledReader.new(parser)).read
   end
 
   def read_breakpoint
@@ -141,6 +151,20 @@ module Readers
     def read
       data = read_element_data('breakpointDeleted')
       BreakpointDeleted.new(Integer(data['no']))
+    end
+  end
+
+  class BreakpointEnabledReader < BaseReader
+    def read
+      data = read_element_data('breakpointEnabled')
+      BreakpointEnabled.new(Integer(data['bp_id']))
+    end
+  end
+
+  class BreakpointDisabledReader < BaseReader
+    def read
+      data = read_element_data('breakpointDisabled')
+      BreakpointDisabled.new(Integer(data['bp_id']))
     end
   end
 

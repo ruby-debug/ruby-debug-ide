@@ -194,7 +194,7 @@ class TestBase < Test::Unit::TestCase
 
   def run_to(filename, line_number)
     send_ruby("b #{filename}:#{line_number}")
-    read_breakpoint_added_no
+    read_breakpoint_added
     if started
       send_cont
     else
@@ -216,12 +216,22 @@ class TestBase < Test::Unit::TestCase
   end
 
   def assert_breakpoint_added_no(exp_number)
-    assert_equal(exp_number, read_breakpoint_added_no)
+    assert_equal(exp_number, read_breakpoint_added.number)
   end
 
   def assert_breakpoint_deleted(exp_number)
     breakpoint_deleted = read_breakpoint_deleted
     assert_equal(exp_number, breakpoint_deleted.number)
+  end
+
+  def assert_breakpoint_enabled(exp_number)
+    breakpoint_enabled = read_breakpoint_enabled
+    assert_equal(exp_number, breakpoint_enabled.bp_id)
+  end
+
+  def assert_breakpoint_disabled(exp_number)
+    breakpoint_disabled = read_breakpoint_disabled
+    assert_equal(exp_number, breakpoint_disabled.bp_id)
   end
 
   def assert_breakpoint(exp_file, exp_line, exp_thread_id = nil)

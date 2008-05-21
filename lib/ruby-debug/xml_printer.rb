@@ -136,6 +136,14 @@ module Debugger
       print "<breakpointDeleted no=\"%s\"/>", b.id
     end
     
+    def print_breakpoint_enabled(b)
+      print "<breakpointEnabled bp_id=\"%s\"/>", b.id
+    end
+    
+    def print_breakpoint_disabled(b)
+      print "<breakpointDisabled bp_id=\"%s\"/>", b.id
+    end
+    
     def print_contdition_set(bp_id)
       print "<conditionSet bp_id=\"%d\"/>", bp_id
     end

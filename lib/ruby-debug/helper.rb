@@ -22,5 +22,12 @@ module Debugger
       end
     end
 
+    # Return true if code is syntactically correct for Ruby.
+    def syntax_valid?(code)
+      eval("BEGIN {return true}\n#{code}", nil, "", 0)
+    rescue Exception
+      false
+    end 
+
   end
 end
