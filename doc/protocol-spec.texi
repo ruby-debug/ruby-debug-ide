@@ -67,6 +67,7 @@ Terms:
 
 @menu
 * Adding Breakpoint::
+* Deleting Breakpoint::
 * Condition::
 * Threads::
 * Frames::
@@ -94,6 +95,30 @@ Example:
 @smallexample
   C: break test.rb:2
   A: <breakpointAdded no="1" location="test.rb:2"/>
+@end smallexample
+
+
+@c Deleting Breakpoint
+@node Deleting Breakpoint
+@subsection Deleting Breakpoint
+
+Command: 
+
+@smallexample
+  delete <breakpoint_id>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <breakpointDeleted no="<id>"/>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: Processing: delete 2
+  A: <breakpointDeleted no="2"/>
 @end smallexample
 
 
