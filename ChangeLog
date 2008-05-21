@@ -1,3 +1,110 @@
+2008-05-21 13:32  Martin Krauskopf
+
+	* doc/protocol-spec.texi: s/0.1.1/trunk (not sure whether it will
+	  be 0.1.11 or 0.2.0)
+	  - since tag for enable/disable command
+
+2008-05-21 13:22  Martin Krauskopf
+
+	* doc/protocol-spec.texi: - enabled/disable breakpoint feature
+	  - typo in delete command
+
+2008-05-21 13:21  Martin Krauskopf
+
+	* lib/ruby-debug/command.rb, lib/ruby-debug/commands/enable.rb,
+	  lib/ruby-debug/helper.rb, lib/ruby-debug/xml_printer.rb,
+	  test-base/readers.rb, test-base/test_base.rb,
+	  test/rd_enable_disable_test.rb: Enabled/Disable breakpoint
+	  feature
+
+2008-05-21 12:39  Martin Krauskopf
+
+	* doc/protocol-spec.texi: Deleting Breakpoint
+
+2008-05-17 21:06  Martin Krauskopf
+
+	* doc/protocol-spec.texi: - changes section
+	  - continuing with protocol description
+
+2008-05-17 21:04  Martin Krauskopf
+
+	* lib/ruby-debug/commands/catchpoint.rb, test-base/inspect_test.rb,
+	  test-base/readers.rb, test-base/test_base.rb: Tweaking
+	  catchpoint.rb and addng basic test
+
+2008-05-15 20:59  Martin Krauskopf
+
+	* lib/ruby-debug/event_processor.rb: I've got the deadlock
+	  suggesting that Debugger::DebuggerThread instance was being
+	  traced from tests. Putting 'assertion' forbidding it
+
+2008-05-15 20:56  Martin Krauskopf
+
+	* lib/ruby-debug.rb: Sanity check whether control thread starts up
+	  (#20121)
+
+2008-05-15 14:13  Martin Krauskopf
+
+	* doc/protocol-spec.texi: - fixing version
+	  - RDEBUG_IDE variable
+
+2008-05-15 13:52  Martin Krauskopf
+
+	* doc/protocol-spec.texi: Fixing 'cond' section
+
+2008-05-15 10:58  Martin Krauskopf
+
+	* lib/ruby-debug/event_processor.rb: Preventing possible race
+	  condition between a program thread and control thread
+
+2008-05-14 21:16  Martin Krauskopf
+
+	* lib/ruby-debug/processor.rb: State and ControlState does not need
+	  to keep commands' classes
+	  (they are used in CLI debugger from 'help' command)
+
+2008-05-13 18:58  Martin Krauskopf
+
+	* doc, doc/protocol-spec.texi: Some works on ruby-debug-ide
+	  protocol specification, far from complete
+
+2008-05-13 18:04  Martin Krauskopf
+
+	* lib/ruby-debug/command.rb, lib/ruby-debug/commands/condition.rb,
+	  lib/ruby-debug/xml_printer.rb, test-base/condition_test.rb,
+	  test-base/readers.rb, test-base/test_base.rb,
+	  test/rd_condition_test.rb: Support for setting condition on
+	  breakpoints
+	  - condition.rb copy-pasted (then tweaked) from ruby-debug until
+	  we find better way
+
+2008-05-09 14:56  Martin Krauskopf
+
+	* lib/ruby-debug.rb, lib/ruby-debug/event_processor.rb,
+	  test-base/stepping_breakpoints_test.rb,
+	  test-base/threads_and_frames_test.rb: - implementing
+	  Context#at_return to make 'finish' work with MRI (not used by
+	  JRuby yet)
+	  - tweaking test for different behaviours of interpreters
+
+2008-05-08 21:40  Martin Krauskopf
+
+	* test-base/threads_and_frames_test.rb: Adding test for 'finish'.
+	  Currently does not work with MRI:
+	  ruby-debug issue: [#20039] Finish does not work correctly
+
+2008-05-08 16:49  Martin Krauskopf
+
+	* Rakefile: - switching trunk to ruby-debug-base(s) 0.10.1
+	  - remove README to pass the 'gem' task. So far we have no any
+	  README
+
+2008-05-08 12:55  Martin Krauskopf
+
+	* ., ChangeLog, ChangeLog.archive, svn2cl_usermap: - archiving
+	  before-division ChangeLogs
+	  - ignore pkg and private configuration
+
 2008-05-08 12:17  Martin Krauskopf
 
 	* ., CHANGES, ChangeLog, MIT-LICENSE, Rakefile, bin,
