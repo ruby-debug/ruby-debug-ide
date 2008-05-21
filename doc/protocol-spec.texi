@@ -128,6 +128,8 @@ Example:
 @node Enabling Breakpoint
 @subsection Enabling Breakpoint
 
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
+
 Command: 
 
 @smallexample
@@ -151,6 +153,8 @@ Example:
 @c Disabling Breakpoint
 @node Disabling Breakpoint
 @subsection Disabling Breakpoint
+
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
 
 Command: 
 
@@ -176,7 +180,7 @@ Example:
 @node Condition
 @subsection Setting Condition on Breakpoint
 
-Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.1.11}}
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
 
 Command: 
 
@@ -334,7 +338,7 @@ Event example:
 @node Changes
 @chapter Changes
 
-@section Changes between 0.1.10 and 0.1.11
+@section Changes between 0.1.10 and trunk
 
 @subsection New Features
 @itemize @bullet
