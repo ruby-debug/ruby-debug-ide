@@ -2,7 +2,8 @@
 @setfilename protocol-spec.texi
 @settitle ruby-debug-ide protocol
 
-@set RDEBUG_IDE ruby-debug-ide
+@set RDEBUG_IDE @emph{ruby-debug-ide}
+@set RDEBUG_BASE @emph{ruby-debug-base}
 
 @titlepage
 @title ruby-debug-ide protocol
@@ -38,7 +39,7 @@ a frontend to the debugger engine and the second is the opposite way,
 
 @emph{commands} are almost the same as the ones used by CLI ruby-debug. So you
 might want to contact @url{http://bashdb.sourceforge.net/ruby-debug.html, the
-ruby-debug-ide document}.
+@value{RDEBUG_IDE} document}.
 
 @emph{answers} and @emph{events} are sent in XML format described in the specification @ref{Specification, bellow}.
 
@@ -71,6 +72,7 @@ Terms:
 * Enabling Breakpoint::
 * Disabling Breakpoint::
 * Condition::
+* Catchpoint::
 * Threads::
 * Frames::
 * Variables::
@@ -199,6 +201,32 @@ Example:
 @smallexample
   C: condition 1 x>5   # Stop on breakpoint 1 only if x>5 is true.
   A: <conditionSet bp_id="1"/>
+@end smallexample
+
+
+@c Catchpoint
+@node Catchpoint
+@subsection Exception Breakpoint
+
+@strong{TBD}: return valid answer
+
+Command: 
+
+@smallexample
+  catch <exception_class_name>
+@end smallexample
+
+Answer:
+
+@smallexample
+  <message>Set catchpoint <exception_class_name>.</message>
+@end smallexample
+
+Example:
+
+@smallexample
+  C: catch ZeroDivisionError
+  A: <message>Set catchpoint ZeroDivisionError.</message>
 @end smallexample
 
 
@@ -348,5 +376,13 @@ Event example:
 @end itemize
 
 @subsection Uncompatible Changes
+@itemize @bullet
+@item @emph{catch off} does not work anymore, since @value{RDEBUG_BASE}s
+   support multiple catchpoints since 0.10.1, not just one. However
+   @value{RDEBUG_BASE}s in version 0.10.1 suffers with
+   @url{http://rubyforge.org/tracker/index.php?func=detail&aid=20237&group_id=1900&atid=7436, bug}
+   that it is not possible to remove catchpoints. So catchpoints removing must
+   be workarounded in higher layers. The bug is fixed in @value{RDEBUG_BASE}s
+   0.10.2 and above.
+@end itemize
 
-None.
