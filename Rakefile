@@ -9,7 +9,7 @@ task :default => [:test]
 
 # ------- Default Package ----------
 RUBY_DEBUG_BASE="0.10.1"
-RUBY_DEBUG_IDE_VERSION = "0.1.11"
+RUBY_DEBUG_IDE_VERSION = "0.2.0"
 
 FILES = FileList[
   'bin/*',

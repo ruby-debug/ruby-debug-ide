@@ -130,7 +130,7 @@ Example:
 @node Enabling Breakpoint
 @subsection Enabling Breakpoint
 
-Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
 Command: 
 
@@ -156,7 +156,7 @@ Example:
 @node Disabling Breakpoint
 @subsection Disabling Breakpoint
 
-Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
 Command: 
 
@@ -182,7 +182,7 @@ Example:
 @node Condition
 @subsection Setting Condition on Breakpoint
 
-Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{trunk}}
+Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
 Command: 
 
@@ -366,7 +366,7 @@ Event example:
 @node Changes
 @chapter Changes
 
-@section Changes between 0.1.10 and trunk
+@section Changes between 0.1.10 and 0.2.0
 
 @subsection New Features
 @itemize @bullet
@@ -378,8 +378,8 @@ Event example:
 @subsection Uncompatible Changes
 @itemize @bullet
 @item @emph{catch off} does not work anymore, since @value{RDEBUG_BASE}s
-   support multiple catchpoints since 0.10.1, not just one. However
-   @value{RDEBUG_BASE}s in version 0.10.1 suffers with
+   support multiple catchpoints since 0.10.1, not just one.
+   @strong{Note:} however @value{RDEBUG_BASE}s in version 0.10.1 suffers with
    @url{http://rubyforge.org/tracker/index.php?func=detail&aid=20237&group_id=1900&atid=7436, bug}
    that it is not possible to remove catchpoints. So catchpoints removing must
    be workarounded in higher layers. The bug is fixed in @value{RDEBUG_BASE}s
