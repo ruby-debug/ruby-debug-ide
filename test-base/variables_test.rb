@@ -101,7 +101,7 @@ module VariablesTest
     create_socket ["require 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
     create_test2 ["class Test2", "def initialize", "@y=5", "end", "def to_s", "'test'", "end", "end"]
     run_to("test2.rb", 6)
-    send_ruby("frame 2 ; v i custom_object")
+    send_ruby("frame 3; v i custom_object")
     assert_variables(read_variables, 1,
       {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false})
     send_cont
@@ -211,7 +211,7 @@ module VariablesTest
   def assert_type(exp_type, variable)
     assert_equal(exp_type, variable.type)
   end
-  
+
   def assert_variables(vars, count, *expected)
     assert_equal(count, vars.length, "number of variables")
     expected.each_with_index do |exp_var_hash, i|  
