@@ -108,7 +108,7 @@ module Debugger
       @control_thread = DebugThread.new do
         host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
         Debugger.print_debug("Waiting for connection on '#{host}:#{port}'")
-        $stderr.puts "Fast Debugger (ruby-debug-ide 0.2.0) listens on #{host}:#{port}"
+        $stderr.puts "Fast Debugger (ruby-debug-ide 0.2.1) listens on #{host}:#{port}"
         server = TCPServer.new(host, port)
         while (session = server.accept)
           begin
