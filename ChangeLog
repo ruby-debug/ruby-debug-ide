@@ -1,3 +1,32 @@
+2008-06-17 12:40  Martin Krauskopf
+
+	* test/rd_test_base.rb: Fixing test loadpath
+
+2008-06-17 11:52  Martin Krauskopf
+
+	* test-base/variables_test.rb: New version of Rubies (Ruby 1.8.7
+	  and JRuby 1.1.2) handle stack differently
+
+2008-06-17 09:20  Martin Krauskopf
+
+	* lib/ruby-debug.rb: s/Debugger::VERSION/0.2.0; former one points
+	  to ruby-debug-base version
+
+2008-06-12 06:41  Martin Krauskopf
+
+	* CHANGES, Rakefile, doc/protocol-spec.texi,
+	  etc/build_and_install.sh: New version will be 0.2.0, since there
+	  is slight incompatible change (see spec)
+
+2008-05-23 12:48  Martin Krauskopf
+
+	* doc/protocol-spec.texi: - documenting catchpoitns
+	  - mentioning "catch off" in uncompatible changes
+
+2008-05-21 14:01  Martin Krauskopf
+
+	* ChangeLog, test/rd_catchpoint_test.rb: Adding test for catchpoint
+
 2008-05-21 13:32  Martin Krauskopf
 
 	* doc/protocol-spec.texi: s/0.1.1/trunk (not sure whether it will
