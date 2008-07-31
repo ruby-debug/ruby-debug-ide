@@ -1,3 +1,35 @@
+2008-07-31 13:20  Martin Krauskopf
+
+	* doc/protocol-spec.texi: Updating Changes between 0.2.0 and 0.2.1
+
+2008-07-31 13:13  Martin Krauskopf
+
+	* test-base/stepping_breakpoints_test.rb: tweaking tests for bugs
+	  in MRI to catch it once it is fixed
+
+2008-07-31 13:12  Martin Krauskopf
+
+	* Rakefile, lib/ruby-debug.rb: Hotfixing problem with running Ruby
+	  on Mac. See 'Debugger timing out' thread:
+	  http://ruby.netbeans.org/servlets/BrowseList?list=users&by=thread&from=861334
+	  Still continuing on 0.2.x row (changing dependeny on
+	  ruby-debug-base back to 0.10.1)
+
+2008-07-14 22:40  Martin Krauskopf
+
+	* Rakefile: Make trunk dependent on ruby-debug-base 0.10.2 which
+	  fixed important "finish" bug
+
+2008-06-22 07:10  Martin Krauskopf
+
+	* CHANGES, Rakefile, etc/build_and_install.sh, lib/ruby-debug.rb:
+	  increasing trunk version to 0.2.1
+	  - CHANGES no longer maintained
+
+2008-06-22 06:58  Martin Krauskopf
+
+	* ChangeLog: ChangeLog update before tagging 0.2.0
+
 2008-06-17 12:40  Martin Krauskopf
 
 	* test/rd_test_base.rb: Fixing test loadpath
