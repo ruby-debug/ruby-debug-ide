@@ -106,7 +106,9 @@ module Debugger
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
-        host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
+        unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
+          host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
+        end
         Debugger.print_debug("Waiting for connection on '#{host}:#{port}'")
         $stderr.puts "Fast Debugger (ruby-debug-ide 0.2.1) listens on #{host}:#{port}"
         server = TCPServer.new(host, port)
