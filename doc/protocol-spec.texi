@@ -366,6 +366,14 @@ Event example:
 @node Changes
 @chapter Changes
 
+@section Changes between 0.2.0 and 0.2.1
+
+@itemize @bullet
+@item Hotfixing/workardouning problem with connection on some Mac OSes, see
+@url{http://ruby.netbeans.org/servlets/BrowseList?list=users&by=thread&from=861334,
+Debugger timing out} thread.
+@end itemize
+
 @section Changes between 0.1.10 and 0.2.0
 
 @subsection New Features
