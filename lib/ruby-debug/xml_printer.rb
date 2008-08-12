@@ -106,7 +106,7 @@ module Debugger
         end
       else
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
-        value_str = value.to_s || 'nil'
+        value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #$!>"
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
         end

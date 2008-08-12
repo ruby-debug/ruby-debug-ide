@@ -178,11 +178,19 @@ module VariablesTest
     assert_variables(read_variables, 1, {:value => "ERROR: BugExample.to_s method returns Fixnum. Should return String."})
     send_cont
   end
-  
+
   def test_equality_is_not_used
     create_socket ["class A", "def ==(obj)", "obj.non_existent", "end", "end", "a = A.new", "puts a"]
     run_to_line(7)
     send_ruby("v l")
+    assert_variables(read_variables, 1)
+    send_cont
+  end
+  
+  def test_to_s_raises_exception
+    create_socket ['class A', 'def to_s', 'raise "hey"', 'end', 'end', 'a = A.new', 'sleep 0.01']
+    run_to_line(7)
+    send_ruby('v l')
     assert_variables(read_variables, 1)
     send_cont
   end
