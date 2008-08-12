@@ -366,6 +366,12 @@ Event example:
 @node Changes
 @chapter Changes
 
+@section Changes between 0.2.1 and 0.2.2
+
+@itemize @bullet
+@item Bugfixes (see ChangeLog)
+@end itemize
+
 @section Changes between 0.2.0 and 0.2.1
 
 @itemize @bullet

@@ -1,3 +1,27 @@
+2008-08-12 16:00  Martin Krauskopf
+
+	* lib/ruby-debug/xml_printer.rb, test-base/variables_test.rb:
+	  debugging is terminated when object's to_s method raises an
+	  exception
+
+2008-07-31 15:10  Martin Krauskopf
+
+	* nbproject: ignore private folder
+
+2008-07-31 15:09  Martin Krauskopf
+
+	* nbproject, nbproject/project.properties, nbproject/project.xml:
+	  Adding NetBeans project metadata.
+
+2008-07-31 13:39  Martin Krauskopf
+
+	* doc/protocol-spec.texi: - pushing changes to website
+	  - fixing typo s/workardouning/workarounding
+
+2008-07-31 13:23  Martin Krauskopf
+
+	* ChangeLog: ChangeLog update before tagging 0.2.1
+
 2008-07-31 13:20  Martin Krauskopf
 
 	* doc/protocol-spec.texi: Updating Changes between 0.2.0 and 0.2.1

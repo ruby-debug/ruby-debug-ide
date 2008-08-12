@@ -1,4 +1,5 @@
 require 'rubygems'
+
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
@@ -9,7 +10,7 @@ task :default => [:test]
 
 # ------- Default Package ----------
 RUBY_DEBUG_BASE="0.10.1"
-RUBY_DEBUG_IDE_VERSION = "0.2.1"
+RUBY_DEBUG_IDE_VERSION = "0.2.2"
 
 FILES = FileList[
   'bin/*',
@@ -18,7 +19,7 @@ FILES = FileList[
 
 ide_spec = Gem::Specification.new do |spec|
   spec.name = "ruby-debug-ide"
-  
+
   spec.homepage = "http://rubyforge.org/projects/debug-commons/"
   spec.summary = "IDE interface for ruby-debug."
   spec.description = <<-EOF
@@ -40,7 +41,7 @@ EOF
   spec.date = DateTime.now
   spec.rubyforge_project = 'debug-commons'
   spec.add_dependency('ruby-debug-base', RUBY_DEBUG_BASE)
-  
+
   # rdoc
   spec.has_rdoc = false
 end
@@ -65,9 +66,9 @@ task :ChangeLog do
 end
 
 #desc "Publish ruby-debug to RubyForge."
-#task :publish do 
+#task :publish do
 #  require 'rake/contrib/sshpublisher'
-#  
+#
 #  # Get ruby-debug path
 #  ruby_debug_path = File.expand_path(File.dirname(__FILE__))
 #
