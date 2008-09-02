@@ -168,6 +168,7 @@ class TestBase < Test::Unit::TestCase
     assert(!@process_finished, "Ruby debugger has finished prematurely.")
     debug("Sending: #{debugger_command}\n")
     socket.printf(debugger_command + "\n")
+    socket.flush
   end
 
   def send_cont
