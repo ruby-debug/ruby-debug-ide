@@ -6,6 +6,7 @@
             <name>ruby-debug-ide (trunk)</name>
             <source-roots>
                 <root id="lib.dir"/>
+                <root id="src.bin.dir"/>
             </source-roots>
             <test-roots>
                 <root id="test.src.dir" name="test-base"/>
