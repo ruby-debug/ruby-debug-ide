@@ -18,13 +18,13 @@ class RDTestBase < TestBase
     end
   end
 
-  def debug_command(script)
+  def debug_command(script, port)
     cmd = "#{interpreter}"
-    cmd << " -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF" if jruby?
+    cmd << " --debug" if jruby?
     cmd << " -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" if jruby? and debug_jruby?
-    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide}" +
+    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide} _0.2.2_" +
       (@verbose_server ? " -d" : "") + 
-      " -p 1098 -- '#{script}'"
+      " -p #{port} -- '#{script}'"
   end
 
   def start_debugger

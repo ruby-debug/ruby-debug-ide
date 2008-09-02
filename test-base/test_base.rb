@@ -11,11 +11,8 @@ require 'tmpdir'
 require 'open3'
 require 'yaml'
 
-# XXX: User proper synchronization.
 class TestBase < Test::Unit::TestCase
 
-  attr_accessor :started
-  
   TMP_DIR = File.join(Dir.tmpdir, "ruby-debug-ide", self.name)
   
   include Readers
@@ -24,6 +21,7 @@ class TestBase < Test::Unit::TestCase
     super(name)
     @started = false
     @socket = nil
+    @port = nil
     @parser = nil
     @fast_fail = nil
   end
@@ -82,8 +80,8 @@ class TestBase < Test::Unit::TestCase
   end
 
   def start_ruby_process(script)
-    check_free_socket
-    cmd = debug_command(script)
+    @port = TestBase.find_free_port
+    cmd = debug_command(script, @port)
     debug "Starting: #{cmd}\n"
     
     Thread.new do
@@ -108,16 +106,16 @@ class TestBase < Test::Unit::TestCase
   end
   
   def start_debugger
-    started = true
+    @started = true
   end
   
-  # Rather hack. Probably generates unique port for every test like in an IDE.
-  def check_free_socket
+  def TestBase.find_free_port(port = 1098)
     begin
-      TCPServer.new('127.0.0.1', 1098).close
+      TCPServer.new('127.0.0.1', port).close
+      return port
     rescue Errno::EADDRINUSE
-      @fast_fail = true
-      raise
+      # use another port
+      return find_free_port(port + 1)
     end
   end
 
@@ -147,7 +145,7 @@ class TestBase < Test::Unit::TestCase
       debug "Trying to connect to the debugger..."
       (config_load('server_start_up_timeout')*4).downto(1) do |i|
         begin
-          @socket = TCPSocket.new("127.0.0.1", 1098)
+          @socket = TCPSocket.new("127.0.0.1", @port)
           break
         rescue Errno::ECONNREFUSED
           debug '.'
@@ -195,7 +193,7 @@ class TestBase < Test::Unit::TestCase
   def run_to(filename, line_number)
     send_ruby("b #{filename}:#{line_number}")
     read_breakpoint_added
-    if started
+    if @started
       send_cont
     else
       start_debugger 
