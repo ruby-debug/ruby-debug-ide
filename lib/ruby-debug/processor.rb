@@ -22,6 +22,7 @@ module Debugger
       while input = @interface.read_command
         # escape % since print_debug might use printf
         @printer.print_debug "Processing: #{input.gsub('%', '%%')}"
+        # sleep 0.3
         catch(:debug_error) do
           if cmd = ctrl_cmds.find{|c| c.match(input) }
             cmd.execute
@@ -31,6 +32,8 @@ module Debugger
         end
       end
     rescue IOError, Errno::EPIPE
+      @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
+      @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
     rescue Exception
       @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
