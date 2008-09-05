@@ -147,7 +147,11 @@ module Debugger
     def print_contdition_set(bp_id)
       print "<conditionSet bp_id=\"%d\"/>", bp_id
     end
-    
+
+    def print_catchpoint_set(exception_class_name)
+      print "<catchpointSet exception=\"%s\"/>", exception_class_name
+    end
+
     def print_expressions(exps)
       print_element "expressions" do
         exps.each_with_index do |(exp, value), idx|

@@ -7,19 +7,19 @@ module Debugger
     end
 
     def execute
-      excn = @match[1]
-      unless excn
+      exception_class_name = @match[1]
+      unless exception_class_name
         errmsg "Exception class must be specified for 'catch' command"
       else
         binding = @state.context ? get_binding : TOPLEVEL_BINDING
-        unless debug_eval("#{excn}.is_a?(Class)", binding)
-          print_msg "Warning #{excn} is not known to be a Class"
+        unless debug_eval("#{exception_class_name}.is_a?(Class)", binding)
+          print_msg "Warning #{exception_class_name} is not known to be a Class"
         end
-        Debugger.add_catchpoint(excn)
-        print_msg "Set catchpoint %s.", excn
+        Debugger.add_catchpoint(exception_class_name)
+        print_catchpoint_set(exception_class_name)
       end
     end
-
+    
     class << self
       def help_command
         'catch'

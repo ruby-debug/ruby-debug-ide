@@ -22,7 +22,7 @@ class RDTestBase < TestBase
     cmd = "#{interpreter}"
     cmd << " --debug" if jruby?
     cmd << " -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" if jruby? and debug_jruby?
-    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide} _0.2.2_" +
+    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide} _0.3.0_" +
       (@verbose_server ? " -d" : "") + 
       " -p #{port} -- '#{script}'"
   end

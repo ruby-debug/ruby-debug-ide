@@ -10,7 +10,7 @@ class RDCatchpointTest < RDTestBase
     send_next
     assert_suspension(@test_path, 2, 1)
     send_ruby('catch ZeroDivisionError')
-    assert_message
+    assert_catchpoint_set('ZeroDivisionError')
     send_next
     assert_exception(@test_path, 2, 'ZeroDivisionError')
     send_next

@@ -10,6 +10,7 @@ module Readers
   BreakpointEnabled = Struct.new("BreakpointEnabled", :bp_id)
   BreakpointDisabled = Struct.new("BreakpointDisabled", :bp_id)
   ConditionSet = Struct.new("ConditionSet", :bp_id)
+  CatchpointSet = Struct.new("CatchpointSet", :exception)
   DebugError = Struct.new("Error", :text)
   ProcessingException = Struct.new("Exception", :type, :message)
   DebugMessage = Struct.new("Message", :text)
@@ -41,6 +42,10 @@ module Readers
 
   def read_condition_set
     (@condition_set_reader ||= ConditionSetReader.new(parser)).read
+  end
+
+  def read_catchpoint_set
+    (@catchpoint_set_reader ||= CatchpointSetReader.new(parser)).read
   end
 
   def read_suspension
@@ -180,6 +185,13 @@ module Readers
     def read
       data = read_element_data('conditionSet')
       ConditionSet.new(Integer(data['bp_id']))
+    end
+  end
+
+  class CatchpointSetReader < BaseReader
+    def read
+      data = read_element_data('catchpointSet')
+      CatchpointSet.new(data['exception'])
     end
   end
 

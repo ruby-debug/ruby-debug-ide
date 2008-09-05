@@ -208,8 +208,6 @@ Example:
 @node Catchpoint
 @subsection Exception Breakpoint
 
-@strong{TBD}: return valid answer
-
 Command: 
 
 @smallexample
@@ -219,14 +217,14 @@ Command:
 Answer:
 
 @smallexample
-  <message>Set catchpoint <exception_class_name>.</message>
+  <catchpointSet exception="<exception_class_name>"/>
 @end smallexample
 
 Example:
 
 @smallexample
   C: catch ZeroDivisionError
-  A: <message>Set catchpoint ZeroDivisionError.</message>
+  A: <catchpointSet exception="ZeroDivisionError"/>
 @end smallexample
 
 
@@ -366,9 +364,12 @@ Event example:
 @node Changes
 @chapter Changes
 
-@section Changes between 0.2.1 and 0.2.2
+@section Changes between 0.2.1 and 0.3.0
 
 @itemize @bullet
+@item @ref{Catchpoint} now answers with @t{<conditionSet>} instead of just
+   @t{<message>} providing better control at frontend side
+@item Dependency changed to @t{ruby-debug-base-0.10.2}
 @item Bugfixes (see ChangeLog)
 @end itemize
 

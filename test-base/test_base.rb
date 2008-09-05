@@ -249,6 +249,11 @@ class TestBase < Test::Unit::TestCase
     assert_equal(bp_id, condition_set.bp_id)
   end
 
+  def assert_catchpoint_set(exception_class_name)
+    catchpoint_set = read_catchpoint_set
+    assert_equal(exception_class_name, catchpoint_set.exception)
+  end
+
   def assert_exception(exp_file, exp_line, exp_type, exp_thread_id=1)
     exception = read_exception
     assert_equal(exp_file, exception.file)
