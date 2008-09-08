@@ -1,3 +1,50 @@
+2008-09-05 11:52  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, etc/build_and_install.sh,
+	  lib/ruby-debug.rb, lib/ruby-debug/commands/catchpoint.rb,
+	  lib/ruby-debug/xml_printer.rb, test-base/readers.rb,
+	  test-base/test_base.rb, test/rd_catchpoint_test.rb,
+	  test/rd_test_base.rb: Setting catchpoint now answers with
+	  <conditionSet> instead of just <message> providing better control
+	  at frontend side.
+	  Increasing version to 0.3.0 (incompatible protocol change)
+
+2008-09-03 14:14  Martin Krauskopf
+
+	* lib/ruby-debug/processor.rb: Do not swallow exceptions
+
+2008-09-02 18:24  Martin Krauskopf
+
+	* test-base/test_base.rb: Be sure socket is flushed during tests
+
+2008-09-02 13:55  Martin Krauskopf
+
+	* test-base/stepping_breakpoints_test.rb: ruby-debug-base fixes
+	  stepping behaviour. Re-enabling common tests again
+
+2008-09-02 13:54  Martin Krauskopf
+
+	* test-base/test_base.rb, test/rd_test_base.rb: Do not hardcode
+	  port for test server. Find always free one to prevent batch test
+	  fails.
+
+2008-09-02 13:49  Martin Krauskopf
+
+	* nbproject/project.properties, nbproject/project.xml: Tweaking
+	  NetBeans project metadata to include bin directory as a source
+	  root
+
+2008-09-02 13:48  Martin Krauskopf
+
+	* Rakefile: Switching trunk dependency on recently released
+	  ruby-debug-base 0.10.2
+
+2008-08-12 16:10  Martin Krauskopf
+
+	* ChangeLog, Rakefile, doc/protocol-spec.texi,
+	  etc/build_and_install.sh, lib/ruby-debug.rb: Switching trunk to
+	  0.2.2
+
 2008-08-12 16:00  Martin Krauskopf
 
 	* lib/ruby-debug/xml_printer.rb, test-base/variables_test.rb:
