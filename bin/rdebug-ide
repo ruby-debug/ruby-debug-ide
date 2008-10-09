@@ -11,7 +11,8 @@ options = OpenStruct.new(
   'host'        => nil,
   'port'        => 1234,
   'tracing'     => false,
-  'frame_bind'  => false
+  'frame_bind'  => false,
+  'load_mode'   => false
 )
 
 opts = OptionParser.new do |opts|
@@ -24,6 +25,7 @@ EOB
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
+  opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.is_debug = true
   end
@@ -71,5 +73,5 @@ trap('INT') { Debugger.interrupt_last }
 # set options
 Debugger.keep_frame_binding = options.frame_bind
 
-Debugger.main(options.host, options.port)
+Debugger.main(options.host, options.port, options.load_mode)
 
