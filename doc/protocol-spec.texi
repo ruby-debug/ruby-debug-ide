@@ -361,17 +361,30 @@ Event example:
   <exception file="/path/to/test.rb" line="2" type="ZeroDivisionError" message="divided by 0" threadId="1"/>
 @end smallexample
 
+
+@c Changes section
 @node Changes
 @chapter Changes
+
+
+@section Changes between 0.3.0 and 0.3.1
+
+@itemize @bullet
+@item Support for @emph{--load-mode} option. Hotfix, likely workaround, for
+  GlassFish debugging. Experimental, might be removed in the future. If option
+  is used, it calls @t{Debugger#debug_load with} @t{increment_start=true}
+@end itemize
+
 
 @section Changes between 0.2.1 and 0.3.0
 
 @itemize @bullet
 @item @ref{Catchpoint} now answers with @t{<conditionSet>} instead of just
-   @t{<message>} providing better control at frontend side
+  @t{<message>} providing better control at frontend side
 @item Dependency changed to @t{ruby-debug-base-0.10.2}
 @item Bugfixes (see ChangeLog)
 @end itemize
+
 
 @section Changes between 0.2.0 and 0.2.1
 
@@ -380,6 +393,7 @@ Event example:
 @url{http://ruby.netbeans.org/servlets/BrowseList?list=users&by=thread&from=861334,
 Debugger timing out} thread.
 @end itemize
+
 
 @section Changes between 0.1.10 and 0.2.0
 
