@@ -6,7 +6,7 @@
 echo "Installing"
 [ -d pkg ] && rm -r pkg
 rake package
-gem_command="gem install -l pkg/ruby-debug-ide-0.3.1.gem"
+gem_command="gem install -l pkg/ruby-debug-ide-0.4.0.gem"
 if [ "$1" = "-n" ]; then
   eval "$gem_command"
 else

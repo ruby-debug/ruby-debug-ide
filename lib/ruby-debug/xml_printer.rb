@@ -15,17 +15,21 @@ module Debugger
       xml_message = CGI.escapeHTML(msg % args)
       print "<message>#{xml_message}</message>"
     end
-    
+
+    # Sends debug message to the frontend if XML debug logging flag (--xml-debug) is on.
+    def print_debug(*args)
+      if Debugger.xml_debug
+        msg, *args = args
+        xml_message = CGI.escapeHTML(msg % args)
+        @interface.print("<message debug='true'>#{xml_message}</message>")
+      end
+    end
+
     def print_error(*args)
       print_element("error") do
         msg, *args = args
         print CGI.escapeHTML(msg % args)
       end
-    end
-    
-    # Convenient delegate to Debugger#print_debug
-    def print_debug(*args)
-      Debugger.print_debug(*args)
     end
     
     def print_frames(context, cur_idx)
@@ -251,7 +255,7 @@ module Debugger
     private
     
     def print(*params)
-      print_debug(*params)
+      Debugger::print_debug(*params)
       @interface.print(*params)
     end
     

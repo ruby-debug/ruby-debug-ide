@@ -12,14 +12,14 @@ module Debugger
   class << self
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
     def print_debug(*args)
-      if Debugger.is_debug
+      if Debugger.cli_debug
         $stderr.printf(*args)
         $stderr.printf("\n")
         $stderr.flush
       end
     end
   end
-  
+
   class Context
     def interrupt
       self.stop_next = 1
@@ -53,7 +53,8 @@ module Debugger
   end
   
   class << self
-    attr_accessor :event_processor, :is_debug
+    
+    attr_accessor :event_processor, :cli_debug, :xml_debug
     attr_reader :control_thread
     
     #
@@ -106,20 +107,25 @@ module Debugger
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
-        unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
-          host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
-        end
-        Debugger.print_debug("Waiting for connection on '#{host}:#{port}'")
-        $stderr.puts "Fast Debugger (ruby-debug-ide 0.3.1) listens on #{host}:#{port}"
-        server = TCPServer.new(host, port)
-        while (session = server.accept)
-          begin
-            interface = RemoteInterface.new(session)
-            @event_processor = EventProcessor.new(interface)
-            ControlCommandProcessor.new(interface).process_commands
-          rescue StandardError, ScriptError => ex
-            puts ex
+        begin
+          unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
+            host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
           end
+          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.0) listens on #{host}:#{port}\n"
+          server = TCPServer.new(host, port)
+          while (session = server.accept)
+            begin
+              interface = RemoteInterface.new(session)
+              @event_processor = EventProcessor.new(interface)
+              ControlCommandProcessor.new(interface).process_commands
+            rescue StandardError, ScriptError => ex
+              $stderr.printf "Exception in DebugThread loop: #{ex}\n"
+              exit 1
+            end
+          end
+        rescue
+          $stderr.printf "Exception in DebugThread: #$!\n"
+          exit 2
         end
       end
     end

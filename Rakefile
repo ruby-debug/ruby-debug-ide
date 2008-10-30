@@ -10,7 +10,7 @@ task :default => [:test]
 
 # ------- Default Package ----------
 RUBY_DEBUG_BASE="0.10.2"
-RUBY_DEBUG_IDE_VERSION = "0.3.1"
+RUBY_DEBUG_IDE_VERSION = "0.4.0"
 
 FILES = FileList[
   'bin/*',
@@ -53,7 +53,8 @@ end
 
 # Unit tests
 Rake::TestTask.new do |t|
-  t.libs << ["test", "test-base"]
+  t.libs << "test"
+  t.libs << "test-base"
   t.pattern = 'test/*_test.rb'
   t.verbose = true
   t.warning = false

@@ -27,7 +27,10 @@ EOB
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
-    Debugger.is_debug = true
+    Debugger.cli_debug = true
+  end
+  opts.on("--xml-debug", "Debug self - sends information <message>s for debugging ruby-debug itself") do
+    Debugger.xml_debug = true
   end
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
