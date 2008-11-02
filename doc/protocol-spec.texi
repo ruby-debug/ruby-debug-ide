@@ -333,6 +333,7 @@ Example:
 * Breakpoint::
 * Suspension::
 * Exception::
+* Message::
 @end menu
 
 @c Breakpoint
@@ -359,6 +360,16 @@ Event example:
 Event example:
 @smallexample
   <exception file="/path/to/test.rb" line="2" type="ZeroDivisionError" message="divided by 0" threadId="1"/>
+@end smallexample
+
+@c Message
+@node Message
+@subsection Message
+
+Event example:
+@smallexample
+  <message>some text</message>
+  <message debug='true'>some debug text</message>
 @end smallexample
 
 
