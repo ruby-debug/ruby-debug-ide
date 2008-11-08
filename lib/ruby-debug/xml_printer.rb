@@ -32,10 +32,10 @@ module Debugger
       end
     end
     
-    def print_frames(context, cur_idx)
+    def print_frames(context, current_frame_id)
       print_element("frames") do
-        (0...context.stack_size).each do |idx|
-          print_frame(context, idx, cur_idx)
+        (0...context.stack_size).each do |id|
+          print_frame(context, id, current_frame_id)
         end
       end
     end
@@ -44,10 +44,11 @@ module Debugger
       print_debug "Selected frame no #{frame_pos}"
     end
     
-    def print_frame(context, idx, cur_idx)
+    def print_frame(context, frame_id, current_frame_id)
       # idx + 1: one-based numbering as classic-debugger
-      print "<frame no=\"%s\" file=\"%s\" line=\"%s\" #{'current="true" ' if idx == cur_idx}/>",
-        idx + 1, context.frame_file(idx), context.frame_line(idx)
+      file = context.frame_file(frame_id)
+      print "<frame no=\'%s\' file=\'%s\' line=\'%s\' #{"current='true' " if frame_id == current_frame_id}/>",
+        frame_id + 1, File.expand_path(file), context.frame_line(frame_id)
     end
     
     def print_contexts(contexts)

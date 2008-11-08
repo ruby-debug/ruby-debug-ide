@@ -37,6 +37,43 @@ class XmlPrinterTest < Test::Unit::TestCase
     assert_equal(expected, interface.data)
   end
 
+  def test_print_frames
+    interface = MockInterface.new
+    printer = Debugger::XmlPrinter.new(interface)
+    Debugger.start
+    begin
+      context = MockContext.new(2)
+      printer.print_frames(context, 0)
+    ensure
+      Debugger.stop
+    end
+    test_path = File.join(Dir.pwd, 'test.rb')
+    expected = [ 
+        "<frames>",
+          "<frame no='1' file='#{test_path}' line='0' current='true' />",
+          "<frame no='2' file='#{test_path}' line='10' />",
+        "</frames>"]
+    assert_equal(expected, interface.data)
+  end
+
+  class MockContext < Debugger::Context
+
+    attr_accessor :stack_size
+
+    def initialize(stack_size)
+      @stack_size = stack_size
+    end
+
+    def frame_file(id)
+      "test.rb"
+    end
+
+    def frame_line(id)
+      id * 10
+    end
+
+  end
+
   class MockInterface
 
     attr_accessor :data
