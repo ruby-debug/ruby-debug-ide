@@ -221,8 +221,8 @@ module Debugger
     end
     
     def print_at_line(file, line)
-      print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\" frames=\"%d\"/>",
-      file, line, Debugger.current_context.thnum, Debugger.current_context.stack_size
+      print "<suspended file=\'%s\' line=\'%s\' threadId=\'%d\' frames=\'%d\'/>",
+        File.expand_path(file), line, Debugger.current_context.thnum, Debugger.current_context.stack_size
     end
     
     def print_exception(exception, binding)

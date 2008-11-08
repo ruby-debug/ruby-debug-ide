@@ -381,7 +381,7 @@ Event example:
 @section Changes between 0.4.0 and 0.4.1
 
 @itemize @bullet
-@item ensure frame file attribute contains absolute path
+@item ensure file attribute contains absolute path
 @end itemize
 
 

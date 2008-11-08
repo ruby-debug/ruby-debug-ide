@@ -48,11 +48,25 @@ class XmlPrinterTest < Test::Unit::TestCase
       Debugger.stop
     end
     test_path = File.join(Dir.pwd, 'test.rb')
-    expected = [ 
+    expected = [
         "<frames>",
           "<frame no='1' file='#{test_path}' line='0' current='true' />",
           "<frame no='2' file='#{test_path}' line='10' />",
         "</frames>"]
+    assert_equal(expected, interface.data)
+  end
+
+  def test_print_at_line
+    interface = MockInterface.new
+    printer = Debugger::XmlPrinter.new(interface)
+    Debugger.start
+    begin
+      printer.print_at_line('test.rb', 1)
+    ensure
+      Debugger.stop
+    end
+    test_path = File.join(Dir.pwd, 'test.rb')
+    expected = ["<suspended file='#{test_path}' line='1' threadId='1' frames='2'/>"]
     assert_equal(expected, interface.data)
   end
 
