@@ -77,12 +77,12 @@ module Debugger
       end
     end
     
-    def main(host, port, load_mode)
+    def debug_program(options)
       return if started?
       
       start
       
-      start_control(host, port)
+      start_control(options.host, options.port)
       
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
       
@@ -94,7 +94,7 @@ module Debugger
         @proceed.wait(@mutex)
       end
       
-      debug_load(Debugger::PROG_SCRIPT, false, load_mode)
+      debug_load(Debugger::PROG_SCRIPT, options.stop, options.load_mode)
     end
     
     def run_prog_script
