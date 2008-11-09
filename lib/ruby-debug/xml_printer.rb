@@ -18,6 +18,7 @@ module Debugger
 
     # Sends debug message to the frontend if XML debug logging flag (--xml-debug) is on.
     def print_debug(*args)
+      Debugger.print_debug(*args)
       if Debugger.xml_debug
         msg, *args = args
         xml_message = CGI.escapeHTML(msg % args)
@@ -40,7 +41,7 @@ module Debugger
       end
     end
     
-    def print_current_frame(context, frame_pos)
+    def print_current_frame(frame_pos)
       print_debug "Selected frame no #{frame_pos}"
     end
     
@@ -173,14 +174,13 @@ module Debugger
       print "<eval expression=\"%s\" value=\"%s\" />",  CGI.escapeHTML(exp), value
     end
     
-    def print_pp(exp, value)
+    def print_pp(value)
       print value
     end
     
     def print_list(b, e, file, line)
       print "[%d, %d] in %s\n", b, e, file
       if lines = Debugger.source_for(file)
-        n = 0
         b.upto(e) do |n|
           if n > 0 && lines[n-1]
             if n == line

@@ -1,5 +1,7 @@
 module Debugger
+
   module FrameFunctions # :nodoc:
+
     def adjust_frame(frame_pos, absolute)
       if absolute
         if frame_pos < 0
@@ -25,7 +27,7 @@ module Debugger
       @state.file = @state.context.frame_file(@state.frame_pos)
       @state.line = @state.context.frame_line(@state.frame_pos)
       
-      print_current_frame(@state.context, @state.frame_pos)
+      print_current_frame(@state.frame_pos)
     end
 
   end

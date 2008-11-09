@@ -46,7 +46,7 @@ module Debugger
       exp = @match.post_match
       out = StringIO.new
       PP.pp(debug_eval(exp), out) rescue out.puts $!.message
-      print_pp exp, out.string
+      print_pp out.string
     end
 
     class << self
