@@ -77,6 +77,7 @@ trap('INT') { Debugger.interrupt_last }
   
 # set options
 Debugger.keep_frame_binding = options.frame_bind
+Debugger.tracing = options.tracing
 
 Debugger.debug_program(options)
 

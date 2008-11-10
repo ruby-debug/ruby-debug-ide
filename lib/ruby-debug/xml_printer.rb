@@ -217,7 +217,9 @@ module Debugger
     end
     
     def print_trace(context, file, line)
-      print "<trace file=\"%s\" line=\"%s\" threadId=\"%d\" />", file, line, context.thnum
+      Debugger::print_debug "trace: location=\"%s:%s\", threadId=%d", file, line, context.thnum
+      # TBD: do we want to clog fronend with the <trace> elements? There are tons of them.
+      # print "<trace file=\"%s\" line=\"%s\" threadId=\"%d\" />", file, line, context.thnum
     end
     
     def print_at_line(file, line)

@@ -40,7 +40,11 @@ module Debugger
     end
     
     def at_tracing(file, line)
-      event_processor.at_tracing(self, file, line)
+      if event_processor
+        event_processor.at_tracing(self, file, line)
+      else
+        Debugger::print_debug "trace: location=\"%s:%s\", threadId=%d", file, line, self.thnum
+      end
     end
     
     def at_line(file, line)
