@@ -1,3 +1,74 @@
+2008-11-10 08:15  Martin Krauskopf
+
+	* bin/rdebug-ide, lib/ruby-debug.rb, lib/ruby-debug/xml_printer.rb:
+	  Making '-x' switch actually work. Commenting out sending <trace>
+	  elements to the debugger. To be decided. There are large amount
+	  of such events. For now servers rather for developers.
+
+2008-11-09 23:39  Martin Krauskopf
+
+	* bin/rdebug-ide, lib/ruby-debug.rb: --stop switch: stop at the
+	  first line when the script is loaded. Utilized by remote
+	  debugging.
+	  s/Debugger#main/Debugger#debug_program (similarly to ruby-debug)
+
+2008-11-09 00:28  Martin Krauskopf
+
+	* lib/ruby-debug/commands/eval.rb,
+	  lib/ruby-debug/commands/frame.rb, lib/ruby-debug/xml_printer.rb:
+	  Fixing CLI verbose when -d is used. Some usused code
+
+2008-11-08 18:43  Martin Krauskopf
+
+	* doc/protocol-spec.texi, lib/ruby-debug/xml_printer.rb,
+	  test/ruby-debug/xml_printer_test.rb: Ensure suspension's file
+	  attribute contains absolute path.
+
+2008-11-08 18:33  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, etc/build_and_install.sh,
+	  lib/ruby-debug.rb, lib/ruby-debug/xml_printer.rb,
+	  nbproject/project.properties, test/rd_test_base.rb,
+	  test/ruby-debug/xml_printer_test.rb: Ensure frame file attribute
+	  contains absolute path. Increasing trunk version to 0.4.1
+
+2008-11-02 11:19  Martin Krauskopf
+
+	* doc/protocol-spec.texi: noting <message> element/event
+
+2008-10-30 02:14  Martin Krauskopf
+
+	* Rakefile, bin/rdebug-ide, doc/protocol-spec.texi,
+	  etc/build_and_install.sh, lib/ruby-debug.rb,
+	  lib/ruby-debug/xml_printer.rb, test/rd_test_base.rb,
+	  test/ruby-debug, test/ruby-debug/xml_printer_test.rb: New
+	  --xml-debug switch. To be used by frontend to not mess up
+	  debuggee output with debugger's debug messages.
+	  
+	  - increasing version to 0.4.0 (new <message debug='true'...>
+	  attribute)
+	  - more robust failures handling in DebugThread
+	  - some XmlPrinterTest sanity tests
+
+2008-10-13 13:48  Martin Krauskopf
+
+	* doc/protocol-spec.texi: Mentioning 0.3.1 changes
+
+2008-10-09 06:48  Martin Krauskopf
+
+	* Rakefile, bin/rdebug-ide, etc/build_and_install.sh,
+	  lib/ruby-debug.rb, test/rd_test_base.rb: Support for
+	  '--load-mode' option. Hotfix, likely workaround, for GlassFish
+	  debugging. Experimental, might be removed in the future.
+	  
+	  If option is used, it calls Debugger#debug_load with
+	  increment_start=true
+	  Increasing version to 0.3.1
+
+2008-09-08 15:17  Martin Krauskopf
+
+	* ChangeLog: ChangeLog update before 0.3.0 release
+
 2008-09-05 11:52  Martin Krauskopf
 
 	* Rakefile, doc/protocol-spec.texi, etc/build_and_install.sh,

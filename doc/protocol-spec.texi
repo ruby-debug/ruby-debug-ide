@@ -377,11 +377,18 @@ Event example:
 @node Changes
 @chapter Changes
 
+Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 
 @section Changes between 0.4.0 and 0.4.1
 
 @itemize @bullet
-@item ensure file attribute contains absolute path
+@item '--stop' switch: stop at the first line when the script is loaded.
+  Utilized by remote debugging
+@item Making '-x' switch actually work. Commenting out sending of <trace>
+  elements to the debugger. To be decided. There are large amount of such
+  events. For now serves rather for ruby-debug-ide developers.
+@item ensure 'file' attribute contains absolute path
+@item fixing CLI verbose when -d is used. Some unused code
 @end itemize
 
 
