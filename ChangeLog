@@ -1,3 +1,7 @@
+2008-11-10 09:22  Martin Krauskopf
+
+	* ChangeLog, doc/protocol-spec.texi: Changes for 0.4.1
+
 2008-11-10 08:15  Martin Krauskopf
 
 	* bin/rdebug-ide, lib/ruby-debug.rb, lib/ruby-debug/xml_printer.rb:
