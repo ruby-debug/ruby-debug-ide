@@ -408,6 +408,14 @@ Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 @end itemize
 
 
+@section Changes between 0.3.1 and 0.3.2
+
+@itemize @bullet
+@item Dependency changed to @t{ruby-debug-base-0.10.3} which fixes various bugs
+  and contains bunch of RFEs
+@end itemize
+
+
 @section Changes between 0.3.0 and 0.3.1
 
 @itemize @bullet
