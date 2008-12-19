@@ -9,8 +9,8 @@ desc 'Default: run unit tests.'
 task :default => [:test]
 
 # ------- Default Package ----------
-RUBY_DEBUG_BASE="0.10.3"
-RUBY_DEBUG_IDE_VERSION = "0.4.2"
+RUBY_DEBUG_BASE_VERSION = "0.10.3"
+RUBY_DEBUG_IDE_VERSION = "0.4.3"
 
 FILES = FileList[
   'bin/*',
@@ -40,7 +40,7 @@ EOF
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
   spec.rubyforge_project = 'debug-commons'
-  spec.add_dependency('ruby-debug-base', RUBY_DEBUG_BASE)
+  spec.add_dependency('ruby-debug-base', "~> #{RUBY_DEBUG_BASE_VERSION}.0")
 
   # rdoc
   spec.has_rdoc = false
