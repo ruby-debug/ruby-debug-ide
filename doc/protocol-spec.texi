@@ -41,7 +41,7 @@ a frontend to the debugger engine and the second is the opposite way,
 might want to contact @url{http://bashdb.sourceforge.net/ruby-debug.html, the
 @value{RDEBUG_IDE} document}.
 
-@emph{answers} and @emph{events} are sent in XML format described in the specification @ref{Specification, bellow}.
+@emph{answers} and @emph{events} are sent in XML format described in the specification @ref{Specification, below}.
 
 @strong{Specification is far from complete.} Will be completed as time permits.
 In the meantime, source code is always the best spec.
