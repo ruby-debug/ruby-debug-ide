@@ -13,8 +13,14 @@ RUBY_DEBUG_BASE_VERSION = "0.10.3"
 RUBY_DEBUG_IDE_VERSION = "0.4.3"
 
 FILES = FileList[
+  'CHANGES',
+  'ChangeLog',
+  'ChangeLog.archive',
+  'MIT-LICENSE',
+  'Rakefile',
   'bin/*',
-  'lib/**/*'
+  'lib/**/*',
+  'test/**/*'
 ]
 
 ide_spec = Gem::Specification.new do |spec|
