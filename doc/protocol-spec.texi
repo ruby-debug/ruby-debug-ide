@@ -379,6 +379,19 @@ Event example:
 
 Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 
+@section Changes between 0.4.3 and 0.4.4
+
+@itemize @bullet
+@item bugfix: print out backtrace when debuggee fails
+@end itemize
+
+@section Changes between 0.4.2 and 0.4.3
+
+@itemize @bullet
+@item Dependency changed to @t{ruby-debug-base-0.10.3} which fixes various bugs
+  and contains bunch of RFEs
+@end itemize
+
 @section Changes between 0.4.1 and 0.4.2
 
 @itemize @bullet

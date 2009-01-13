@@ -98,7 +98,11 @@ module Debugger
         @proceed.wait(@mutex)
       end
       
-      debug_load(Debugger::PROG_SCRIPT, options.stop, options.load_mode)
+      bt = debug_load(Debugger::PROG_SCRIPT, options.stop, options.load_mode)
+      if bt
+        $stderr.print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+        $stderr.print "Uncaught exception: #{bt}\n"
+      end
     end
     
     def run_prog_script
@@ -115,7 +119,7 @@ module Debugger
           unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
             host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
           end
-          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.3) listens on #{host}:#{port}\n"
+          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.4) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
             begin
