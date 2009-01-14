@@ -388,8 +388,8 @@ Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 @section Changes between 0.4.2 and 0.4.3
 
 @itemize @bullet
-@item Dependency changed to @t{ruby-debug-base-0.10.3} which fixes various bugs
-  and contains bunch of RFEs
+@item depends on the "~> 0.10.3.x", rather then on 0.10.3 exactly to be
+  compatible with future ruby-debug-base 0.10.3.x releases
 @end itemize
 
 @section Changes between 0.4.1 and 0.4.2
@@ -418,6 +418,21 @@ Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 @item Support for @t{debug} attribute in @t{message} element. Emitted by
   backend when @t{--xml-debug} (new since 0.4.0) option is used.
 @item More robust failures handling in DebugThread
+@end itemize
+
+
+@section Changes between 0.3.3 and 0.3.4
+
+@itemize @bullet
+@item bugfix: print out backtrace when debuggee fails
+@end itemize
+
+
+@section Changes between 0.3.2 and 0.3.3
+
+@itemize @bullet
+@item depends on the "~> 0.10.3.x", rather then on 0.10.3 exactly to be
+  compatible with future ruby-debug-base 0.10.3.x releases
 @end itemize
 
 
