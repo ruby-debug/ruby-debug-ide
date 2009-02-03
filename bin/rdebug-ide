@@ -23,8 +23,8 @@ Usage: rdebug-ide is supposed to be called from RDT or NetBeans. The command lin
 EOB
   opts.separator ""
   opts.separator "Options:"
-  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
-  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
+  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}

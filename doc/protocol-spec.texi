@@ -379,6 +379,12 @@ Event example:
 
 Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 
+@section Changes between 0.4.4 and 0.4.5
+
+@itemize @bullet
+@item bugfix: syntax error with Ruby 1.9
+@end itemize
+
 @section Changes between 0.4.3 and 0.4.4
 
 @itemize @bullet
@@ -418,6 +424,13 @@ Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 @item Support for @t{debug} attribute in @t{message} element. Emitted by
   backend when @t{--xml-debug} (new since 0.4.0) option is used.
 @item More robust failures handling in DebugThread
+@end itemize
+
+
+@section Changes between 0.3.4 and 0.3.5
+
+@itemize @bullet
+@item bugfix: syntax error with Ruby 1.9
 @end itemize
 
 
