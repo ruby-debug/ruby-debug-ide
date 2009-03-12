@@ -119,7 +119,7 @@ module Debugger
           unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
             host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
           end
-          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.6) listens on #{host}:#{port}\n"
+          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.5) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
             begin

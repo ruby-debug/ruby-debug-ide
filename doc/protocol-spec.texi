@@ -379,15 +379,10 @@ Event example:
 
 Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 
-@section Changes between 0.4.5 and 0.4.6
-
-@itemize @bullet
-@item possibility to remove catchpoints
-@end itemize
-
 @section Changes between 0.4.4 and 0.4.5
 
 @itemize @bullet
+@item possibility to remove catchpoints
 @item bugfix: syntax error with Ruby 1.9
 @end itemize
 

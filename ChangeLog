@@ -1,3 +1,52 @@
+2009-03-12 11:31  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,
+	  lib/ruby-debug/commands/catchpoint.rb, test/rd_test_base.rb:
+	  Possibility to remove catchpoints (patch by Chris Williams)
+
+2009-02-03 09:34  Martin Krauskopf
+
+	* Rakefile, bin/rdebug-ide, doc/protocol-spec.texi,
+	  lib/ruby-debug.rb, test/rd_test_base.rb: 1) bugfix: syntax error
+	  with Ruby 1.9 (patch by Mikael Rudberg) 2) 0.4.5 territory
+
+2009-01-14 07:19  Martin Krauskopf
+
+	* doc/protocol-spec.texi: completeng missing changes
+
+2009-01-13 10:00  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,
+	  test/rd_test_base.rb: 1) bugfix: print out backtrace when
+	  debuggee fails. 2) version to 0.4.4
+
+2009-01-13 09:54  Martin Krauskopf
+
+	* Rakefile: Release appropriate files like license, tests, changes,
+	  ... withing the gem.
+
+2008-12-19 08:23  Martin Krauskopf
+
+	* Rakefile, lib/ruby-debug.rb, test/rd_test_base.rb: Depends on the
+	  "~> 0.10.3.x", rather then on 0.10.3 exactly. Increasing version
+	  to 0.4.3.
+
+2008-12-19 08:20  Martin Krauskopf
+
+	* doc/protocol-spec.texi: typo
+
+2008-11-24 12:59  Martin Krauskopf
+
+	* doc/protocol-spec.texi: Changes between 0.3.1 and 0.3.2
+
+2008-11-21 10:56  Martin Krauskopf
+
+	* ChangeLog, Rakefile, doc/protocol-spec.texi,
+	  etc/build_and_install.sh, lib/ruby-debug.rb,
+	  test/rd_test_base.rb: Dependency changed to
+	  ruby-debug-base-0.10.3 which fixes various bugs and contains
+	  bunch of RFEs
+
 2008-11-10 09:22  Martin Krauskopf
 
 	* ChangeLog, doc/protocol-spec.texi: Changes for 0.4.1
