@@ -1,3 +1,15 @@
+2009-05-21 18:01  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,
+	  test/rd_test_base.rb: Added Debugger::start_server (ticket
+	  #25972), patch by Tim Hanson
+
+2009-03-12 11:38  Martin Krauskopf
+
+	* ChangeLog, Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,
+	  test/rd_test_base.rb: Oops. 0.4.5 was not released yet, so it is
+	  the rigth version, not 0.4.6, reverting.
+
 2009-03-12 11:31  Martin Krauskopf
 
 	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,
