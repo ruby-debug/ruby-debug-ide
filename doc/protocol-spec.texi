@@ -62,7 +62,7 @@ Terms:
 @end itemize
 
 
-@c Commands 
+@c Commands
 @node Commands
 @section Commands
 
@@ -82,7 +82,7 @@ Terms:
 @node Adding Breakpoint
 @subsection Adding Breakpoint
 
-Command: 
+Command:
 
 @smallexample
   break <script>:<line_no>
@@ -106,7 +106,7 @@ Example:
 @node Deleting Breakpoint
 @subsection Deleting Breakpoint
 
-Command: 
+Command:
 
 @smallexample
   delete <breakpoint_id>
@@ -132,7 +132,7 @@ Example:
 
 Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
-Command: 
+Command:
 
 @smallexample
   enable <breakpoint_id>
@@ -158,7 +158,7 @@ Example:
 
 Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
-Command: 
+Command:
 
 @smallexample
   disable <breakpoint_id>
@@ -184,7 +184,7 @@ Example:
 
 Supported @emph{@strong{since}} @value{RDEBUG_IDE} @emph{@strong{0.2.0}}
 
-Command: 
+Command:
 
 @smallexample
   condition <script>:<line_no>
@@ -208,7 +208,7 @@ Example:
 @node Catchpoint
 @subsection Exception Breakpoint
 
-Command: 
+Command:
 
 @smallexample
   catch <exception_class_name>
@@ -232,7 +232,7 @@ Example:
 @node Threads
 @subsection Threads Listing
 
-Command: 
+Command:
 
 @smallexample
   thread list
@@ -262,7 +262,7 @@ Example:
 @node Frames
 @subsection Frames Listing
 
-Command: 
+Command:
 
 @smallexample
   where
@@ -378,6 +378,12 @@ Event example:
 @chapter Changes
 
 Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
+
+@section Changes between 0.4.5 and 0.4.6
+
+@itemize @bullet
+@item added Debugger::start_server (ticket #25972)
+@end itemize
 
 @section Changes between 0.4.4 and 0.4.5
 

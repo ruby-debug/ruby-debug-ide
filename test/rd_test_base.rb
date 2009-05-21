@@ -22,17 +22,17 @@ class RDTestBase < TestBase
     cmd = "#{interpreter}"
     cmd << " --debug" if jruby?
     cmd << " -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" if jruby? and debug_jruby?
-    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide} _0.4.5_" +
-      (@verbose_server ? " -d" : "") + 
+    cmd << " -I '#{File.dirname(script)}' #{@rdebug_ide} _0.4.6_" +
+      (@verbose_server ? " -d" : "") +
       " -p #{port} -- '#{script}'"
   end
 
   def start_debugger
     send_ruby("start")
   end
-  
+
   private
-  
+
   def find_rdebug_ide
     ENV['PATH'].split(File::PATH_SEPARATOR).each do |dir|
       rdebug_ide = File.join(dir, 'rdebug-ide')
@@ -40,5 +40,5 @@ class RDTestBase < TestBase
     end
     nil
   end
-  
+
 end

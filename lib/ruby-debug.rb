@@ -80,14 +80,16 @@ module Debugger
         context
       end
     end
-    
-    def debug_program(options)
+
+    def start_server(host = nil, port = 1234)
       return if started?
-      
       start
-      
-      start_control(options.host, options.port)
-      
+      start_control(host, port)
+    end
+
+    def debug_program(options)
+      start_server(options.host, options.port)
+
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
       
       @mutex = Mutex.new
@@ -106,6 +108,7 @@ module Debugger
     end
     
     def run_prog_script
+      return unless @mutex
       @mutex.synchronize do
         @proceed.signal
       end
@@ -119,7 +122,7 @@ module Debugger
           unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
             host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
           end
-          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.5) listens on #{host}:#{port}\n"
+          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.6) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
             begin
