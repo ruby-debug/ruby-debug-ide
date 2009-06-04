@@ -1,3 +1,7 @@
+2009-05-21 18:16  Martin Krauskopf
+
+	* ChangeLog: Changelog update
+
 2009-05-21 18:01  Martin Krauskopf
 
 	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug.rb,

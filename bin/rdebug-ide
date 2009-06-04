@@ -19,7 +19,8 @@ options = OpenStruct.new(
 opts = OptionParser.new do |opts|
   opts.banner = <<EOB
 Using ruby-debug-base #{Debugger::VERSION}
-Usage: rdebug-ide is supposed to be called from RDT or NetBeans. The command line interface to ruby-debug is rdebug.
+Usage: rdebug-ide is supposed to be called from RDT, NetBeans or RubyMine. The
+       command line interface to ruby-debug is rdebug.
 EOB
   opts.separator ""
   opts.separator "Options:"
