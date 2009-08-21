@@ -119,7 +119,8 @@ module Debugger
       return if @control_thread
       @control_thread = DebugThread.new do
         begin
-          unless RUBY_PLATFORM =~ /darwin/i # Mac OS X seems to have problem with 'localhost'
+          unless RUBY_PLATFORM =~ /darwin/i or # Mac OS X seems to have problem with 'localhost'
+                 RUBY_VERSION  =~ /1\.9\../    # Ruby 1.9.x seems to as well
             host ||= 'localhost' # nil does not seem to work for IPv6, localhost does
           end
           $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.7) listens on #{host}:#{port}\n"
