@@ -1,4 +1,9 @@
-require 'ruby-debug/helper'
+if RUBY_VERSION < "1.9"
+  require 'ruby-debug/helper'
+else
+  require_relative 'helper'
+end
+
 
 module Debugger
 
@@ -97,7 +102,9 @@ module Debugger
     # in ruby-debug.c
     def timeout(sec)
       return yield if sec == nil or sec.zero?
-      raise ThreadError, "timeout within critical session" if Thread.critical
+      if RUBY_VERSION < "1.9"
+        raise ThreadError, "timeout within critical session" if Thread.critical
+      end
       begin
         x = Thread.current
         y = DebugThread.start {
@@ -112,6 +119,7 @@ module Debugger
     
     def debug_eval(str, b = get_binding)
       begin
+        str = str.to_s
         max_time = 10
         to_inspect = str.gsub(/\\n/, "\n")
         @printer.print_debug("Evaluating with timeout after %i sec", max_time)
@@ -126,6 +134,7 @@ module Debugger
 
     def debug_silent_eval(str)
       begin
+        str = str.to_s
         eval(str, get_binding)
       rescue StandardError, ScriptError
         nil

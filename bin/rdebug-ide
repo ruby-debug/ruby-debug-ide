@@ -3,7 +3,11 @@
 require 'rubygems'
 require 'optparse'
 require "ostruct"
-require 'ruby-debug'
+if RUBY_VERSION < "1.9"
+  require 'ruby-debug'
+else
+  require_relative '../lib/ruby-debug'
+end
 
 $stdout.sync=true
 

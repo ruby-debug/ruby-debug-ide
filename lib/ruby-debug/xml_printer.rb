@@ -99,6 +99,7 @@ module Debugger
     end
     
     def print_variable(name, value, kind)
+      name = name.to_s
       unless value
         print("<variable name=\"%s\" kind=\"%s\"/>", CGI.escapeHTML(name), kind)
         return

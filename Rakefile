@@ -9,7 +9,6 @@ desc 'Default: run unit tests.'
 task :default => [:test]
 
 # ------- Default Package ----------
-RUBY_DEBUG_BASE_VERSION = "0.10.3"
 RUBY_DEBUG_IDE_VERSION = "0.4.7"
 
 FILES = FileList[
@@ -20,7 +19,8 @@ FILES = FileList[
   'Rakefile',
   'bin/*',
   'lib/**/*',
-  'test/**/*'
+  'test/**/*',
+  'ext/extconf.rb'
 ]
 
 ide_spec = Gem::Specification.new do |spec|
@@ -40,13 +40,12 @@ EOF
   spec.require_path = "lib"
   spec.bindir = "bin"
   spec.executables = ["rdebug-ide"]
-  spec.autorequire = "ruby-debug-base"
   spec.files = FILES.to_a
+  spec.extensions << "ext/extconf.rb"
 
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
   spec.rubyforge_project = 'debug-commons'
-  spec.add_dependency('ruby-debug-base', "~> #{RUBY_DEBUG_BASE_VERSION}.0")
 
   # rdoc
   spec.has_rdoc = false

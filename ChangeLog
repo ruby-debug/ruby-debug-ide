@@ -1,3 +1,26 @@
+2009-08-26 17:36  Martin Krauskopf
+
+	* lib/ruby-debug.rb: One more try for the right value for default
+	  'host' value.
+	  
+	  127.0.0.1 seemingly works with all systems and with IPv6 as well.
+	  "localhost" and nil on have problems on some systems.
+
+2009-08-21 08:43  Martin Krauskopf
+
+	* lib/ruby-debug.rb: Ruby 1.9.x vs Java vs 'localhost' seems to be
+	  problematic as well
+
+2009-06-04 16:02  Martin Krauskopf
+
+	* Rakefile, lib/ruby-debug.rb, test/rd_test_base.rb: Increasing
+	  trung version
+
+2009-06-04 15:59  Martin Krauskopf
+
+	* ChangeLog, bin/rdebug-ide: Mentioning RubyMine among
+	  ruby-debug-ide clients.
+
 2009-05-21 18:16  Martin Krauskopf
 
 	* ChangeLog: Changelog update

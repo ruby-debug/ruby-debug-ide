@@ -3,9 +3,15 @@ require 'stringio'
 require "socket"
 require 'thread'
 require 'ruby-debug-base'
-require 'ruby-debug/xml_printer'
-require 'ruby-debug/processor'
-require 'ruby-debug/event_processor'
+if RUBY_VERSION < "1.9"
+  require 'ruby-debug/xml_printer'
+  require 'ruby-debug/processor'
+  require 'ruby-debug/event_processor'
+else
+  require_relative 'ruby-debug/xml_printer'
+  require_relative 'ruby-debug/processor'
+  require_relative 'ruby-debug/event_processor'
+end
 
 module Debugger
   
