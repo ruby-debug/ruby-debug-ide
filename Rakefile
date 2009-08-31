@@ -9,7 +9,7 @@ desc 'Default: run unit tests.'
 task :default => [:test]
 
 # ------- Default Package ----------
-RUBY_DEBUG_IDE_VERSION = "0.4.7"
+RUBY_DEBUG_IDE_VERSION = "0.4.8"
 
 FILES = FileList[
   'CHANGES',
@@ -20,7 +20,7 @@ FILES = FileList[
   'bin/*',
   'lib/**/*',
   'test/**/*',
-  'ext/extconf.rb'
+  'ext/mkrf_conf.rb'
 ]
 
 ide_spec = Gem::Specification.new do |spec|
@@ -41,7 +41,8 @@ EOF
   spec.bindir = "bin"
   spec.executables = ["rdebug-ide"]
   spec.files = FILES.to_a
-  spec.extensions << "ext/extconf.rb"
+  spec.extensions << "ext/mkrf_conf.rb"
+  spec.add_dependency("rake", ">= 0.8.1")
 
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
