@@ -1,3 +1,28 @@
+2009-08-31 11:59  Martin Krauskopf
+
+	* Rakefile, bin/rdebug-ide, ext/extconf.rb, ext/mkrf_conf.rb,
+	  lib/ruby-debug-ide.rb, lib/ruby-debug.rb, test/rd_test_base.rb:
+	  1)fixed bug #27009, 2)rename to ruby-debug-ide.rb (both by Mark
+	  Moseley)
+	  
+	  - to not collide with lib/ruby-debug.rb from ruby-debug-cli
+
+2009-08-26 19:06  Martin Krauskopf
+
+	* ChangeLog, Rakefile, bin/rdebug-ide, ext, ext/extconf.rb,
+	  lib/ruby-debug.rb, lib/ruby-debug/command.rb,
+	  lib/ruby-debug/event_processor.rb, lib/ruby-debug/processor.rb,
+	  lib/ruby-debug/xml_printer.rb: Patch by Mark Moseley supporting
+	  ruby-debug-base19.
+	  
+	  Dynamically installs right ruby-debug-base dependency depending
+	  on the version
+	  of a Ruby platform being used. ruby-debug-base19 is the only
+	  solution these
+	  days for 1.9 debugging, so might be temporary solution until
+	  ruby-debug
+	  projects brings official version.
+
 2009-08-26 17:36  Martin Krauskopf
 
 	* lib/ruby-debug.rb: One more try for the right value for default
