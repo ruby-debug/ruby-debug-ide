@@ -1,3 +1,7 @@
+2009-08-31 12:00  Martin Krauskopf
+
+	* ChangeLog: ChangeLog update
+
 2009-08-31 11:59  Martin Krauskopf
 
 	* Rakefile, bin/rdebug-ide, ext/extconf.rb, ext/mkrf_conf.rb,

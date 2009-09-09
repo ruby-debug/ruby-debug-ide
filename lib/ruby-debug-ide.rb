@@ -125,7 +125,7 @@ module Debugger
       return if @control_thread
       @control_thread = DebugThread.new do
         begin
-          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.8) listens on #{host}:#{port}\n"
+          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.9) listens on #{host}:#{port}\n"
           # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
           # "localhost" and nil on have problems on some systems.
           host ||= '127.0.0.1'
