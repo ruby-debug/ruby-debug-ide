@@ -379,6 +379,12 @@ Event example:
 
 Mentions also related changes in the @value{RDEBUG_IDE} gem implementation.
 
+@section Changes between 0.4.9 and 0.4.10
+
+@itemize @bullet
+@item Fixes possible NoSuchMethodException
+@end itemize
+
 @section Changes between 0.4.5 and 0.4.6
 
 @itemize @bullet
