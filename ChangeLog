@@ -1,3 +1,19 @@
+2009-12-22 14:28  Martin Krauskopf
+
+	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug-ide.rb,
+	  test/rd_test_base.rb: Increasing version; updating changes
+
+2009-12-22 14:23  Martin Krauskopf
+
+	* lib/ruby-debug/commands/variables.rb: Fix for possible
+	  NoSuchMethodException (by Oleg Shpynov)
+
+2009-09-09 12:24  Martin Krauskopf
+
+	* ChangeLog, Rakefile, ext/mkrf_conf.rb, lib/ruby-debug-ide.rb,
+	  test/rd_test_base.rb: Do not try to install native extension for
+	  JRuby.
+
 2009-08-31 12:00  Martin Krauskopf
 
 	* ChangeLog: ChangeLog update
