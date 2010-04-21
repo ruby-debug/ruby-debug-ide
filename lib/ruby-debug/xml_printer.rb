@@ -100,7 +100,7 @@ module Debugger
     
     def print_variable(name, value, kind)
       name = name.to_s
-      unless value
+      unless value != nil
         print("<variable name=\"%s\" kind=\"%s\"/>", CGI.escapeHTML(name), kind)
         return
       end
