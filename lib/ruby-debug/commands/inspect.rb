@@ -15,7 +15,8 @@ module Debugger
     end
     #    
     def execute
-      obj = debug_eval(@match.post_match)
+      binding = @state.context ? get_binding : TOPLEVEL_BINDING
+      obj = debug_eval(@match.post_match, binding)
       InspectCommand.reference_result(obj)
       @printer.print_inspect(obj)
     end
