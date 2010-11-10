@@ -3,13 +3,14 @@ require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
+require 'lib/ruby-debug/version'
 require 'date'
 
 desc 'Default: run unit tests.'
 task :default => [:test]
 
 # ------- Default Package ----------
-RUBY_DEBUG_IDE_VERSION = "0.4.11"
+RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION
 
 FILES = FileList[
   'CHANGES',

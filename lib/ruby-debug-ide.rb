@@ -4,10 +4,12 @@ require "socket"
 require 'thread'
 require 'ruby-debug-base'
 if RUBY_VERSION < "1.9"
+  require 'ruby-debug/version'
   require 'ruby-debug/xml_printer'
   require 'ruby-debug/processor'
   require 'ruby-debug/event_processor'
 else
+  require_relative 'ruby-debug/version'
   require_relative 'ruby-debug/xml_printer'
   require_relative 'ruby-debug/processor'
   require_relative 'ruby-debug/event_processor'
@@ -125,7 +127,7 @@ module Debugger
       return if @control_thread
       @control_thread = DebugThread.new do
         begin
-          $stderr.printf "Fast Debugger (ruby-debug-ide 0.4.10) listens on #{host}:#{port}\n"
+          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, ruby-debug-base #{VERSION}) listens on #{host}:#{port}\n"
           # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
           # "localhost" and nil on have problems on some systems.
           host ||= '127.0.0.1'
