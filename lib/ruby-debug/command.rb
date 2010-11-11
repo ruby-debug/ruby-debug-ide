@@ -102,8 +102,8 @@ module Debugger
     # in ruby-debug.c
     def timeout(sec)
       return yield if sec == nil or sec.zero?
-      if RUBY_VERSION < "1.9"
-        raise ThreadError, "timeout within critical session" if Thread.critical
+      if Thread.respond_to?(:critical) and Thread.critical
+        raise ThreadError, "timeout within critical session"      
       end
       begin
         x = Thread.current
@@ -124,7 +124,11 @@ module Debugger
         to_inspect = str.gsub(/\\n/, "\n")
         @printer.print_debug("Evaluating with timeout after %i sec", max_time)
         timeout(max_time) do
-          eval(to_inspect, b)
+          if RUBY_VERSION < "1.9"
+            eval(to_inspect, b)
+          else
+            Debugger::without_stderr { eval(to_inspect, b) }
+          end
         end
       rescue StandardError, ScriptError => e
         @printer.print_exception(e, @state.binding) 

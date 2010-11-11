@@ -26,6 +26,20 @@ module Debugger
         $stderr.flush
       end
     end
+
+    def without_stderr
+      begin
+        if RUBY_PLATFORM =~ /(win32|mingw32)/
+          $stderr = File.open('NUL', 'w')
+        else
+          $stderr = File.open('/dev/null', 'w')
+        end
+        yield
+      ensure
+        $stderr = STDERR
+      end
+    end
+
   end
 
   class Context
@@ -127,10 +141,10 @@ module Debugger
       return if @control_thread
       @control_thread = DebugThread.new do
         begin
-          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, ruby-debug-base #{VERSION}) listens on #{host}:#{port}\n"
           # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
-          # "localhost" and nil on have problems on some systems.
+          # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
+          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, ruby-debug-base #{VERSION}) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
             begin

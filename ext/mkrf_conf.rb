@@ -12,9 +12,9 @@ unless jruby
   inst = Gem::DependencyInstaller.new
   begin
     if RUBY_VERSION < "1.9"
-      inst.install "ruby-debug-base", "~> 0.10.3"
+      inst.install "ruby-debug-base"
     else
-      inst.install "ruby-debug-base19", "~> 0.11.15" 
+      inst.install "ruby-debug-base19"
     end
     rescue
       exit(1)

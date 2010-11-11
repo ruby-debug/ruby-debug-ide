@@ -13,14 +13,14 @@ task :default => [:test]
 RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION
 
 FILES = FileList[
-  'CHANGES',
-  'ChangeLog',
-  'ChangeLog.archive',
+#  'CHANGES',
+#  'ChangeLog',
+#  'ChangeLog.archive',
   'MIT-LICENSE',
   'Rakefile',
   'bin/*',
   'lib/**/*',
-  'test/**/*',
+#  'test/**/*',
   'ext/mkrf_conf.rb'
 ]
 
@@ -30,13 +30,13 @@ ide_spec = Gem::Specification.new do |spec|
   spec.homepage = "http://rubyforge.org/projects/debug-commons/"
   spec.summary = "IDE interface for ruby-debug."
   spec.description = <<-EOF
-An interface which glues ruby-debug to IDEs like Eclipse (RDT) and NetBeans.
+An interface which glues ruby-debug to IDEs like Eclipse (RDT), NetBeans and RubyMine.
 EOF
 
   spec.version = RUBY_DEBUG_IDE_VERSION
 
-  spec.author = "Markus Barchfeld, Martin Krauskopf"
-  spec.email = "rubyeclipse-dev-list@sourceforge.net"
+  spec.author = "Markus Barchfeld, Martin Krauskopf, Mark Moseley, JetBrains RubyMine Team"
+  spec.email = "rubymine-feedback@jetbrains.com"
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.bindir = "bin"

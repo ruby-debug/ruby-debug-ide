@@ -32,12 +32,12 @@ end
      end
      
      def at_line(context, file, line)
-       @printer.print_at_line(file, line) if context.nil? || context.stop_reason == :step
+       @printer.print_at_line(context, file, line) if context.nil? || context.stop_reason == :step
        line_event(context, file, line)
      end
 
      def at_return(context, file, line)
-       @printer.print_at_line(file, line)
+       @printer.print_at_line(context, file, line)
        context.stop_frame = -1
        line_event(context, file, line)
      end

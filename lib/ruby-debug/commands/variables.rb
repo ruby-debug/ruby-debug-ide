@@ -34,9 +34,13 @@ module Debugger
     end
     
     def execute
-      # Avoid accessing deprecated global $= and its alias $IGNORECASE,
-      # as doing so triggers a spurious warning on JRuby.
-      print_variables(global_variables - ['$=', '$IGNORECASE'], 'global') do |var|
+      globals = []
+      if RUBY_VERSION < "1.9"
+        globals = global_variables - ['$=', '$IGNORECASE']
+      else
+        Debugger::without_stderr { globals = global_variables - [:$KCODE, :$=] }
+      end
+      print_variables(globals, 'global') do |var|
         debug_eval(var)
       end
     end
