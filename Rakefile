@@ -43,9 +43,6 @@ EOF
   spec.executables = ["rdebug-ide"]
   spec.files = FILES.to_a
 
-  spec.add_dependency('ruby_debug_base', '>=0.10.4') if RUBY_VERSION.include? "1.8"
-  spec.add_dependency('ruby_debug_base19', '>=0.12') if RUBY_VERSION.include? "1.9"
-
   spec.extensions << "ext/mkrf_conf.rb"
   spec.add_dependency("rake", ">= 0.8.1")
 
