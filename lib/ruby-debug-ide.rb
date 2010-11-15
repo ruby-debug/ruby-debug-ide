@@ -152,12 +152,14 @@ module Debugger
               @event_processor = EventProcessor.new(interface)
               ControlCommandProcessor.new(interface).process_commands
             rescue StandardError, ScriptError => ex
-              $stderr.printf "Exception in DebugThread loop: #{ex}\n"
+              bt = ex.backtrace
+              $stderr.printf "Exception in DebugThread loop: #{ex.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
               exit 1
             end
           end
         rescue
-          $stderr.printf "Exception in DebugThread: #$!\n"
+          bt = $!.backtrace
+          $stderr.printf "Fatal exception in DebugThread loop: #{$!.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
           exit 2
         end
       end
