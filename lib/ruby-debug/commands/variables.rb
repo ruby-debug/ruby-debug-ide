@@ -38,7 +38,7 @@ module Debugger
       if RUBY_VERSION < "1.9"
         globals = global_variables - ['$=', '$IGNORECASE']
       else
-        Debugger::without_stderr { globals = global_variables - [:$KCODE, :$=] }
+        Debugger::without_stderr { globals = global_variables - [:$KCODE, :$=, :$FILENAME] }
       end
       print_variables(globals, 'global') do |var|
         debug_eval(var)
