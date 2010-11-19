@@ -27,19 +27,6 @@ module Debugger
       end
     end
 
-    def without_stderr
-      begin
-        if RUBY_PLATFORM =~ /(win32|mingw32)/
-          $stderr = File.open('NUL', 'w')
-        else
-          $stderr = File.open('/dev/null', 'w')
-        end
-        yield
-      ensure
-        $stderr = STDERR
-      end
-    end
-
   end
 
   class Context

@@ -122,13 +122,9 @@ module Debugger
         str = str.to_s
         max_time = 10
         to_inspect = str.gsub(/\\n/, "\n")
-        @printer.print_debug("Evaluating with timeout after %i sec", max_time)
+        @printer.print_debug("Evaluating #{str} with timeout after %i sec", max_time)
         timeout(max_time) do
-          if RUBY_VERSION < "1.9"
-            eval(to_inspect, b)
-          else
-            Debugger::without_stderr { eval(to_inspect, b) }
-          end
+          eval(to_inspect, b)
         end
       rescue StandardError, ScriptError => e
         @printer.print_exception(e, @state.binding) 
