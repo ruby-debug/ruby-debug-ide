@@ -23,3 +23,5 @@ is_jruby: false
 # whether to run JRuby instance in debug mode
 debug_jruby: false
 
+# rdebug-ide script location
+rdebug_ide: bin/rdebug-ide
