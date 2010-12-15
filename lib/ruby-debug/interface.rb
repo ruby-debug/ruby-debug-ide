@@ -14,9 +14,11 @@ end
 module Debugger  
 
   class RemoteInterface # :nodoc:
+    attr_accessor :command_queue
 
     def initialize(socket)
       @socket = socket
+      @command_queue = []
     end
     
     def read_command

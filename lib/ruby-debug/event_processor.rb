@@ -11,6 +11,7 @@ end
     
      def initialize(interface)
        @printer = XmlPrinter.new(interface)
+       @interface = interface
        @line = nil
        @file = nil
        @last_breakpoint = nil
@@ -57,9 +58,7 @@ end
        raise "DebuggerThread are not supposed to be traced (#{context.thread})" if context.thread.is_a?(Debugger::DebugThread)
        @printer.print_debug("Stopping Thread %s", context.thread.to_s)
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
-       # will be resumed by commands like `step', `next', `continue', `finish'
-       # from `control thread'
-       Thread.stop
+       CommandProcessor.new(@interface).process_commands
        @printer.print_debug("Resumed Thread %s", context.thread.to_s)
        @line = nil
        @file = nil
