@@ -43,7 +43,7 @@ EOF
   spec.executables = ["rdebug-ide"]
   spec.files = FILES.to_a
 
-  spec.extensions << "ext/mkrf_conf.rb"
+  spec.extensions << "ext/mkrf_conf.rb" unless ENV['NO_EXT']
   spec.add_dependency("rake", ">= 0.8.1")
 
   spec.required_ruby_version = '>= 1.8.2'
