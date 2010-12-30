@@ -15,7 +15,7 @@ verbose_server: true
 server_start_up_timeout: 5
 
 # either should be on the $PATH or use full path
-interpreter: C:\ruby-1.8.7-mingw\bin\ruby
+interpreter: ruby
 
 # whether the interpreter is JRuby (XXX poll the interpreter for this info)
 is_jruby: false
