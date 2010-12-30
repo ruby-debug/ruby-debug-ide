@@ -4,6 +4,33 @@ require 'yaml'
 module Debugger
 
   class XmlPrinter # :nodoc:
+    class ExceptionProxy
+      instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^instance_variables$|^instance_eval$)/ }
+
+      def initialize(exception)
+        @exception = exception
+        @message = exception.message
+        @backtrace = cleanup_backtrace(exception.backtrace)
+      end
+
+      private 
+      def method_missing(called, *args, &block) 
+        @exception.__send__(called, *args, &block) 
+      end
+
+      def cleanup_backtrace(backtrace)
+        cleared = []
+        return cleared unless backtrace
+        backtrace.each do |line|
+          if line.index(File.expand_path(File.dirname(__FILE__))) == 0
+            break
+          end
+          cleared << line
+        end
+        cleared
+      end
+    end
+
     attr_accessor :interface
     
     def initialize(interface)
@@ -229,6 +256,10 @@ module Debugger
     end
     
     def print_exception(exception, binding)
+      print_variables(%w(error), 'exception') do |var|
+        ExceptionProxy.new(exception)
+      end
+    rescue
       print "<processingException type=\"%s\" message=\"%s\"/>", 
         exception.class, CGI.escapeHTML(exception.to_s)
     end
