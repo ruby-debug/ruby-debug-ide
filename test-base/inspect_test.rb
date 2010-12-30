@@ -42,7 +42,9 @@ module InspectTest
     create_socket ["puts 'test'", "puts 'test'"]
     run_to_line(2)
     send_ruby("v inspect a*2")
-    read_processing_exception
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one exception returned.")
+    assert_equal("10", variables[0].value, "Result is 10")
     send_cont
   end
 
@@ -50,7 +52,9 @@ module InspectTest
     create_socket ["sleep 0.1"]
     run_to_line(1)
     send_ruby('v inspect 1 {1 => "one", 2 => "two" {')
-    read_processing_exception
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one exception returned.")
+    assert_equal("10", variables[0].value, "Result is 10")
     send_cont
   end
 
