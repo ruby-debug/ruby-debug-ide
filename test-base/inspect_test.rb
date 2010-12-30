@@ -44,7 +44,7 @@ module InspectTest
     send_ruby("v inspect a*2")
     variables = read_variables
     assert_equal(1, variables.length, "There is one exception returned.")
-    assert_equal('undefined local variable or method `a\' for main:Object', variables[0].value, "Result is NameError")
+    assert_equal("undefined local variable or method \`a\' for main:Object", variables[0].value, "Result is NameError")
     send_cont
   end
 
@@ -54,7 +54,7 @@ module InspectTest
     send_ruby('v inspect 1 {1 => "one", 2 => "two" {')
     variables = read_variables
     assert_equal(1, variables.length, "There is one exception returned.")
-    assert_equal('undefined local variable or method `a\' for main:Object', variables[0].value, "Result is NameError")
+    assert_equal("undefined local variable or method \`a\' for main:Object", variables[0].value, "Result is NameError")
     send_cont
   end
 
