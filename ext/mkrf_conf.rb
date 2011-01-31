@@ -9,12 +9,12 @@ unless jruby
     rescue NoMethodError
   end
 
-  inst = Gem::DependencyInstaller.new
+  inst = Gem::DependencyInstaller.new(:prerelease => true)
   begin
     if RUBY_VERSION < "1.9"
       inst.install "ruby-debug-base", '>=0.10.4'
     else
-      inst.install "ruby-debug-base19", '>=0.11.24'
+      inst.install "ruby-debug-base19x", '>=0.11.24'
     end
     rescue
       exit(1)
