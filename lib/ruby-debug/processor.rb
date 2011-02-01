@@ -7,10 +7,8 @@ else
 end
 
 module Debugger
-  # this class is added to resolve problems, with ruby-debug gem incompatibility see
-  # http://rubyforge.org/tracker/index.php?func=detail&aid=27055&group_id=3085&atid=11903
   class CommandProcessor
-    def initialize(interface)
+    def initialize(interface = nil)
       @interface = interface
       @printer = XmlPrinter.new(@interface)
     end

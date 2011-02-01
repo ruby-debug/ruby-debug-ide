@@ -12,8 +12,10 @@ class TCPSocket
 end
 
 module Debugger  
+  class Interface
+  end
 
-  class RemoteInterface # :nodoc:
+  class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
 
     def initialize(socket)
