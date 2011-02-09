@@ -91,10 +91,10 @@ module Debugger
       
       while input = @interface.read_command
         # escape % since print_debug might use printf
-        @printer.print_debug "Processing in control: #{input.gsub('%', '%%')}"
         # sleep 0.3
         catch(:debug_error) do
           if cmd = ctrl_cmds.find{|c| c.match(input) }
+            @printer.print_debug "Processing in control: #{input.gsub('%', '%%')}"
             cmd.execute
           else
             @interface.command_queue << input
