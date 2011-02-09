@@ -1,5 +1,6 @@
 require 'cgi'
 require 'yaml'
+require 'monitor'
 
 module Debugger
 
@@ -31,6 +32,20 @@ module Debugger
       end
     end
 
+    def self.protect(mname)
+      return if instance_methods.include?("__#{mname}")
+      alias_method "__#{mname}", mname
+      class_eval %{
+        def #{mname}(*args, &block)
+          @@monitor.synchronize do
+            return unless @interface
+            __#{mname}(*args, &block)
+          end
+        end
+      }
+    end    
+
+    @@monitor = Monitor.new
     attr_accessor :interface
     
     def initialize(interface)
@@ -292,6 +307,12 @@ module Debugger
     def print(*params)
       Debugger::print_debug(*params)
       @interface.print(*params)
+    end
+
+    instance_methods.each do |m|
+      if m.index('print_') == 0
+        protect m
+      end
     end
     
   end
