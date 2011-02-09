@@ -310,7 +310,7 @@ module Debugger
     end
 
     instance_methods.each do |m|
-      if m.index('print_') == 0
+      if m.to_s.index('print_') == 0
         protect m
       end
     end
