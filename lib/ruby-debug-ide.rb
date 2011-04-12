@@ -137,7 +137,7 @@ module Debugger
             begin
               interface = RemoteInterface.new(session)
               @event_processor = EventProcessor.new(interface)
-              ControlCommandProcessor.new(interface).process_commands
+              IdeControlCommandProcessor.new(interface).process_commands
             rescue StandardError, ScriptError => ex
               bt = ex.backtrace
               $stderr.printf "Exception in DebugThread loop: #{ex.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"

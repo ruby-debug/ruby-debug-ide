@@ -7,7 +7,7 @@ else
 end
 
 module Debugger
-  class CommandProcessor
+  class IdeCommandProcessor
     def initialize(interface = nil)
       @interface = interface
       @printer = XmlPrinter.new(@interface)
@@ -82,7 +82,7 @@ module Debugger
     end    
   end
     
-  class ControlCommandProcessor < CommandProcessor# :nodoc:
+  class IdeControlCommandProcessor < IdeCommandProcessor# :nodoc:
     def process_commands
       @printer.print_debug("Starting control thread")
       ctrl_cmd_classes = Command.commands.select{|cmd| cmd.control}
