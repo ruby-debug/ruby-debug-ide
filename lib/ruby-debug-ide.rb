@@ -110,7 +110,7 @@ module Debugger
       end
       
       bt = debug_load(Debugger::PROG_SCRIPT, options.stop, options.load_mode)
-      if bt
+      if bt && !bt.is_a?(SystemExit)
         $stderr.print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
         $stderr.print "Uncaught exception: #{bt}\n"
       end
