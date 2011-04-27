@@ -6,12 +6,12 @@ require 'ruby-debug-base'
 if RUBY_VERSION < "1.9"
   require 'ruby-debug/version'
   require 'ruby-debug/xml_printer'
-  require 'ruby-debug/processor'
+  require 'ruby-debug/ide_processor'
   require 'ruby-debug/event_processor'
 else
   require_relative 'ruby-debug/version'
   require_relative 'ruby-debug/xml_printer'
-  require_relative 'ruby-debug/processor'
+  require_relative 'ruby-debug/ide_processor'
   require_relative 'ruby-debug/event_processor'
 end
 
