@@ -15,6 +15,10 @@ module Debugger
   class Interface
   end
 
+  class LocalInterface < Interface
+  end
+
+
   class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
 
