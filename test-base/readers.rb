@@ -236,8 +236,8 @@ module Readers
           check_event(:start_element, 'variable', event)
           ensure_end_element('variable')
           variables << Variable.new(*Variable.members.map { |m|
-            value = event[1][m]
-            m == 'hasChildren' ? value == "true" : value
+            value = event[1][m.to_s]
+            m.to_s == 'hasChildren' ? value == "true" : value
           })
         when :end_element
           check_event(:end_element, 'variables', event)
