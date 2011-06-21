@@ -9,3 +9,7 @@ group :development do
   gem "bundler", "~> 1.0.0"
 end
 
+group :test do
+  gem "test-unit"
+end
+
