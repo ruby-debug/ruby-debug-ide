@@ -111,8 +111,8 @@ class TestBase < Test::Unit::TestCase
       else
         status = wait_thr.value
       end
-      fail "ERROR: \"#{process}\" failed with exitstatus=#{status.exitstatus}" unless status.success?
       @process_finished = true
+      fail "ERROR: \"#{process}\" failed with exitstatus=#{status.exitstatus}" unless status.success?
     end
     
   end
