@@ -17,9 +17,6 @@ server_start_up_timeout: 5
 # either should be on the $PATH or use full path
 interpreter: ruby
 
-# whether the interpreter is JRuby (XXX poll the interpreter for this info)
-is_jruby: false
-
 # whether to run JRuby instance in debug mode
 debug_jruby: false
 

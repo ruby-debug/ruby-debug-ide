@@ -75,7 +75,7 @@ class TestBase < Test::Unit::TestCase
   end
   
   def jruby?
-    config_load('is_jruby')
+    defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   end
 
   def debug_jruby?
