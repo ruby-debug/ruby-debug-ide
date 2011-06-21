@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/lib/ruby-debug/version'
 require "rake"
+require "date"
 
 # ------- Default Package ----------
 RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION
