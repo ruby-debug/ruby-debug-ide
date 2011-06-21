@@ -6,10 +6,10 @@
 #rdebug_ide: /path/to/rubygems/gemrepo/bin/rdebug-ide
 
 # verbose output from test
-debug: true
+debug: false
 
 # verbose output from the backend
-verbose_server: true
+verbose_server: false
 
 # timeout for the server to start up (in seconds)
 server_start_up_timeout: 5
