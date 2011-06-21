@@ -91,6 +91,7 @@ module VariablesTest
     send_ruby("frame 1; v local")
     variables = read_variables
     assert_variables(variables, 2)
+    assert_not_nil variables[1].objectId
     send_ruby("v i " + variables[1].objectId) # 'user' variable
     assert_variables(read_variables, 1,
       {:name => "@id", :value => "22", :type => "Fixnum", :hasChildren => false})
