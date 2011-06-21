@@ -28,6 +28,7 @@ class RDTestBase < TestBase
   end
 
   def start_debugger
+    super()
     send_ruby("start")
   end
 

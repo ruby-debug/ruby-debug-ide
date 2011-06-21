@@ -53,6 +53,9 @@ class TestBase < Test::Unit::TestCase
   
   def teardown
     unless @fast_fail # much faster fail
+      if (not passed?)
+        send_ruby("cont")
+      end
       debug "Waiting for the server process to finish..."
       (config_load('server_start_up_timeout')*4).times do
         unless @process_finished
@@ -85,7 +88,11 @@ class TestBase < Test::Unit::TestCase
     debug "Starting: #{cmd}\n"
     
     Thread.new do
-      (_, p_out, p_err) = Open3.popen3(cmd)
+      if RUBY_VERSION < '1.9'
+        (_, p_out, p_err) = Open3.popen3(cmd)
+      else
+        (_, p_out, p_err, wait_thr) = Open3.popen3(cmd)
+      end
       @process_finished = false
       out_t = Thread.new do
         p_out.each do |line|
@@ -97,9 +104,14 @@ class TestBase < Test::Unit::TestCase
           $stdout.printf("SERVER ERR: " + line) if @verbose_server
         end
       end
-      out_t.join
-      err_t.join
-      fail "ERROR: \"#{process}\" failed with exitstatus=#{$?.exitstatus}" unless $?.success?
+      if RUBY_VERSION < '1.9'
+        out_t.join
+        err_t.join
+        status = $?
+      else
+        status = wait_thr.value
+      end
+      fail "ERROR: \"#{process}\" failed with exitstatus=#{status.exitstatus}" unless status.success?
       @process_finished = true
     end
     
