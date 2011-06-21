@@ -3,7 +3,7 @@ require "rake"
 require "date"
 
 # ------- Default Package ----------
-RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION
+RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION unless defined? RUBY_DEBUG_IDE_VERSION
 
 FILES = Rake::FileList[
   'CHANGES',
@@ -15,7 +15,7 @@ FILES = Rake::FileList[
   'lib/**/*',
 #  'test/**/*',
   'ext/mkrf_conf.rb'
-]
+] unless defined? FILES
 
 Gem::Specification.new do |spec|
   spec.name = "ruby-debug-ide"
