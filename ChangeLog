@@ -1,3 +1,20 @@
+Dennis Ushakov <dennis.ushakov@gmail.com>
+  * run context commands on stopped thread to prevent segfaults (3c1b52d5091fccec447d5695d5b43e73f335cc54)
+  * enable building without deps (9b597f8ce2b97ed40bb57e55ad178cf8ce270fa9)
+  * improved error handling (220d78b8e2be52f8a3b21f34c6c88283b22440d4)
+  * show full exception info when failed to evaluate expression (8f4ec5f16dd659e0cada7ff2a218e8768ff87b35)
+  * fix config (8440dc7bb51c934f99887ff43cdf805a16664159)
+  * edited dependency for 1.9, allow prerelease (14ffae2dd364ad445377b358870c35eabdf9567c)
+  * fix incompatibilities with command-line debug (474d3607222a0c9fc78917e7b38051d37b11b75a)
+  * fix installation issues with prerelease base gem versions (12fc83ce1f389c1feaaa3899dd716b670909687a)
+  * added synchronization between command processors threads (175f2ef890d23d490e04265949853b4202db1860)
+  * fixed debug output (0e9dd25a8cdde9195ef2060678fc6272270762f8)
+  * fix 1.9 support (725f14095c67c02be8b4f9b8ef2706de70cfa220)
+  * just a version bump, because i forgot to push fix for 1.9 (be7c60c446c293d522958fd9c6136dc21ece6dba)
+  * fix incompatibilities with command-line debug (37c98589bf1b8d43521bfa71fa75a587130c8494)
+  * fix incompatibilities with command-line debug (749ba472d5bd44c1488a7a310fa51712426ab972)
+  * fix incompatibilities with command-line debug, one more round (fa3b98788250d028ecac9db3828b14b6df307042)
+
 2009-12-22 14:28  Martin Krauskopf
 
 	* Rakefile, doc/protocol-spec.texi, lib/ruby-debug-ide.rb,
