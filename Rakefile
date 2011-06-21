@@ -3,7 +3,11 @@ require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
-require 'lib/ruby-debug/version'
+if RUBY_VERSION < "1.9"
+  require 'lib/ruby-debug/version'
+else
+  require_relative 'lib/ruby-debug/version'
+end
 require 'date'
 
 desc 'Default: run unit tests.'
@@ -13,9 +17,9 @@ task :default => [:test]
 RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION
 
 FILES = FileList[
-#  'CHANGES',
-#  'ChangeLog',
-#  'ChangeLog.archive',
+  'CHANGES',
+  'ChangeLog',
+  'ChangeLog.archive',
   'MIT-LICENSE',
   'Rakefile',
   'bin/*',
@@ -69,44 +73,30 @@ Rake::TestTask.new do |t|
 end
 
 
-desc "Create a GNU-style ChangeLog via svn2cl"
-task :ChangeLog do
-  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/debug-commons/ruby-debug-ide/trunk -o ChangeLog")
-end
+desc "Create a ChangeLog"
+# simple rake task to output a changelog between two commits, tags ...
+# output is formatted simply, commits are grouped under each author name
+desc "generate changelog with nice clean output"
+task :changelog, :since_c, :until_c do |t,args|
+  since_c = args[:since_c] || `git tag | head -1`.chomp
+  until_c = args[:until_c]
+  cmd=`git log --pretty='format:%ci::%an <%ae>::%s::%H' #{since_c}..#{until_c}`
 
-#desc "Publish ruby-debug to RubyForge."
-#task :publish do
-#  require 'rake/contrib/sshpublisher'
-#
-#  # Get ruby-debug path
-#  ruby_debug_path = File.expand_path(File.dirname(__FILE__))
-#
-#  publisher = Rake::SshDirPublisher.new("kent@rubyforge.org",
-#        "/var/www/gforge-projects/ruby-debug", ruby_debug_path)
-#end
-#
-#desc "Clear temp files"
-#task :clean do
-#  cd "ext" do
-#    if File.exists?("Makefile")
-#      sh "make clean"
-#      rm "Makefile"
-#    end
-#  end
-#end
-#
-## ---------  RDoc Documentation ------
-#desc "Generate rdoc documentation"
-#Rake::RDocTask.new("rdoc") do |rdoc|
-#  rdoc.rdoc_dir = 'doc'
-#  rdoc.title    = "ruby-debug"
-#  # Show source inline with line numbers
-#  rdoc.options << "--inline-source" << "--line-numbers"
-#  # Make the readme file the start page for the generated html
-#  rdoc.options << '--main' << 'README'
-#  rdoc.rdoc_files.include('bin/**/*',
-#                          'lib/**/*.rb',
-#                          'ext/**/ruby_debug.c',
-#                          'README',
-#                          'LICENSE')
-#end
+  entries = Hash.new
+  changelog_content = String.new
+
+  cmd.split("\n").each do |entry|
+    date, author, subject, hash = entry.chomp.split("::")
+    entries[author] = Array.new unless entries[author]
+    day = date.split(" ").first
+    entries[author] << "#{subject} (#{hash})" unless subject =~ /Merge/
+  end
+
+  # generate clean output
+  entries.keys.each do |author|
+    changelog_content += author + "\n"
+    entries[author].reverse.each { |entry| changelog_content += "  * #{entry}\n" }
+  end
+
+  puts changelog_content
+end
