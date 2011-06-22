@@ -64,7 +64,7 @@ class XmlPrinterTest < Test::Unit::TestCase
       Debugger.stop
     end
     test_path = File.join(Dir.pwd, 'test.rb')
-    expected = ["<suspended file='#{test_path}' line='1' threadId='1' frames='5'/>"]
+    expected = ["<suspended file='#{test_path}' line='1' threadId='1' frames='#{RUBY_VERSION < '1.9' ? 4 : 5}'/>"]
     assert_equal(expected, interface.data)
   end
 
