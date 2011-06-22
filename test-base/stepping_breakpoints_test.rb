@@ -84,7 +84,7 @@ module SteppingAndBreakpointsTest
     assert_test_breakpoint(2)
     send_next
     assert_suspension(@test_path, 3, 1)
-    send_next
+    send_cont
   end
 
   def test_step_over_frames
@@ -94,7 +94,7 @@ module SteppingAndBreakpointsTest
     assert_breakpoint_added_no(1)
     start_debugger
     assert_test_breakpoint(3)
-    send_next
+    send_cont
   end
 
   def test_step_over_frames_value2
@@ -103,7 +103,7 @@ module SteppingAndBreakpointsTest
     run_to("test2.rb", 3)
     send_next
     assert_suspension(@test2_path, 4, 2)
-    send_next
+    send_cont
   end
 
   def test_step_over_in_different_frame
