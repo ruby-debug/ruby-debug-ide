@@ -1,7 +1,5 @@
-$:.unshift File.join(File.dirname(__FILE__),'..','lib')
-
 require 'test/unit'
-require 'ruby-debug'
+require 'ruby-debug-ide'
 
 class XmlPrinterTest < Test::Unit::TestCase
 
@@ -61,12 +59,12 @@ class XmlPrinterTest < Test::Unit::TestCase
     printer = Debugger::XmlPrinter.new(interface)
     Debugger.start
     begin
-      printer.print_at_line('test.rb', 1)
+      printer.print_at_line(Debugger.current_context,'test.rb', 1)
     ensure
       Debugger.stop
     end
     test_path = File.join(Dir.pwd, 'test.rb')
-    expected = ["<suspended file='#{test_path}' line='1' threadId='1' frames='2'/>"]
+    expected = ["<suspended file='#{test_path}' line='1' threadId='1' frames='5'/>"]
     assert_equal(expected, interface.data)
   end
 
