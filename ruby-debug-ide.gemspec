@@ -20,7 +20,7 @@ end
 Gem::Specification.new do |spec|
   spec.name = "ruby-debug-ide"
 
-  spec.homepage = "https://github.com/denofevil/ruby-debug-ide"
+  spec.homepage = "https://github.com/JetBrains/ruby-debug-ide"
   spec.summary = "IDE interface for ruby-debug."
   spec.description = <<-EOF
 An interface which glues ruby-debug to IDEs like Eclipse (RDT), NetBeans and RubyMine.
