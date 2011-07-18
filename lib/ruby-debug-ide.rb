@@ -109,7 +109,7 @@ module Debugger
         @proceed.wait(@mutex)
       end
       
-      abs_prog_script = File.absolute_path(Debugger::PROG_SCRIPT)
+      abs_prog_script = File.expand_path(Debugger::PROG_SCRIPT)
       bt = debug_load(abs_prog_script, options.stop, options.load_mode)
       if bt && !bt.is_a?(SystemExit)
         $stderr.print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
