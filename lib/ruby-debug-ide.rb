@@ -26,7 +26,18 @@ module Debugger
         $stderr.flush
       end
     end
-
+    
+    def cleanup_backtrace(backtrace)
+       cleared = []
+       return cleared unless backtrace
+       backtrace.each do |line|
+         if line.index(File.expand_path(File.dirname(__FILE__))) == 0
+           break
+         end
+         cleared << line
+       end
+       cleared
+    end
   end
 
   class Context
@@ -112,8 +123,8 @@ module Debugger
       abs_prog_script = File.expand_path(Debugger::PROG_SCRIPT)
       bt = debug_load(abs_prog_script, options.stop, options.load_mode)
       if bt && !bt.is_a?(SystemExit)
-        $stderr.print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
         $stderr.print "Uncaught exception: #{bt}\n"
+        $stderr.print Debugger.cleanup_backtrace(bt.backtrace).map{|l| "\t#{l}"}.join("\n"), "\n"
       end
     end
     

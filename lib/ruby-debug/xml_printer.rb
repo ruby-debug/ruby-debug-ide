@@ -11,24 +11,12 @@ module Debugger
       def initialize(exception)
         @exception = exception
         @message = exception.message
-        @backtrace = cleanup_backtrace(exception.backtrace)
+        @backtrace = Debugger.cleanup_backtrace(exception.backtrace)
       end
 
       private 
       def method_missing(called, *args, &block) 
         @exception.__send__(called, *args, &block) 
-      end
-
-      def cleanup_backtrace(backtrace)
-        cleared = []
-        return cleared unless backtrace
-        backtrace.each do |line|
-          if line.index(File.expand_path(File.dirname(__FILE__))) == 0
-            break
-          end
-          cleared << line
-        end
-        cleared
       end
     end
 
