@@ -59,6 +59,7 @@ end
        @printer.print_debug("Stopping Thread %s", context.thread.to_s)
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
        IdeCommandProcessor.new(@interface).process_commands
+       InspectCommand.clear_references
        @printer.print_debug("Resumed Thread %s", context.thread.to_s)
        @line = nil
        @file = nil
