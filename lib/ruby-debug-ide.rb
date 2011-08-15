@@ -31,7 +31,10 @@ module Debugger
        cleared = []
        return cleared unless backtrace
        backtrace.each do |line|
-         if line.index(File.expand_path(File.dirname(__FILE__))) == 0
+         if line.index(File.expand_path(File.dirname(__FILE__) + "/..")) == 0
+           next
+         end
+         if line.index("-e:1") == 0
            break
          end
          cleared << line
