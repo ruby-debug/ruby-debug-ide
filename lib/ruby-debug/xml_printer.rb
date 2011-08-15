@@ -260,7 +260,9 @@ module Debugger
     
     def print_exception(exception, binding)
       print_variables(%w(error), 'exception') do |var|
-        ExceptionProxy.new(exception)
+        proxy = ExceptionProxy.new(exception)
+        InspectCommand.reference_result(proxy)
+        proxy
       end
     rescue
       print "<processingException type=\"%s\" message=\"%s\"/>", 
