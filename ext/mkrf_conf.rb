@@ -16,8 +16,9 @@ unless jruby
     dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.24')
   end
 
-  inst = Gem::DependencyInstaller.new
   begin
+    puts "Installing base gem"
+    inst = Gem::DependencyInstaller.new    
     inst.install dep
   rescue
     inst = Gem::DependencyInstaller.new(:prerelease => true)
@@ -28,7 +29,7 @@ unless jruby
       puts e.backtrace.join "\n  "
       exit(1)
     end
-  end
+  end unless Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep)
 end
 
 # create dummy rakefile to indicate success
