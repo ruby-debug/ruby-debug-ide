@@ -11,6 +11,7 @@ unless defined? FILES
   'MIT-LICENSE',
   'Rakefile',
   'ext/mkrf_conf.rb',
+  'Gemfile',
   'ruby-debug-ide.gemspec'
   ]
   FILES.push(*Dir['bin/*'])
