@@ -1,4 +1,10 @@
 jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
+
+def already_installed(dep)
+  Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep) ||
+  Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep)    
+end
+
 unless jruby
   require 'rubygems'
   require 'rubygems/command.rb'
@@ -29,7 +35,7 @@ unless jruby
       puts e.backtrace.join "\n  "
       exit(1)
     end
-  end unless Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep)
+  end unless already_installed(dep)
 end
 
 # create dummy rakefile to indicate success
