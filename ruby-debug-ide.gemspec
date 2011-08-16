@@ -10,7 +10,8 @@ unless defined? FILES
   'ChangeLog.archive',
   'MIT-LICENSE',
   'Rakefile',
-  'ext/mkrf_conf.rb'
+  'ext/mkrf_conf.rb',
+  'ruby-debug-ide.gemspec'
   ]
   FILES.push(*Dir['bin/*'])
   FILES.push(*Dir['lib/**/*'])
