@@ -1,10 +1,5 @@
-if RUBY_VERSION < "1.9"
-  require 'ruby-debug/interface'
-  require 'ruby-debug/command'
-else
-  require_relative 'interface'
-  require_relative 'command'
-end
+require 'ruby-debug-ide/interface'
+require 'ruby-debug-ide/command'
 
 module Debugger
   class IdeCommandProcessor
