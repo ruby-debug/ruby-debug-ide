@@ -1,9 +1,4 @@
-if RUBY_VERSION < "1.9"
-  require 'ruby-debug/helper'
-else
-  require_relative 'helper'
-end
-
+require 'ruby-debug-ide/helper'
 
 module Debugger
 

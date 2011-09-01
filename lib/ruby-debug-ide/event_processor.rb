@@ -1,8 +1,5 @@
-if RUBY_VERSION < "1.9"
-  require 'ruby-debug/xml_printer'
-else
-  require_relative 'xml_printer'
-end
+require 'ruby-debug-ide/xml_printer'
+
  module Debugger
    
    class EventProcessor
