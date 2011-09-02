@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/lib/ruby-debug/version'
+require File.dirname(__FILE__) + '/lib/ruby-debug-ide/version'
 require "date"
 
 # ------- Default Package ----------
