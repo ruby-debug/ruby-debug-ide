@@ -1,3 +1,5 @@
+require 'thread'
+
 class TCPSocket
   
   # Workaround for JRuby issue http://jira.codehaus.org/browse/JRUBY-2063
@@ -24,7 +26,7 @@ module Debugger
 
     def initialize(socket)
       @socket = socket
-      @command_queue = []
+      @command_queue = Queue.new
     end
     
     def read_command
