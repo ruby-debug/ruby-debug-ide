@@ -29,11 +29,7 @@ module Debugger
       end
       event_cmds = Command.commands.map{|cmd| cmd.new(state, @printer) }
       while !state.proceed? do
-        input = @interface.command_queue.empty? ? nil : @interface.command_queue.shift
-        unless input
-          sleep 0.1
-          next
-        end
+        input = @interface.command_queue.pop
         catch(:debug_error) do
           splitter[input].each do |input|
             # escape % since print_debug might use printf
