@@ -69,7 +69,7 @@ module Debugger
     self.control = true
 
     def regexp
-      /^\s*b(?:reak)?$/
+      /^\s*info\s*break$/
     end
 
     def execute
