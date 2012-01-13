@@ -147,9 +147,6 @@ module Debugger
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
         end
-        if value_str =~ /^\"(.*)"$/
-          value_str = $1
-        end
       end
       value_str = "[Binary Data]" if (value_str.respond_to?('is_binary_data?') && value_str.is_binary_data?)
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\"/>",
