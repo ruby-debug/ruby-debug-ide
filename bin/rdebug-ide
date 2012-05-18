@@ -25,7 +25,8 @@ options = OpenStruct.new(
   'load_mode'   => false,
   'port'        => 1234,
   'stop'        => false,
-  'tracing'     => false
+  'tracing'     => false,
+  'int_handler' => true
 )
 
 opts = OptionParser.new do |opts|
@@ -52,6 +53,7 @@ EOB
   end
   
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
+  opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("-v", "--version", "Show version") do
@@ -85,8 +87,11 @@ end
 # save script name
 Debugger::PROG_SCRIPT = ARGV.shift
   
-# install interruption handler
-trap('INT') { Debugger.interrupt_last }
+
+if options.int_handler
+  # install interruption handler
+  trap('INT') { Debugger.interrupt_last }
+end
   
 # set options
 Debugger.keep_frame_binding = options.frame_bind
