@@ -23,6 +23,7 @@ module Debugger
 
   class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
+    attr_accessor :socket
 
     def initialize(socket)
       @socket = socket

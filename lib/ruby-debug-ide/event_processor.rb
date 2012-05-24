@@ -53,7 +53,7 @@ require 'ruby-debug-ide/xml_printer'
          @last_breakpoint = nil
        end
        raise "DebuggerThread are not supposed to be traced (#{context.thread})" if context.thread.is_a?(Debugger::DebugThread)
-       @printer.print_debug("Stopping Thread %s", context.thread.to_s)
+       @printer.print_debug("Stopping Thread %s (%s)", context.thread.to_s, Process.pid.to_s)
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
        IdeCommandProcessor.new(@interface).process_commands
        InspectCommand.clear_references

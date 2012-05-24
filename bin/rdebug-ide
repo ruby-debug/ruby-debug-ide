@@ -26,7 +26,8 @@ options = OpenStruct.new(
   'port'        => 1234,
   'stop'        => false,
   'tracing'     => false,
-  'int_handler' => true
+  'int_handler' => true,
+  'dispatcher_port' => -1
 )
 
 opts = OptionParser.new do |opts|
@@ -38,7 +39,10 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
-  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
+  opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
+    options.dispatcher_port = dp
+  end  
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
@@ -86,7 +90,19 @@ end
 
 # save script name
 Debugger::PROG_SCRIPT = ARGV.shift
-  
+
+if (options.dispatcher_port != -1)
+  ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
+  if RUBY_VERSION < "1.9"
+    require 'ruby-debug-ide/multiprocess'
+  else
+    require_relative '../lib/ruby-debug-ide/multiprocess'
+  end
+
+  old_opts = ENV['RUBYOPT']
+  ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
+  ENV['RUBYOPT'] += " #{old_opts}" if old_opts
+end
 
 if options.int_handler
   # install interruption handler

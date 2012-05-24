@@ -15,6 +15,7 @@ module Debugger
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
     def print_debug(*args)
       if Debugger.cli_debug
+        $stderr.printf("#{Process.pid}: ")
         $stderr.printf(*args)
         $stderr.printf("\n")
         $stderr.flush
@@ -76,7 +77,8 @@ module Debugger
   class << self
     
     attr_accessor :event_processor, :cli_debug, :xml_debug
-    attr_reader :control_thread
+    attr_accessor :control_thread
+    attr_reader :interface
     
     #
     # Interrupts the current thread
@@ -104,7 +106,7 @@ module Debugger
       start_control(host, port)
     end
 
-    def debug_program(options)
+    def prepare_debugger(options)
       start_server(options.host, options.port)
 
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
@@ -116,7 +118,11 @@ module Debugger
       @mutex.synchronize do
         @proceed.wait(@mutex)
       end
-      
+    end
+
+    def debug_program(options)
+      prepare_debugger(options)
+
       abs_prog_script = File.expand_path(Debugger::PROG_SCRIPT)
       bt = debug_load(abs_prog_script, options.stop, options.load_mode)
       if bt && !bt.is_a?(SystemExit)
@@ -143,13 +149,18 @@ module Debugger
           $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, ruby-debug-base #{VERSION}) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
+            $stderr.puts "Connected from #{session.addr[2]}" if Debugger.cli_debug
+            dispatcher = ENV['IDE_PROCESS_DISPATCHER']
+            if (dispatcher)
+              ENV['IDE_PROCESS_DISPATCHER'] = "#{session.addr[2]}:#{dispatcher}" unless dispatcher.include?(":")
+            end  
             begin
-              interface = RemoteInterface.new(session)
+              @interface = RemoteInterface.new(session)
               @event_processor = EventProcessor.new(interface)
               IdeControlCommandProcessor.new(interface).process_commands
             rescue StandardError, ScriptError => ex
               bt = ex.backtrace
-              $stderr.printf "Exception in DebugThread loop: #{ex.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
+              $stderr.printf "#{Process.pid}: Exception in DebugThread loop: #{ex.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
               exit 1
             end
           end
