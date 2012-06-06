@@ -1,6 +1,9 @@
 if ENV['IDE_PROCESS_DISPATCHER']
   require 'rubygems'
-  $: << File.expand_path(File.dirname(__FILE__)) + "../.."
+  ENV['DEBUGGER_STORED_RUBYLIB'].split(File::PATH_SEPARATOR).each do |path|
+    next unless path =~ /ruby-debug-ide|ruby-debug-base|linecache/
+    $LOAD_PATH << path
+  end
   require 'ruby-debug-ide'
   require 'ruby-debug-ide/multiprocess'
   Debugger::MultiProcess::pre_child

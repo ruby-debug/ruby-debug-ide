@@ -99,6 +99,7 @@ if (options.dispatcher_port != -1)
     require_relative '../lib/ruby-debug-ide/multiprocess'
   end
 
+  ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB'] 
   old_opts = ENV['RUBYOPT']
   ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
   ENV['RUBYOPT'] += " #{old_opts}" if old_opts
