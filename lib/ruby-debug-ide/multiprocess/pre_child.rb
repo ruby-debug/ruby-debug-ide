@@ -43,6 +43,7 @@ module Debugger
       def start_debugger(options)
         if Debugger.started?
           #we're in forked child, only need to restart control thread
+          Debugger.breakpoints.clear 
           Debugger.control_thread = nil
           Debugger.start_control(options.host, options.port)
         end
@@ -54,7 +55,7 @@ module Debugger
       
         # set options
         Debugger.keep_frame_binding = options.frame_bind
-        Debugger.tracing = options.tracing      
+        Debugger.tracing = options.tracing             
         
         Debugger.prepare_debugger(options)
       end
