@@ -24,7 +24,7 @@ module Debugger
         @commands ||= []
       end
       
-      DEF_OPTIONS ||= {
+      DEF_OPTIONS = {
         :event => true, 
         :control => false, 
         :unknown => false,
