@@ -18,10 +18,6 @@ module Debugger
         if 'off' == excn
           Debugger.catchpoints.clear
         else
-          binding = @state.context ? get_binding : TOPLEVEL_BINDING
-          unless debug_eval("#{excn}.is_a?(Class)", binding)
-            print_msg "Warning #{excn} is not known to be a Class"
-          end
           Debugger.add_catchpoint(excn)
           print_catchpoint_set(excn)
         end
