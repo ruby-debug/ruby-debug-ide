@@ -94,6 +94,7 @@ Debugger::PROG_SCRIPT = ARGV.shift
 if (options.dispatcher_port != -1)
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
   if RUBY_VERSION < "1.9"
+    $: << File.expand_path(File.dirname(__FILE__) + "/../lib/")
     require 'ruby-debug-ide/multiprocess'
   else
     require_relative '../lib/ruby-debug-ide/multiprocess'
