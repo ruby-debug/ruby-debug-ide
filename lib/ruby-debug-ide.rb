@@ -36,56 +36,11 @@ module Debugger
        end
        cleared
     end
-  end
-
-  class Context
-    def interrupt
-      self.stop_next = 1
-    end
     
-    private
-    
-    def event_processor
-      Debugger.event_processor
-    end
-    
-    def at_breakpoint(breakpoint)
-      event_processor.at_breakpoint(self, breakpoint)
-    end
-    
-    def at_catchpoint(excpt)
-      event_processor.at_catchpoint(self, excpt)
-    end
-    
-    def at_tracing(file, line)
-      if event_processor
-        event_processor.at_tracing(self, file, line)
-      else
-        Debugger::print_debug "trace: location=\"%s:%s\", threadId=%d", file, line, self.thnum
-      end
-    end
-    
-    def at_line(file, line)
-      event_processor.at_line(self, file, line)
-    end
- 
-    def at_return(file, line)
-      event_processor.at_return(self, file, line)
-    end
-  end
-  
-  class << self
-    
-    attr_accessor :event_processor, :cli_debug, :xml_debug
+    attr_accessor :cli_debug, :xml_debug
     attr_accessor :control_thread
     attr_reader :interface
-    
-    #
-    # Interrupts the current thread
-    #
-    def interrupt
-      current_context.interrupt
-    end
+
     
     #
     # Interrupts the last debugged thread
@@ -156,7 +111,7 @@ module Debugger
             end  
             begin
               @interface = RemoteInterface.new(session)
-              @event_processor = EventProcessor.new(interface)
+              self.handler = EventProcessor.new(interface)
               IdeControlCommandProcessor.new(interface).process_commands
             rescue StandardError, ScriptError => ex
               bt = ex.backtrace
@@ -177,21 +132,4 @@ module Debugger
   class Exception # :nodoc:
     attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
   end
-  
-  module Kernel
-    #
-    # Stops the current thread after a number of _steps_ made.
-    #
-    def debugger(steps = 1)
-      Debugger.current_context.stop_next = steps
-    end
-    
-    #
-    # Returns a binding of n-th call frame
-    #
-    def binding_n(n = 0)
-      Debugger.current_context.frame_binding[n+1]
-    end
-  end
-  
 end

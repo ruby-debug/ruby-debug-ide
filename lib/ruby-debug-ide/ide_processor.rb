@@ -13,13 +13,13 @@ module Debugger
     end
 
     def process_commands
-      unless Debugger.event_processor.at_line?
+      unless Debugger.handler.at_line?
         @printer.print_error "There is no thread suspended at the time and therefore no context to execute '#{input.gsub('%', '%%')}'"
         return
       end
-      context = Debugger.event_processor.context
-      file = Debugger.event_processor.file
-      line = Debugger.event_processor.line
+      context = Debugger.handler.context
+      file = Debugger.handler.file
+      line = Debugger.handler.line
       state = State.new do |s|
         s.context = context
         s.file    = file
