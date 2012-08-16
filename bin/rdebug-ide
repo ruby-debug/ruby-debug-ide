@@ -1,13 +1,4 @@
 #!/usr/bin/env ruby
-# start by patching require, so command-line debug won't get in the way
-::Kernel.module_eval do
-  alias ide_debug_original_require require
-  def self.require(file)
-    ide_debug_original_require(file) if file !~ /ruby-debug(.rb)?$/
-  end
-  private :require
-end
-
 require 'rubygems'
 require 'optparse'
 require "ostruct"
