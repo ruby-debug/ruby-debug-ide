@@ -18,8 +18,10 @@ unless jruby
 
   if RUBY_VERSION < "1.9"
     dep = Gem::Dependency.new("ruby-debug-base", '>=0.10.4')
-  else
+  elsif RUBY_VERSION < '2.0'
     dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.24')
+  else    
+    # dep = Gem::Dependency.new("debase", '> 0')
   end
 
   begin
@@ -35,7 +37,7 @@ unless jruby
       puts e.backtrace.join "\n  "
       exit(1)
     end
-  end unless already_installed(dep)
+  end unless dep.nil? || already_installed(dep)
 end
 
 # create dummy rakefile to indicate success

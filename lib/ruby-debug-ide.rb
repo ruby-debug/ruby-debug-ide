@@ -2,7 +2,11 @@ require 'pp'
 require 'stringio'
 require "socket"
 require 'thread'
-require 'ruby-debug-base'
+if (RUBY_VERSION < '2.0')
+  require 'ruby-debug-base'
+else
+  require 'debase'
+end  
 
 require 'ruby-debug-ide/version'
 require 'ruby-debug-ide/xml_printer'
@@ -101,7 +105,9 @@ module Debugger
           # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
-          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, ruby-debug-base #{VERSION}) listens on #{host}:#{port}\n"
+          gem_name = (defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0') ? 'ruby-debug-base' :
+                     RUBY_VERSION < '2.0.0' ? 'ruby-debug-base19x' : 'debase'
+          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{gem_name} #{VERSION}) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
             $stderr.puts "Connected from #{session.addr[2]}" if Debugger.cli_debug
