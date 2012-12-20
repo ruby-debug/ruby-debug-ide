@@ -6,7 +6,7 @@ gem "ruby-debug-base19x", ">= 0.11.30.pre4", :platforms => [:ruby_19, :mingw_19]
 gemspec
 
 group :development do
-  gem "bundler", "~> 1.0.0"
+  gem "bundler"
 end
 
 group :test do
