@@ -79,6 +79,8 @@ module Debugger
         print_array(obj)
       elsif (obj.is_a?(Hash)) then
         print_hash(obj)
+      elsif (obj.is_a?(String))
+        print_string(obj)
       else
         print_element("variables") do
           # instance variables

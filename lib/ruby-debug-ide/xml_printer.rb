@@ -127,6 +127,13 @@ module Debugger
         }
       end
     end
+
+    def print_string(string)
+      print_element("variables") do
+         print_variable('bytes', string.bytes.to_a, 'instance') if string.respond_to?('bytes')
+         print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')         
+      end
+    end
     
     def print_variable(name, value, kind)
       name = name.to_s
@@ -141,12 +148,19 @@ module Debugger
         else
           value_str = "#{value.class} (#{value.size} element(s))"
         end
-      else
+      elsif value.is_a?(String)
+        has_children = value.respond_to?('bytes') || value.respond_to?('encoding')
+        value_str = value
+      else  
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
         value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #$!>"
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
         end
+      end
+
+      if value_str.respond_to?('encode')
+         value_str = value_str.encode("UTF-8")
       end
       value_str = "[Binary Data]" if (value_str.respond_to?('is_binary_data?') && value_str.is_binary_data?)
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\"/>",
@@ -256,12 +270,12 @@ module Debugger
     end
     
     def print_exception(exception, binding)
-      print_variables(%w(error), 'exception') do |var|
+      print_element("variables") do
         proxy = ExceptionProxy.new(exception)
         InspectCommand.reference_result(proxy)
-        proxy
+        print_variable('error', proxy, 'exception')
       end
-    rescue
+    rescue Exception => e
       print "<processingException type=\"%s\" message=\"%s\"/>", 
         exception.class, CGI.escapeHTML(exception.to_s)
     end
