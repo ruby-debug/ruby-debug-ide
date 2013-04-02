@@ -5,10 +5,10 @@ module Debugger
 
         require "socket"
         require "ostruct"
-        
-        host = '127.0.0.1'
+
+        host = ENV['DEBUGGER_HOST']
         port = find_free_port(host)
-      
+
         options = OpenStruct.new(
             'frame_bind'  => false,
             'host'        => host,
@@ -18,10 +18,10 @@ module Debugger
             'tracing'     => false,
             'int_handler' => true
         )
-      
+
         acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
         acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
-  
+
         connected = false
         3.times do |i|
           begin
@@ -39,28 +39,28 @@ module Debugger
           end unless connected
         end
       end
-      
+
       def start_debugger(options)
         if Debugger.started?
           #we're in forked child, only need to restart control thread
-          Debugger.breakpoints.clear 
+          Debugger.breakpoints.clear
           Debugger.control_thread = nil
           Debugger.start_control(options.host, options.port)
         end
-  
+
         if options.int_handler
           # install interruption handler
           trap('INT') { Debugger.interrupt_last }
         end
-      
+
         # set options
         Debugger.keep_frame_binding = options.frame_bind
-        Debugger.tracing = options.tracing             
-        
+        Debugger.tracing = options.tracing
+
         Debugger.prepare_debugger(options)
       end
-  
-  
+
+
       def find_free_port(host)
         server = TCPServer.open(host, 0)
         port   = server.addr[1]
