@@ -6,7 +6,7 @@ if (RUBY_VERSION < '2.0')
   require 'ruby-debug-base'
 else
   require 'debase'
-end  
+end
 
 require 'ruby-debug-ide/version'
 require 'ruby-debug-ide/xml_printer'
@@ -14,7 +14,7 @@ require 'ruby-debug-ide/ide_processor'
 require 'ruby-debug-ide/event_processor'
 
 module Debugger
-  
+
   class << self
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
     def print_debug(*args)
@@ -25,7 +25,7 @@ module Debugger
         $stderr.flush
       end
     end
-    
+
     def cleanup_backtrace(backtrace)
        cleared = []
        return cleared unless backtrace
@@ -40,12 +40,12 @@ module Debugger
        end
        cleared
     end
-    
+
     attr_accessor :cli_debug, :xml_debug
     attr_accessor :control_thread
     attr_reader :interface
 
-    
+
     #
     # Interrupts the last debugged thread
     #
@@ -69,10 +69,10 @@ module Debugger
       start_server(options.host, options.port)
 
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
-      
+
       @mutex = Mutex.new
       @proceed = ConditionVariable.new
-      
+
       # wait for 'start' command
       @mutex.synchronize do
         @proceed.wait(@mutex)
@@ -89,14 +89,14 @@ module Debugger
         $stderr.print Debugger.cleanup_backtrace(bt.backtrace).map{|l| "\t#{l}"}.join("\n"), "\n"
       end
     end
-    
+
     def run_prog_script
       return unless @mutex
       @mutex.synchronize do
         @proceed.signal
       end
     end
-    
+
     def start_control(host, port)
       raise "Debugger is not started" unless started?
       return if @control_thread
@@ -110,11 +110,12 @@ module Debugger
           $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{gem_name} #{VERSION}) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
           while (session = server.accept)
-            $stderr.puts "Connected from #{session.addr[2]}" if Debugger.cli_debug
+            $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
             if (dispatcher)
-              ENV['IDE_PROCESS_DISPATCHER'] = "#{session.addr[2]}:#{dispatcher}" unless dispatcher.include?(":")
-            end  
+              ENV['IDE_PROCESS_DISPATCHER'] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
+              ENV['DEBUGGER_HOST'] = host
+            end
             begin
               @interface = RemoteInterface.new(session)
               self.handler = EventProcessor.new(interface)
@@ -132,9 +133,9 @@ module Debugger
         end
       end
     end
-    
+
   end
-  
+
   class Exception # :nodoc:
     attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
   end
