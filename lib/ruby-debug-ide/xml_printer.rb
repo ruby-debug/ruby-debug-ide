@@ -160,7 +160,10 @@ module Debugger
       end
 
       if value_str.respond_to?('encode')
+        begin
          value_str = value_str.encode("UTF-8")
+        rescue
+        end 
       end
       value_str = "[Binary Data]" if (value_str.respond_to?('is_binary_data?') && value_str.is_binary_data?)
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\"/>",
