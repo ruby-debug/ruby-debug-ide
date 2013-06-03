@@ -1,8 +1,8 @@
 jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
 
 def already_installed(dep)
-  Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep) ||
-  Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep)    
+  !Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep).empty? ||
+  !Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep).empty?    
 end
 
 unless jruby
@@ -21,7 +21,7 @@ unless jruby
   elsif RUBY_VERSION < '2.0'
     dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.24')
   else    
-    # dep = Gem::Dependency.new("debase", '> 0')
+    dep = Gem::Dependency.new("debase", '> 0')
   end
 
   begin
