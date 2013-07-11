@@ -2,7 +2,7 @@ require 'pp'
 require 'stringio'
 require "socket"
 require 'thread'
-if (RUBY_VERSION < '2.0')
+if (RUBY_VERSION < '2.0' || defined?(JRUBY_VERSION))
   require 'ruby-debug-base'
 else
   require 'debase'
