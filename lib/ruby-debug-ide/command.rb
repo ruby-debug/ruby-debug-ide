@@ -136,19 +136,8 @@ module Debugger
       end
     end
     
-    def hbinding(hash)
-      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
-      if obj = @state.context.frame_self(@state.frame_pos)
-        obj.instance_eval code
-      else
-        eval code
-      end
-    end
-    private :hbinding
-    
     def get_binding
-      binding = @state.context.frame_binding(@state.frame_pos)
-      binding || hbinding(@state.context.frame_locals(@state.frame_pos))
+      @state.context.frame_binding(@state.frame_pos)
     end
 
     def line_at(file, line)
