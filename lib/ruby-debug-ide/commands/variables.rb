@@ -86,7 +86,7 @@ module Debugger
           # instance variables
           kind = 'instance'
           inst_vars = obj.instance_variables
-          instance_binding = obj.instance_eval{binding()}
+          instance_binding = obj.instance_eval{::Kernel.binding()}
           # print self at top position
           print_variable('self', debug_eval('self', instance_binding), kind) if inst_vars.include?('self')
           inst_vars.sort.each do |var|
@@ -94,7 +94,7 @@ module Debugger
           end
           
           # class variables
-          class_binding = obj.class.class_eval('binding()')
+          class_binding = obj.class.class_eval('::Kernel.binding()')
           obj.class.class_variables.sort.each do |var|
             print_variable(var, debug_eval(var, class_binding), 'class')
           end
