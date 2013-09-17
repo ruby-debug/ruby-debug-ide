@@ -59,6 +59,31 @@ module Debugger
     end
   end
 
+  class ThreadInspectCommand < Command # :nodoc:
+    self.control = true
+    self.need_context = true
+
+    def regexp
+      /^\s*th(?:read)?\s+in(?:spect)?\s+(\d+)\s*$/
+    end
+
+    def execute
+      @state.context = get_context(@match[1].to_i)      
+    end
+
+    class << self
+      def help_command
+        'thread'
+      end
+
+      def help(cmd)
+        %{
+          th[read] in[spect] <nnn>\tswitch thread context to nnn but don't resume any threads
+        }
+      end
+    end
+  end
+
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
     self.need_context = true

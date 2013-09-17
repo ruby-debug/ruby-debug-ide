@@ -42,9 +42,10 @@ module Debugger
               end
             else
               @printer.print_msg "Unknown command: #{input}"
-            end
+            end            
           end
         end
+        state.restore_context
       end
     rescue IOError, Errno::EPIPE
       @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
@@ -105,7 +106,8 @@ module Debugger
 
   class State # :nodoc:
 
-    attr_accessor :context, :file, :line, :binding
+    attr_accessor :context, :original_context
+    attr_accessor :file, :line, :binding
     attr_accessor :frame_pos, :previous_line
     attr_accessor :interface
     
@@ -114,6 +116,7 @@ module Debugger
       @previous_line = nil
       @proceed = false
       yield self
+      @original_context = context
     end
     
     def print(*args)
@@ -126,6 +129,10 @@ module Debugger
     
     def proceed
       @proceed = true
+    end
+
+    def restore_context
+      context = @original_context
     end
   end
   
