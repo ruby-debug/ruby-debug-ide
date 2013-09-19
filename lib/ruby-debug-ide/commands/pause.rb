@@ -9,12 +9,13 @@ module Debugger
     end
 
     def execute
-      c = get_context(@match[1].to_i)
-      unless c.respond_to?(:pause)
-        print_msg "Not implemented"
-        return
+      Debugger.contexts.each do |c|
+        unless c.respond_to?(:pause)
+          print_msg "Not implemented"
+          return
+        end
+        c.pause
       end
-      c.pause
     end
 
     class << self
