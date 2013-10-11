@@ -3,8 +3,8 @@ module Debugger
     class << self
       def pre_child
 
-        require "socket"
-        require "ostruct"
+        require 'socket'
+        require 'ostruct'
 
         host = ENV['DEBUGGER_HOST']
         port = find_free_port(host)
@@ -42,7 +42,7 @@ module Debugger
 
       def start_debugger(options)
         if Debugger.started?
-          #we're in forked child, only need to restart control thread
+          # we're in forked child, only need to restart control thread
           Debugger.breakpoints.clear
           Debugger.control_thread = nil
           Debugger.start_control(options.host, options.port)
