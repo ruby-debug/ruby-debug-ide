@@ -112,7 +112,7 @@ module Debugger
           while (session = server.accept)
             $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
-            if (dispatcher)
+            if dispatcher
               ENV['IDE_PROCESS_DISPATCHER'] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
               ENV['DEBUGGER_HOST'] = host
             end
