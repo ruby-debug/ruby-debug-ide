@@ -16,7 +16,8 @@ module Debugger
             'port'        => port,
             'stop'        => false,
             'tracing'     => false,
-            'int_handler' => true
+            'int_handler' => true,
+            'cli_debug'   => (ENV['DEBUGGER_CLI_DEBUG'] == 'true')
         )
 
         acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
@@ -56,6 +57,7 @@ module Debugger
         # set options
         Debugger.keep_frame_binding = options.frame_bind
         Debugger.tracing = options.tracing
+        Debugger.cli_debug = options.cli_debug
 
         Debugger.prepare_debugger(options)
       end
