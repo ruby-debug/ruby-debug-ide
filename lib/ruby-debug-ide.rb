@@ -107,8 +107,8 @@ module Debugger
           host ||= '127.0.0.1'
           gem_name = (defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0') ? 'ruby-debug-base' :
                      RUBY_VERSION < '2.0.0' ? 'ruby-debug-base19x' : 'debase'
-          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{gem_name} #{VERSION}) listens on #{host}:#{port}\n"
           server = TCPServer.new(host, port)
+          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{gem_name} #{VERSION}) listens on #{host}:#{port}\n"
           while (session = server.accept)
             $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
