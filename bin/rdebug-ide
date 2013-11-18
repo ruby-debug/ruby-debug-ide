@@ -95,7 +95,7 @@ if options.dispatcher_port != -1
   old_opts = ENV['RUBYOPT']
   ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
   ENV['RUBYOPT'] += " #{old_opts}" if old_opts
-  ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug
+  ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug.to_s
 end
 
 if options.int_handler
