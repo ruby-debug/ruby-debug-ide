@@ -59,6 +59,9 @@ module Debugger
   end
   
   class VarInstanceCommand < Command # :nodoc:
+    # TODO: try to find out a way to use Kernel.binding
+    BINDING_COMMAND = (defined? Rubinius) ? 'binding' : '::Kernel.binding'
+
     def regexp
       # id will be read as first match, name as post match
       /^\s*v(?:ar)?\s+i(?:nstance)?\s+((?:[\\+-]0x)[\dabcdef]+)?/
@@ -67,8 +70,9 @@ module Debugger
     def execute
       if (@match[1])
         obj = ObjectSpace._id2ref(@match[1].hex) rescue nil
+
         unless obj
-          # TODO: ensure that empty variables frame will be printed
+          print_element("variables")
           @printer.print_msg("Unknown object id : %s", @match[1])
         end
       else
@@ -86,7 +90,7 @@ module Debugger
           # instance variables
           kind = 'instance'
           inst_vars = obj.instance_variables
-          instance_binding = obj.instance_eval{::Kernel.binding()}
+          instance_binding = obj.instance_eval(BINDING_COMMAND)
           # print self at top position
           print_variable('self', debug_eval('self', instance_binding), kind) if inst_vars.include?('self')
           inst_vars.sort.each do |var|
@@ -94,7 +98,7 @@ module Debugger
           end
           
           # class variables
-          class_binding = obj.class.class_eval('::Kernel.binding()')
+          class_binding = obj.class.class_eval(BINDING_COMMAND)
           obj.class.class_variables.sort.each do |var|
             print_variable(var, debug_eval(var, class_binding), 'class')
           end
