@@ -130,8 +130,12 @@ module Debugger
 
     def print_string(string)
       print_element("variables") do
-         print_variable('bytes', string.bytes.to_a, 'instance') if string.respond_to?('bytes')
-         print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')         
+        if string.respond_to?('bytes')
+          bytes = string.bytes.to_a
+          InspectCommand.reference_result(bytes)
+          print_variable('bytes', bytes, 'instance')
+        end
+        print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')         
       end
     end
     
