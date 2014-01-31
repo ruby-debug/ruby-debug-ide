@@ -17,28 +17,11 @@ module Debugger
             'stop'        => false,
             'tracing'     => false,
             'int_handler' => true,
-            'cli_debug'   => (ENV['DEBUGGER_CLI_DEBUG'] == 'true')
+            'cli_debug'   => (ENV['DEBUGGER_CLI_DEBUG'] == 'true'),
+            'notify_dispatcher' => true
         )
 
-        acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
-        acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
-
-        connected = false
-        3.times do |i|
-          begin
-            s = TCPSocket.open(acceptor_host, acceptor_port)
-            s.print(port)
-            s.close
-            connected = true
-            start_debugger(options)
-            return
-          rescue => bt
-            $stderr.puts "#{Process.pid}: connection failed(#{i+1})"
-            $stderr.puts "Exception: #{bt}"
-            $stderr.puts bt.backtrace.map { |l| "\t#{l}" }.join("\n")
-            sleep 0.3
-          end unless connected
-        end
+        start_debugger(options)
       end
 
       def start_debugger(options)
@@ -46,7 +29,7 @@ module Debugger
           # we're in forked child, only need to restart control thread
           Debugger.breakpoints.clear
           Debugger.control_thread = nil
-          Debugger.start_control(options.host, options.port)
+          Debugger.start_control(options.host, options.port, options.notify_dispatcher)
         end
 
         if options.int_handler
