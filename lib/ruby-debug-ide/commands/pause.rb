@@ -27,7 +27,7 @@ module Debugger
         %{
           pause <nnn>\tpause a running thread
          }
-     end
+      end
     end
   end
 end
