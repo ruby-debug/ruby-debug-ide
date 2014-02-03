@@ -150,6 +150,7 @@ module Debugger
           s.print(port)
           s.close
           connected = true
+          print_debug "Ide process dispatcher notified about sub-debugger which listens on #{port}\n"
           return
         rescue => bt
           $stderr.puts "#{Process.pid}: connection failed(#{i+1})"
