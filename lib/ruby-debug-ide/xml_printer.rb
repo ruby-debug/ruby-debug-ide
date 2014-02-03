@@ -282,7 +282,7 @@ module Debugger
         InspectCommand.reference_result(proxy)
         print_variable('error', proxy, 'exception')
       end
-    rescue Exception => e
+    rescue Exception
       print "<processingException type=\"%s\" message=\"%s\"/>", 
         exception.class, CGI.escapeHTML(exception.to_s)
     end
@@ -294,11 +294,11 @@ module Debugger
     end
     
     def print_load_result(file, exception=nil)
-      if exception then
+      if exception
         print("<loadResult file=\"%s\" exceptionType=\"%s\" exceptionMessage=\"%s\"/>", file, exception.class, CGI.escapeHTML(exception.to_s))        
       else
         print("<loadResult file=\"%s\" status=\"OK\"/>", file)        
-       end    
+      end
     end
 
     def print_element(name)
