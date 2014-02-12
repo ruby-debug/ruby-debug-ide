@@ -23,10 +23,17 @@ module Debugger
 
   class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
-    attr_accessor :socket
+    #attr_accessor :socket
 
     def initialize(socket)
       @socket = socket
+      class <<@socket
+        alias close_without_logging close
+        def close
+          close_without_logging
+          $stderr.puts "medvedko is " + ::Kernel.caller(1).join("\n")
+        end
+      end
       @command_queue = Queue.new
     end
     
