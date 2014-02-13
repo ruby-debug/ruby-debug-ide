@@ -66,12 +66,12 @@ module Debugger
     end
 
     def prepare_debugger(options)
+      @mutex = Mutex.new
+      @proceed = ConditionVariable.new
+
       start_server(options.host, options.port, options.notify_dispatcher)
 
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
-
-      @mutex = Mutex.new
-      @proceed = ConditionVariable.new
 
       # wait for 'start' command
       @mutex.synchronize do
