@@ -93,7 +93,7 @@ module Debugger
           end
         end
       end
-    rescue IOError, Errno::EPIPE, Errno::ENOTSOCK
+    rescue IOError, SystemCallError
       @printer.print_debug "INTERNAL ERROR!!! #{$!}\n"
       @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
