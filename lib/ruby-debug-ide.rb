@@ -124,7 +124,7 @@ module Debugger
               IdeControlCommandProcessor.new(interface).process_commands
             rescue StandardError, ScriptError => ex
               bt = ex.backtrace
-              $stderr.printf "#{Process.pid}: Exception in DebugThread loop: #{ex.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
+              $stderr.printf "#{Process.pid}: Exception in DebugThread loop: #{ex.message}(#{ex.class})\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
               exit 1
             end
           end
