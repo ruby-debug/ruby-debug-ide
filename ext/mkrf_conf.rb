@@ -1,11 +1,12 @@
 jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
+rbx = defined?(RUBY_ENGINE) && 'rbx' == RUBY_ENGINE
 
 def already_installed(dep)
   !Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep).empty? ||
   !Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep).empty?    
 end
 
-unless jruby
+unless jruby || rbx
   require 'rubygems'
   require 'rubygems/command.rb'
   require 'rubygems/dependency.rb'
