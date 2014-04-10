@@ -79,7 +79,7 @@ module Debugger
       # idx + 1: one-based numbering as classic-debugger
       file = context.frame_file(frame_id)
       print "<frame no=\'%s\' file=\'%s\' line=\'%s\' #{"current='true' " if frame_id == current_frame_id}/>",
-        frame_id + 1, File.expand_path(file), context.frame_line(frame_id)
+        frame_id + 1, expand_path(file), context.frame_line(frame_id)
     end
     
     def print_contexts(contexts)
@@ -273,7 +273,7 @@ module Debugger
     
     def print_at_line(context, file, line)
       print "<suspended file=\'%s\' line=\'%s\' threadId=\'%d\' frames=\'%d\'/>",
-        File.expand_path(file), line, context.thnum, context.stack_size
+        expand_path(file), line, context.thnum, context.stack_size
     end
     
     def print_exception(exception, binding)
@@ -321,6 +321,14 @@ module Debugger
       if m.to_s.index('print_') == 0
         protect m
       end
+    end
+
+    def expand_path(path)
+      p = File.expand_path(path)
+      Debugger.path_translations.reverse.each do |pmap|
+        p.gsub!(pmap[1], pmap[0])
+      end
+      p
     end
     
   end

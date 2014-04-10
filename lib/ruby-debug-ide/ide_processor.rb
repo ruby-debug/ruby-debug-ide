@@ -84,6 +84,13 @@ module Debugger
       while input = @interface.read_command
         # escape % since print_debug might use printf
         # sleep 0.3
+        if input[0, 2] == 'b '
+          path = input[2..-1]
+          Debugger.path_translations.each do |pmap|
+            path.gsub!(pmap[0], pmap[1])
+          end
+          input = 'b ' + path
+        end
         catch(:debug_error) do
           if cmd = ctrl_cmds.find{|c| c.match(input) }
             @printer.print_debug "Processing in control: #{input.gsub('%', '%%')}"
