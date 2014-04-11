@@ -67,7 +67,7 @@ module Debugger
 
           Change the next line of code to be executed.
          }
-     end
+      end
     end
   end
 end

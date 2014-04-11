@@ -41,7 +41,7 @@ module Debugger
 
           Change the type of <var> to <type>
          }
-     end
+      end
     end
   end
 end

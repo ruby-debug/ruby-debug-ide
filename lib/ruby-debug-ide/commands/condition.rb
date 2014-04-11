@@ -12,8 +12,8 @@ module Debugger
         errmsg "\"condition\" must be followed a breakpoint number and expression\n"
       else
         breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
-        largest = breakpoints.inject(0) do |largest, b| 
-          largest = b.id if b.id > largest
+        largest = breakpoints.inject(0) do |largest_so_far, b|
+          b.id if b.id > largest_so_far
         end
         if 0 == largest
           print "No breakpoints have been set.\n"

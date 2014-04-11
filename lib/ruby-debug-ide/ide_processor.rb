@@ -134,7 +134,7 @@ module Debugger
     end
 
     def restore_context
-      context = @original_context
+      @context = @original_context
     end
   end
   
