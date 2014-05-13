@@ -79,7 +79,7 @@ module VariablesTest
     # Read numerical variable
     send_ruby("frame 1; v l")
     assert_variables(read_variables, 1,
-      {:name => "stringA", :value => "XX", :type => "String", :hasChildren => false})
+      {:name => "stringA", :value => "XX", :type => "String", :hasChildren => true})
     send_cont
   end
 
