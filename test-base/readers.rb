@@ -114,7 +114,7 @@ module Readers
 
     def read_text
       event = @parser.pull
-      fail("expected \":text\" event, but got \"#{event.inspect}\"") unless event.text?
+      fail("expected \":text\" event, but got \"#{event.inspect}\"") unless event.text? || event.cdata?
       event[0]
     end
 
@@ -234,10 +234,25 @@ module Readers
         case event.event_type
         when :start_element
           check_event(:start_element, 'variable', event)
-          ensure_end_element('variable')
+          value_event = @parser.pull
+          if value_event.event_type == :start_element
+            check_event(:start_element, 'value', value_event)
+            text_value = read_text
+            ensure_end_element('value')
+            ensure_end_element('variable')
+          else
+            text_value = event[1]['value']
+            check_event(:end_element, 'variable', value_event)
+          end
           variables << Variable.new(*Variable.members.map { |m|
             value = event[1][m.to_s]
-            m.to_s == 'hasChildren' ? value == "true" : value
+            if m.to_s == 'hasChildren'
+              value == 'true'
+            elsif m.to_s == 'value'
+              text_value
+            else
+              value
+            end
           })
         when :end_element
           check_event(:end_element, 'variables', event)

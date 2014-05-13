@@ -25,7 +25,7 @@ module VariablesTest
       {:name => "stringA"},
       {:name => "testHashValue"})
     # will receive ''
-    assert_xml("<start test=\"&\"/>", variables[0].value)
+    assert_equal("<start test=\"&\"/>", variables[0].value)
     assert_local(variables[0])
     # the testHashValue contains an example, where the name consists of special
     # characters

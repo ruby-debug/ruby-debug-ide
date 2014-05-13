@@ -170,9 +170,11 @@ module Debugger
         end 
       end
       value_str = "[Binary Data]" if (value_str.respond_to?('is_binary_data?') && value_str.is_binary_data?)
-      print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\"/>",
+      print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
           CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
+      print("<value><![CDATA[%s]]></value>", value_str)
+      print('</variable>')
     end
     
     def print_breakpoints(breakpoints)
