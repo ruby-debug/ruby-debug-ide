@@ -25,7 +25,7 @@ module VariablesTest
       {:name => "stringA"},
       {:name => "testHashValue"})
     # will receive ''
-    assert_xml("<start test=\"&\"/>", variables[0].value)
+    assert_equal("<start test=\"&\"/>", variables[0].value)
     assert_local(variables[0])
     # the testHashValue contains an example, where the name consists of special
     # characters
@@ -79,7 +79,7 @@ module VariablesTest
     # Read numerical variable
     send_ruby("frame 1; v l")
     assert_variables(read_variables, 1,
-      {:name => "stringA", :value => "XX", :type => "String", :hasChildren => false})
+      {:name => "stringA", :value => "XX", :type => "String", :hasChildren => true})
     send_cont
   end
 
