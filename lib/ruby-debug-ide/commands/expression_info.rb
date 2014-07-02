@@ -24,17 +24,17 @@ module Debugger
       lexer.set_input(io)
       lexer.set_prompt {|ltype, indent, continue, lineno| }
 
-      last_statement = '',0
+      last_statement = ''
       lexer.each_top_level_statement do |line, line_no|
-        last_statement = line, line_no
+        last_statement = line
       end
 
-      result = true
+      incomplete = true
       if /\A\s*\Z/m =~ last_statement[0]
-        result = false
+        incomplete = false
       end
 
-      @printer.print_pp("<expressionInfo incomplete=\"#{result.to_s}\"></expressionInfo>")
+      @printer.print_pp("<expressionInfo incomplete=\"#{incomplete.to_s}\"></expressionInfo>")
     end
 
     class << self
