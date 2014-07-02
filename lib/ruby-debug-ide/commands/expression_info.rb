@@ -10,6 +10,7 @@ module Debugger
 
     def execute
       string_to_parse = @match.post_match.gsub("\\n", "\n") + "\n\n\n"
+      total_lines = string_to_parse.count("\n") + 1
 
       lexer = RubyLex.new
       io = StringIO.new(string_to_parse)
@@ -22,9 +23,17 @@ module Debugger
       end
 
       lexer.set_input(io)
-      lexer.set_prompt {|ltype, indent, continue, lineno| }
 
       last_statement = ''
+      last_prompt = ''
+      last_indent = 0
+      lexer.set_prompt do |ltype, indent, continue, lineno|
+        next if (lineno >= total_lines)
+
+        last_prompt = ltype || ''
+        last_indent = indent
+      end
+
       lexer.each_top_level_statement do |line, line_no|
         last_statement = line
       end
@@ -34,7 +43,13 @@ module Debugger
         incomplete = false
       end
 
-      @printer.print_pp("<expressionInfo incomplete=\"#{incomplete.to_s}\"></expressionInfo>")
+      @printer.print_pp <<-EOF.gsub(/\n */, ' ').gsub(/>\s+</m, '><').strip
+        <expressionInfo
+          incomplete="#{incomplete.to_s}"
+          prompt="#{last_prompt.gsub('"', '&quot;')}"
+          indent="#{last_indent.to_s}">
+        </expressionInfo>
+      EOF
     end
 
     class << self
