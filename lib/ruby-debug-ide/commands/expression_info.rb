@@ -43,13 +43,7 @@ module Debugger
         incomplete = false
       end
 
-      @printer.print_pp <<-EOF.gsub(/\n */, ' ').gsub(/>\s+</m, '><').strip
-        <expressionInfo
-          incomplete="#{incomplete.to_s}"
-          prompt="#{last_prompt.gsub('"', '&quot;')}"
-          indent="#{last_indent.to_s}">
-        </expressionInfo>
-      EOF
+      @printer.print_expression_info(incomplete, last_prompt, last_indent)
     end
 
     class << self

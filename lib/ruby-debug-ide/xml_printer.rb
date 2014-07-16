@@ -220,6 +220,11 @@ module Debugger
     def print_expression(exp, value, idx)
       print "<dispay name=\"%s\" value=\"%s\" no=\"%d\" />", exp, value, idx
     end
+
+    def print_expression_info(incomplete, prompt, indent)
+      print "<expressionInfo incomplete=\"%s\" prompt=\"%s\" indent=\"%s\"></expressionInfo>",
+        incomplete, CGI.escapeHTML(prompt), indent
+    end
     
     def print_eval(exp, value)
       print "<eval expression=\"%s\" value=\"%s\" />",  CGI.escapeHTML(exp), value
