@@ -115,7 +115,7 @@ module Debugger
     def debug_eval(str, b = get_binding)
       begin
         str = str.to_s
-        max_time = 10
+        max_time = Debugger.evaluation_timeout
         to_inspect = str.gsub(/\\n/, "\n")
         @printer.print_debug("Evaluating #{str} with timeout after %i sec", max_time)
         timeout(max_time) do
