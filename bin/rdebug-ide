@@ -18,7 +18,8 @@ options = OpenStruct.new(
   'stop'        => false,
   'tracing'     => false,
   'int_handler' => true,
-  'dispatcher_port' => -1
+  'dispatcher_port' => -1,
+  'evaluation_timeout' => 10
 )
 
 opts = OptionParser.new do |opts|
@@ -34,7 +35,10 @@ EOB
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
     options.dispatcher_port = dp
-  end  
+  end
+  opts.on('--evaluation-timeout TIMEOUT', Integer,'evaluation timeout in seconds (default: 10)') do |timeout|
+    options.evaluation_timeout = timeout
+  end
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
@@ -107,6 +111,7 @@ end
 # set options
 Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
+Debugger.evaluation_timeout = options.evaluation_timeout
 
 Debugger.debug_program(options)
 
