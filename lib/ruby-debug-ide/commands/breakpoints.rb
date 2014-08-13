@@ -72,7 +72,7 @@ module Debugger
         if defined?(JRUBY_VERSION)
           java.io.File.new(filename).canonical_path
         elsif RUBY_VERSION < '1.9'
-          Pathname.new(filename).realpath.to_s
+          filename
         else
           File.realpath(filename)
         end
