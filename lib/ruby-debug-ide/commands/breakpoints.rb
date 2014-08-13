@@ -67,8 +67,8 @@ module Debugger
 
     private
       def realpath(filename)
-        filename = File.expand_path(file) if file.index(File::SEPARATOR) || \
-            File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
+        filename = File.expand_path(filename) if filename.index(File::SEPARATOR) || \
+            File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
         if defined?(JRUBY_VERSION)
           java.io.File.new(filename).canonical_path
         elsif RUBY_VERSION < '1.9'
