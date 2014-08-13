@@ -28,7 +28,7 @@ module Debugger
     
     def close
       @socket.close
-    rescue IOError
+    rescue IOError, SystemCallError
     end
 
     # Workaround for JRuby issue http://jira.codehaus.org/browse/JRUBY-2063
