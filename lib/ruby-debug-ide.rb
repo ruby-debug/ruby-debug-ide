@@ -14,6 +14,7 @@ require 'ruby-debug-ide/ide_processor'
 require 'ruby-debug-ide/event_processor'
 
 module Debugger
+  @path_translations = []
 
   class << self
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
@@ -43,6 +44,7 @@ module Debugger
 
     attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
     attr_accessor :control_thread
+    attr_accessor :path_translations
     attr_reader :interface
 
 

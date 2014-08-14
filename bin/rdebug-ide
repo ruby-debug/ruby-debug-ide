@@ -51,6 +51,15 @@ EOB
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
+
+  opts.on("-t", '--path-translation FROM=TO', String, 'Add path tranlation map') do |tstr|
+    pmap = tstr.split('=', 2)
+    if pmap[0].empty? || pmap[1].nil? || pmap[1].empty?
+      $stderr.puts "Wrong path translation format: #{tstr}"
+      exit 100
+    end
+    Debugger.path_translations << pmap
+  end
   
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
