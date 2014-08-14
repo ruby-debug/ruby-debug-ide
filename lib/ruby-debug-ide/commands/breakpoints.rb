@@ -1,3 +1,5 @@
+require 'pathname' if RUBY_VERSION < '1.9'
+
 module Debugger
   class AddBreakpoint < Command # :nodoc:
     self.control = true
@@ -35,8 +37,7 @@ module Debugger
           end
           file = klass.name if klass
         else
-          file = File.expand_path(file) if file.index(File::SEPARATOR) || \
-            File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
+          file = realpath(file)
         end
       end
       
@@ -63,6 +64,19 @@ module Debugger
         }
       end
     end
+
+    private
+      def realpath(filename)
+        filename = File.expand_path(filename) if filename.index(File::SEPARATOR) || \
+            File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
+        if defined?(JRUBY_VERSION)
+          java.io.File.new(filename).canonical_path
+        elsif RUBY_VERSION < '1.9'
+          filename
+        else
+          File.realpath(filename)
+        end
+      end
   end
 
   class BreakpointsCommand < Command # :nodoc:
