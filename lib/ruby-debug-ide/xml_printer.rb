@@ -173,7 +173,7 @@ module Debugger
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
           CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
-      print("<value><![CDATA[%s]]></value>", value_str)
+      print("<value><![CDATA[%s]]></value>", CGI.escapeHTML(value_str))
       print('</variable>')
     end
     
