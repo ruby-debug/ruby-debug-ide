@@ -1,8 +1,9 @@
 require 'ruby-debug-ide/helper'
+require 'delegate'
 
 module Debugger
 
-  class Command # :nodoc:
+  class Command < SimpleDelegator # :nodoc:
     SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
       defined?(SubcmdStruct)
 
@@ -67,6 +68,7 @@ module Debugger
     
     def initialize(state, printer)
       @state, @printer = state, printer
+      super @printer
     end
     
     def match(input)
@@ -75,15 +77,6 @@ module Debugger
 
     protected
 
-    def method_missing(meth, *args, &block)
-      if @printer.respond_to? meth
-        @printer.send meth, *args, &block
-      else
-        super
-      end
-    end
-    
-    # FIXME: use delegate? 
     def errmsg(*args)
       @printer.print_error(*args)
     end
