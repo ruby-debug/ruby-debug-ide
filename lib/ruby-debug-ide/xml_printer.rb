@@ -150,7 +150,8 @@ module Debugger
         unless has_children
           value_str = "Empty #{value.class}"
         else
-          value_str = "#{value.class} (#{value.size} element(s))"
+          size = value.size
+          value_str = "#{value.class} (#{value.size} element#{size > 1 ? "s" : "" })"
         end
       elsif value.is_a?(String)
         has_children = value.respond_to?('bytes') || value.respond_to?('encoding')
