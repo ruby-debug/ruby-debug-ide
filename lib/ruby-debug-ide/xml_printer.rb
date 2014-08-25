@@ -170,11 +170,29 @@ module Debugger
         end 
       end
       value_str = "[Binary Data]" if (value_str.respond_to?('is_binary_data?') && value_str.is_binary_data?)
-      print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
-          CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class,
+      compact_value_str = build_compact_name(value_str, value)
+      print("<variable name=\"%s\" compactValue=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
+          CGI.escapeHTML(name), CGI.escapeHTML(compact_value_str), kind, CGI.escapeHTML(value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
       print("<value><![CDATA[%s]]></value>", CGI.escapeHTML(value_str))
       print('</variable>')
+    end
+
+    def build_compact_name(value_str, value)
+      compact = value_str
+      if value.is_a?(Array)
+        slice = value[0..10]
+        compact = slice.inspect
+        if (value.size != slice.size)
+          compact = compact[0..compact.size-2] + ", ...]"
+        end
+      end
+      if value.is_a?(Hash)
+        slice = value.sort_by { |k,v| k }[0..5]
+        compact = slice.map {|kv| "#{kv[0]}: #{kv[1]}"}.join(", ")
+        compact = "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
+      end
+      compact
     end
     
     def print_breakpoints(breakpoints)
