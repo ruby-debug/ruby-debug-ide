@@ -20,18 +20,18 @@ unless jruby || rbx
   if RUBY_VERSION < "1.9"
     dep = Gem::Dependency.new("ruby-debug-base", '>=0.10.4')
   elsif RUBY_VERSION < '2.0'
-    dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.24')
+    dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.30.pre15')
   else    
     dep = Gem::Dependency.new("debase", '> 0')
   end
 
   begin
     puts "Installing base gem"
-    inst = Gem::DependencyInstaller.new    
+    inst = Gem::DependencyInstaller.new :prerelease => dep.prerelease?
     inst.install dep
   rescue
-    inst = Gem::DependencyInstaller.new(:prerelease => true)
     begin
+      inst = Gem::DependencyInstaller.new(:prerelease => true)
       inst.install dep
     rescue Exception => e
       puts e
