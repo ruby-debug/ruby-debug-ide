@@ -1,5 +1,3 @@
-require 'pathname' if RUBY_VERSION < '1.9'
-
 module Debugger
   class AddBreakpoint < Command # :nodoc:
     self.control = true
@@ -69,9 +67,7 @@ module Debugger
       def realpath(filename)
         filename = File.expand_path(filename) if filename.index(File::SEPARATOR) || \
             File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
-        if defined?(JRUBY_VERSION)
-          java.io.File.new(filename).canonical_path
-        elsif RUBY_VERSION < '1.9'
+        if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
           filename
         else
           File.realpath(filename)
