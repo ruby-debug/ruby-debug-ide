@@ -59,8 +59,9 @@ module Debugger
   end
   
   class VarInstanceCommand < Command # :nodoc:
-    # TODO: try to find out a way to use Kernel.binding
-    BINDING_COMMAND = (defined? Rubinius) ? 'binding' : '::Kernel.binding'
+    # TODO: try to find out a way to use Kernel.binding for Rubinius
+    # ::Kernel.binding doesn't for for ruby 1.8 (see RUBY-14679)
+    BINDING_COMMAND = (defined?(Rubinius) || RUBY_VERSION < '1.9') ? 'binding' : '::Kernel.binding'
 
     def regexp
       # id will be read as first match, name as post match
