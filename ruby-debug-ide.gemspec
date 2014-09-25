@@ -6,7 +6,7 @@ RUBY_DEBUG_IDE_VERSION = Debugger::IDE_VERSION unless defined? RUBY_DEBUG_IDE_VE
 
 unless defined? FILES
   FILES = ['CHANGES',
-  'ChangeLog',
+  'ChangeLog.md',
   'ChangeLog.archive',
   'MIT-LICENSE',
   'Rakefile',
