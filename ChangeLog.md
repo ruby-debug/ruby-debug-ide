@@ -1,4 +1,4 @@
-## [0.4.23.beta9](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta8...master)
+## [0.4.23.beta9](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta8...v0.4.23.beta9)
 
 * problem with calculating local varibales for 1.8 fixed
 
