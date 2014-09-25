@@ -1,3 +1,6 @@
+## [0.4.23.beta9](https://ruby-debug/ruby-debug-ide/compare/v0.4.23.beta8...v0.4.23.beta9)
+
+## "per-historical" changes 
 Dennis Ushakov <dennis.ushakov@gmail.com>
   * run context commands on stopped thread to prevent segfaults (3c1b52d5091fccec447d5695d5b43e73f335cc54)
   * enable building without deps (9b597f8ce2b97ed40bb57e55ad178cf8ce270fa9)
