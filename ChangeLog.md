@@ -1,3 +1,7 @@
+## [0.4.23.beta9](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta9...v0.4.23.beta10)
+
+* fixed problem with printing hashes [RUBY-15804](https://youtrack.jetbrains.com/issue/RUBY-15804)
+
 ## [0.4.23.beta9](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta8...v0.4.23.beta9)
 
 * problem with calculating local varibales for 1.8 fixed

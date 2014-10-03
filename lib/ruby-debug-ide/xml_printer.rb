@@ -189,7 +189,7 @@ module Debugger
         end
       end
       if value.is_a?(Hash)
-        slice = value.sort_by { |k,v| k }[0..5]
+        slice = value.sort_by { |k,v| k.to_s }[0..5]
         compact = slice.map {|kv| "#{kv[0]}: #{kv[1]}"}.join(", ")
         compact = "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
       end
