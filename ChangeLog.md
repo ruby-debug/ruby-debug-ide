@@ -1,4 +1,9 @@
-## [0.4.23.beta9](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta9...v0.4.23.beta10)
+## [0.4.23.beta11](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta10...v0.4.23.beta11)
+
+* adding breakpoint in non-existing file should not break debugger
+  [RUBY-15873](https://youtrack.jetbrains.com/issue/RUBY-15873)
+
+## [0.4.23.beta10](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta9...v0.4.23.beta10)
 
 * fixed problem with printing hashes [RUBY-15804](https://youtrack.jetbrains.com/issue/RUBY-15804)
 

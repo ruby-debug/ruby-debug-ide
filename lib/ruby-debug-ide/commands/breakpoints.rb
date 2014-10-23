@@ -70,7 +70,7 @@ module Debugger
         if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
           filename
         else
-          File.realpath(filename)
+          File.realpath(filename) rescue filename
         end
       end
   end
