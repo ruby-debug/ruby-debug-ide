@@ -91,7 +91,7 @@ module Debugger
     end
     
     def print_context(context)
-      print "<thread id=\"%s\" status=\"%s\" pid=\"%s\" #{current_thread_attr}/>", context.thnum, context.thread.status, Process.pid
+      print "<thread id=\"%s\" status=\"%s\" pid=\"%s\" #{current_thread_attr(context)}/>", context.thnum, context.thread.status, Process.pid
     end
     
     def print_variables(vars, kind)
@@ -349,7 +349,7 @@ module Debugger
       value
     end
 
-    def current_thread_attr
+    def current_thread_attr(context)
       if context.thread == Thread.current
         'current="yes"'
       else
