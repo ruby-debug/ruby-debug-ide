@@ -344,7 +344,8 @@ module Debugger
     end
 
     def handle_binary_data(value)
-      return "[Binary Data]" if (value.respond_to?('is_binary_data?') && value.is_binary_data?)
+      return '[Binary Data]' if (value.respond_to?('is_binary_data?') && value.is_binary_data?)
+      return '[Invalid encoding]' if (value.respond_to?('valid_encoding?') && !value.valid_encoding?)
       value
     end
 
