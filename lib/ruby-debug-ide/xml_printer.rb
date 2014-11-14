@@ -91,8 +91,7 @@ module Debugger
     end
     
     def print_context(context)
-      current = 'current="yes"' if context.thread == Thread.current
-      print "<thread id=\"%s\" status=\"%s\" pid=\"%s\" #{current}/>", context.thnum, context.thread.status, Process.pid
+      print "<thread id=\"%s\" status=\"%s\" pid=\"%s\" #{current_thread_attr}/>", context.thnum, context.thread.status, Process.pid
     end
     
     def print_variables(vars, kind)
@@ -147,28 +146,29 @@ module Debugger
       end
       if value.is_a?(Array) || value.is_a?(Hash)
         has_children = !value.empty?
-        unless has_children
-          value_str = "Empty #{value.class}"
-        else
-          size = value.size
+        if has_children
+          size      = value.size
           value_str = "#{value.class} (#{value.size} element#{size > 1 ? "s" : "" })"
+        else
+          value_str = "Empty #{value.class}"
         end
       elsif value.is_a?(String)
         has_children = value.respond_to?('bytes') || value.respond_to?('encoding')
         value_str = value
       else  
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
-        value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #$!>"
+        value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
         end
       end
 
       if value_str.respond_to?('encode')
+        # noinspection RubyEmptyRescueBlockInspection
         begin
          value_str = value_str.encode("UTF-8")
         rescue
-        end 
+        end
       end
       value_str = handle_binary_data(value_str)
       compact_value_str = build_compact_name(value_str, value)
@@ -189,7 +189,7 @@ module Debugger
         end
       end
       if value.is_a?(Hash)
-        slice = value.sort_by { |k,v| k.to_s }[0..5]
+        slice = value.sort_by { |k, _| k.to_s }[0..5]
         compact = slice.map {|kv| "#{kv[0]}: #{handle_binary_data(kv[1])}"}.join(", ")
         compact = "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
       end
@@ -255,7 +255,7 @@ module Debugger
     
     def print_list(b, e, file, line)
       print "[%d, %d] in %s\n", b, e, file
-      if lines = Debugger.source_for(file)
+      if (lines = Debugger.source_for(file))
         b.upto(e) do |n|
           if n > 0 && lines[n-1]
             if n == line
@@ -266,7 +266,7 @@ module Debugger
           end
         end
       else
-        print "No sourcefile available for %s\n", file
+        print "No source-file available for %s\n", file
       end
     end
     
@@ -280,7 +280,7 @@ module Debugger
     
     # Events
     
-    def print_breakpoint(n, breakpoint)
+    def print_breakpoint(_, breakpoint)
       print("<breakpoint file=\"%s\" line=\"%s\" threadId=\"%d\"/>", 
       breakpoint.source, breakpoint.pos, Debugger.current_context.thnum)
     end
@@ -302,7 +302,7 @@ module Debugger
         File.expand_path(file), line, context.thnum, context.stack_size
     end
     
-    def print_exception(exception, binding)
+    def print_exception(exception, _)
       print_element("variables") do
         proxy = ExceptionProxy.new(exception)
         InspectCommand.reference_result(proxy)
@@ -347,6 +347,14 @@ module Debugger
       return '[Binary Data]' if (value.respond_to?('is_binary_data?') && value.is_binary_data?)
       return '[Invalid encoding]' if (value.respond_to?('valid_encoding?') && !value.valid_encoding?)
       value
+    end
+
+    def current_thread_attr
+      if context.thread == Thread.current
+        'current="yes"'
+      else
+        ''
+      end
     end
 
     instance_methods.each do |m|
