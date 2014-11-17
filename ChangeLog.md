@@ -1,3 +1,8 @@
+## [0.4.23](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta11...v0.4.23)
+
+* fixed problem with compact name for binary params (strings with invalid encoding)
+  [RUBY-15960](https://youtrack.jetbrains.com/issue/RUBY-15960)
+
 ## [0.4.23.beta11](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta10...v0.4.23.beta11)
 
 * adding breakpoint in non-existing file should not break debugger
