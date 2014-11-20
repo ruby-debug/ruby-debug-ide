@@ -180,20 +180,7 @@ module Debugger
     end
 
     def build_compact_name(value_str, value)
-      compact = value_str
-      if value.is_a?(Array)
-        slice = value[0..10]
-        compact = slice.inspect
-        if value.size != slice.size
-          compact = compact[0..compact.size-2] + ", ...]"
-        end
-      end
-      if value.is_a?(Hash)
-        slice = value.sort_by { |k, _| k.to_s }[0..5]
-        compact = slice.map {|kv| "#{kv[0]}: #{handle_binary_data(kv[1])}"}.join(", ")
-        compact = "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
-      end
-      compact
+      value_str
     end
     
     def print_breakpoints(breakpoints)
