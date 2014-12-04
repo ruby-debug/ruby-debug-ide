@@ -180,23 +180,6 @@ module Debugger
       print('</variable>')
     end
 
-    def build_compact_name(value_str, value)
-      compact = value_str
-      if value.is_a?(Array)
-        slice = value[0..10]
-        compact = slice.inspect
-        if value.size != slice.size
-          compact = compact[0..compact.size-2] + ", ...]"
-        end
-      end
-      if value.is_a?(Hash)
-        slice = value.sort_by { |k, _| k.to_s }[0..5]
-        compact = slice.map {|kv| "#{kv[0]}: #{handle_binary_data(kv[1])}"}.join(", ")
-        compact = "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
-      end
-      compact
-    end
-    
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
         breakpoints.sort_by{|b| b.id }.each do |b|
@@ -357,6 +340,27 @@ module Debugger
       else
         ''
       end
+    end
+
+    def build_compact_name(value_str, value)
+      return compact_array_str(value) if value.is_a?(Array)
+      return compact_hash_str(value) if value.is_a?(Hash)
+      value_str
+    end
+
+    def compact_array_str(value)
+      slice   = value[0..10]
+      compact = slice.inspect
+      if value.size != slice.size
+        compact[0..compact.size-2] + ", ...]"
+      end
+      compact
+    end
+
+    def compact_hash_str(value)
+      slice   = value.sort_by { |k, _| k.to_s }[0..5]
+      compact = slice.map { |kv| "#{kv[0]}: #{handle_binary_data(kv[1])}" }.join(", ")
+      "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
     end
 
     instance_methods.each do |m|
