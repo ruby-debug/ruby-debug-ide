@@ -298,7 +298,7 @@ module Debugger
     end
     
     def print_at_line(context, file, line)
-      print "<suspended file=\'%s\' line=\'%s\' threadId=\'%d\' frames=\'%d\'/>",
+      print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\" frames=\"%d\"/>",
         File.expand_path(file), line, context.thnum, context.stack_size
     end
     
@@ -344,6 +344,7 @@ module Debugger
     end
 
     def handle_binary_data(value)
+      # noinspection RubyResolve
       return '[Binary Data]' if (value.respond_to?('is_binary_data?') && value.is_binary_data?)
       return '[Invalid encoding]' if (value.respond_to?('valid_encoding?') && !value.valid_encoding?)
       value
