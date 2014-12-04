@@ -172,10 +172,11 @@ module Debugger
       end
       value_str = handle_binary_data(value_str)
       compact_value_str = build_compact_name(value_str, value)
+      escaped_value_str = CGI.escapeHTML(value_str)
       print("<variable name=\"%s\" compactValue=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
-          CGI.escapeHTML(name), CGI.escapeHTML(compact_value_str), kind, CGI.escapeHTML(value_str), value.class,
+          CGI.escapeHTML(name), CGI.escapeHTML(compact_value_str), kind, escaped_value_str, value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
-      print("<value><![CDATA[%s]]></value>", CGI.escapeHTML(value_str))
+      print("<value><![CDATA[%s]]></value>", escaped_value_str)
       print('</variable>')
     end
 
