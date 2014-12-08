@@ -354,12 +354,16 @@ module Debugger
         compact[0..compact.size-2] + ", ...]"
       end
       compact
+    rescue
+      nil
     end
 
     def compact_hash_str(value)
       slice   = value.sort_by { |k, _| k.to_s }[0..5]
       compact = slice.map { |kv| "#{kv[0]}: #{handle_binary_data(kv[1])}" }.join(", ")
       "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
+    rescue
+      nil
     end
 
     def build_compact_value_attr(value)
