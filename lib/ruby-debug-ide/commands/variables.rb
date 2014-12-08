@@ -129,7 +129,7 @@ module Debugger
       locals = @state.context.frame_locals(@state.frame_pos)
       _self = @state.context.frame_self(@state.frame_pos)
       begin
-        locals['self'] = _self unless _self.to_s == "main"
+        locals['self'] = _self unless "main" == _self.to_s
       rescue => ex
         locals['self'] = "<Cannot evaluate self>"
         $stderr << "Cannot evaluate self\n#{ex.class.name}: #{ex.message}\n  #{ex.backtrace.join("\n  ")}"
