@@ -172,7 +172,7 @@ module Debugger
       end
       value_str = handle_binary_data(value_str)
       escaped_value_str = CGI.escapeHTML(value_str)
-      print("<variable name=\"%s\" %s kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
+      print("<variable name=\"%s\" %s kind=\"%s\" %s type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
           CGI.escapeHTML(name), build_compact_value_attr(value), kind, build_value_attr(escaped_value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
       print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.rm_protocol_extensions
@@ -371,7 +371,7 @@ module Debugger
     end
 
     def build_value_attr(escaped_value_str)
-      Debugger.rm_protocol_extensions ? '' : escaped_value_str
+      Debugger.rm_protocol_extensions ? '' : "value=\"#{escaped_value_str}\""
     end
 
     instance_methods.each do |m|

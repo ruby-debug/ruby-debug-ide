@@ -1,3 +1,7 @@
+## [0.4.24.beta5](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24.beta4...v0.4.24.beta5)
+
+* do not print empty value attr in case RubyMine-specific protocol extensions are enabled
+
 ## [0.4.24.beta4](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23...v0.4.24.beta4)
 
 * Performance optimisation for variable representation [RUBY-16055](https://youtrack.jetbrains.com/issue/RUBY-16055)
