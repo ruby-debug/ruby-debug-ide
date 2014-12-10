@@ -78,7 +78,7 @@ module Debugger
     def print_frame(context, frame_id, current_frame_id)
       # idx + 1: one-based numbering as classic-debugger
       file = context.frame_file(frame_id)
-      print "<frame no=\'%s\' file=\'%s\' line=\'%s\' #{"current='true' " if frame_id == current_frame_id}/>",
+      print "<frame no=\"%s\" file=\"%s\" line=\"%s\" #{"current='true' " if frame_id == current_frame_id}/>",
         frame_id + 1, File.expand_path(file), context.frame_line(frame_id)
     end
     
@@ -173,9 +173,9 @@ module Debugger
       value_str = handle_binary_data(value_str)
       escaped_value_str = CGI.escapeHTML(value_str)
       print("<variable name=\"%s\" %s kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
-          CGI.escapeHTML(name), build_compact_value_attr(value), kind, escaped_value_str, value.class,
+          CGI.escapeHTML(name), build_compact_value_attr(value), kind, build_value_attr(escaped_value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
-      print("<value><![CDATA[%s]]></value>", escaped_value_str)
+      print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.rm_protocol_extensions
       print('</variable>')
     end
 
@@ -345,6 +345,9 @@ module Debugger
       return compact_array_str(value) if value.is_a?(Array)
       return compact_hash_str(value) if value.is_a?(Hash)
       nil
+    rescue ::Exception => e
+      print_debug(e)
+      nil
     end
 
     def compact_array_str(value)
@@ -365,6 +368,10 @@ module Debugger
     def build_compact_value_attr(value)
       compact_value_str  = build_compact_name(value)
       compact_value_str.nil? ? '' : "compactValue=\"#{CGI.escapeHTML(compact_value_str)}\""
+    end
+
+    def build_value_attr(escaped_value_str)
+      Debugger.rm_protocol_extensions ? '' : escaped_value_str
     end
 
     instance_methods.each do |m|

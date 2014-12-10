@@ -28,13 +28,13 @@ module Debugger
         s.interface = @interface
       end
       event_cmds = Command.commands.map{|cmd| cmd.new(state, @printer) }
-      while !state.proceed? do
+      until state.proceed? do
         input = @interface.command_queue.pop
         catch(:debug_error) do
           splitter[input].each do |input|
             # escape % since print_debug might use printf
             @printer.print_debug "Processing in context: #{input.gsub('%', '%%')}"
-            if cmd = event_cmds.find { |c| c.match(input) }
+            if (cmd = event_cmds.find { |c| c.match(input) })
               if context.dead? && cmd.class.need_context
                 @printer.print_msg "Command is unavailable\n"
               else
@@ -42,7 +42,7 @@ module Debugger
               end
             else
               @printer.print_msg "Unknown command: #{input}"
-            end            
+            end
           end
         end
         state.restore_context
