@@ -1,3 +1,9 @@
+## [0.4.24.beta4](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23...v0.4.24.beta4)
+
+* Performance optimisation for variable representation [RUBY-16055](https://youtrack.jetbrains.com/issue/RUBY-16055)
+* Added command line argument to enable RubyMine-specific protocol extensions
+* Several fixes to make debugger more robust [RUBY-16070](https://youtrack.jetbrains.com/issue/RUBY-16070)
+
 ## [0.4.23](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.23.beta11...v0.4.23)
 
 * fixed problem with compact name for binary params (strings with invalid encoding)
