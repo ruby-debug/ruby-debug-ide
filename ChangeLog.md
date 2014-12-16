@@ -1,3 +1,7 @@
+## [0.4.24](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24.beta5...v0.4.24)
+
+* time to release
+
 ## [0.4.24.beta5](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24.beta4...v0.4.24.beta5)
 
 * do not print empty value attr in case RubyMine-specific protocol extensions are enabled
