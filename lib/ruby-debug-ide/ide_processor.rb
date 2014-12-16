@@ -64,8 +64,9 @@ module Debugger
 
     def exec_command(context, known_cmds, command)
       # escape % since print_debug might use printf
-      command_str = command.gsub('%', '%%')
-      @printer.print_debug "Processing in context: \"#{command_str}\", time: #{current_time}"
+      command_str = command.gsub('%', '%%').trim
+      start_time = current_time
+      @printer.print_debug "Processing in context: \"#{command_str}\""
       if (cmd = known_cmds.find { |c| c.match(command) })
         if context.dead? && cmd.class.need_context
           @printer.print_msg "Command is unavailable\n"
@@ -76,7 +77,7 @@ module Debugger
         @printer.print_msg "Unknown command: #{command}"
       end
     ensure
-      @printer.print_debug "\"#{command_str}\" executed in context, time: #{current_time}"
+      @printer.print_debug "\"#{command_str}\" executed in context, time: #{current_time - start_time}"
     end
 
     def current_time
@@ -97,7 +98,7 @@ module Debugger
         # sleep 0.3
         catch(:debug_error) do
           if (cmd = ctrl_cmds.find{|c| c.match(input) })
-            exec_control_command(cmd, input.gsub('%', '%%'))
+            exec_control_command(cmd, input.gsub('%', '%%').trim)
           else
             @interface.command_queue << input
           end
@@ -112,10 +113,11 @@ module Debugger
     end
 
     def exec_control_command(cmd, command)
-      @printer.print_debug "Processing in control: #{command}, time: #{current_time}"
+      start_time = current_time
+      @printer.print_debug "Processing in control: #{command}"
       cmd.execute
     ensure
-      @printer.print_debug "\"#{command}\" executed in control, time: #{current_time}"
+      @printer.print_debug "\"#{command}\" executed in control, time: #{current_time - start_time}"
     end
   end
 
