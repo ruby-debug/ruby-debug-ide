@@ -31,18 +31,8 @@ module Debugger
       until state.proceed? do
         input = @interface.command_queue.pop
         catch(:debug_error) do
-          splitter[input].each do |input|
-            # escape % since print_debug might use printf
-            @printer.print_debug "Processing in context: #{input.gsub('%', '%%')}"
-            if (cmd = event_cmds.find { |c| c.match(input) })
-              if context.dead? && cmd.class.need_context
-                @printer.print_msg "Command is unavailable\n"
-              else
-                cmd.execute
-              end
-            else
-              @printer.print_msg "Unknown command: #{input}"
-            end
+          splitter[input].each do |command|
+            exec_command(context, event_cmds, command)
           end
         end
         state.restore_context
@@ -68,7 +58,31 @@ module Debugger
           m
         end
       end
-    end    
+    end
+
+    private
+
+    def exec_command(context, known_cmds, command)
+      # escape % since print_debug might use printf
+      command_str = command.gsub('%', '%%')
+      @printer.print_debug "Processing in context: \"#{command_str}\", time: #{current_time}"
+      if (cmd = known_cmds.find { |c| c.match(command) })
+        if context.dead? && cmd.class.need_context
+          @printer.print_msg "Command is unavailable\n"
+        else
+          cmd.execute
+        end
+      else
+        @printer.print_msg "Unknown command: #{command}"
+      end
+    ensure
+      @printer.print_debug "\"#{command_str}\" executed in context, time: #{current_time}"
+    end
+
+    def current_time
+      Time.now.usec
+    end
+
   end
     
   class IdeControlCommandProcessor < IdeCommandProcessor# :nodoc:
@@ -78,13 +92,12 @@ module Debugger
       state = ControlState.new(@interface)
       ctrl_cmds = ctrl_cmd_classes.map{|cmd| cmd.new(state, @printer)}
       
-      while input = @interface.read_command
+      while (input = @interface.read_command)
         # escape % since print_debug might use printf
         # sleep 0.3
         catch(:debug_error) do
-          if cmd = ctrl_cmds.find{|c| c.match(input) }
-            @printer.print_debug "Processing in control: #{input.gsub('%', '%%')}"
-            cmd.execute
+          if (cmd = ctrl_cmds.find{|c| c.match(input) })
+            exec_control_command(cmd, input.gsub('%', '%%'))
           else
             @interface.command_queue << input
           end
@@ -96,6 +109,13 @@ module Debugger
       @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
     ensure
       @interface.close
+    end
+
+    def exec_control_command(cmd, command)
+      @printer.print_debug "Processing in control: #{command}, time: #{current_time}"
+      cmd.execute
+    ensure
+      @printer.print_debug "\"#{command}\" executed in control, time: #{current_time}"
     end
   end
 
