@@ -64,7 +64,7 @@ module Debugger
 
     def exec_command(context, known_cmds, command)
       # escape % since print_debug might use printf
-      command_str = command.gsub('%', '%%').trim
+      command_str = command.gsub('%', '%%').strip
       start_time = current_time
       @printer.print_debug "Processing in context: \"#{command_str}\""
       if (cmd = known_cmds.find { |c| c.match(command) })
@@ -98,7 +98,7 @@ module Debugger
         # sleep 0.3
         catch(:debug_error) do
           if (cmd = ctrl_cmds.find{|c| c.match(input) })
-            exec_control_command(cmd, input.gsub('%', '%%').trim)
+            exec_control_command(cmd, input.gsub('%', '%%').strip)
           else
             @interface.command_queue << input
           end
