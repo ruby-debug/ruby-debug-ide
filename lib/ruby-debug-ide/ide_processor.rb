@@ -90,11 +90,7 @@ module Debugger
           end
         end
       end
-    rescue IOError, SystemCallError
-      @printer.print_debug "INTERNAL ERROR!!! #{$!}\n"
-      @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
-      @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
-    rescue Exception
+    rescue ::Exception
       @printer.print_debug "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
