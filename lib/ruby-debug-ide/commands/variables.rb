@@ -80,11 +80,11 @@ module Debugger
         obj = debug_eval(@match.post_match)
       end
       return unless obj
-      if (obj.is_a?(Array)) then
+      if obj.is_a?(Array)
         print_array(obj)
-      elsif (obj.is_a?(Hash)) then
+      elsif obj.is_a?(Hash)
         print_hash(obj)
-      elsif (obj.is_a?(String))
+      elsif obj.is_a?(String)
         print_string(obj)
       else
         print_element("variables") do
