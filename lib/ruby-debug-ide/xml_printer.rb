@@ -154,7 +154,7 @@ module Debugger
         end
       elsif value.is_a?(String)
         has_children = value.respond_to?('bytes') || value.respond_to?('encoding')
-        value_str = value
+        value_str = value.inspect
       else  
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
         value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
