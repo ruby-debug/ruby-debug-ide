@@ -1,3 +1,8 @@
+## [0.4.25](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24...v0.4.25)
+
+* Let's use String#inspect in print variable for String variables
+  [RUBY-16192](https://youtrack.jetbrains.com/issue/RUBY-16192)
+
 ## [0.4.24](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24.beta5...v0.4.24)
 
 * time to release
