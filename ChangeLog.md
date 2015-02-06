@@ -1,3 +1,8 @@
+## [0.4.26](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.25...v0.4.26)
+
+* Compact value for inline debugger should be really compact
+  [RUBY-15932](https://youtrack.jetbrains.com/issue/RUBY-15932)
+
 ## [0.4.25](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.24...v0.4.25)
 
 * Let's use String#inspect in print variable for String variables
