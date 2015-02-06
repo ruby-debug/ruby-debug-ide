@@ -173,7 +173,8 @@ module Debugger
       value_str = handle_binary_data(value_str)
       escaped_value_str = CGI.escapeHTML(value_str)
       print("<variable name=\"%s\" %s kind=\"%s\" %s type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
-          CGI.escapeHTML(name), build_compact_value_attr(value), kind, build_value_attr(escaped_value_str), value.class,
+          CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
+          build_value_attr(escaped_value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
       print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.rm_protocol_extensions
       print('</variable>')
@@ -341,13 +342,19 @@ module Debugger
       end
     end
 
-    def build_compact_name(value)
+    def build_compact_name(value, value_str)
       return compact_array_str(value) if value.is_a?(Array)
       return compact_hash_str(value) if value.is_a?(Hash)
+      return value_str[0..max_compact_name_size - 3] + '...' if value_str.size > max_compact_name_size
       nil
     rescue ::Exception => e
       print_debug(e)
       nil
+    end
+
+    def max_compact_name_size
+      # todo: do we want to configure it?
+      50
     end
 
     def compact_array_str(value)
@@ -365,8 +372,8 @@ module Debugger
       "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
     end
 
-    def build_compact_value_attr(value)
-      compact_value_str  = build_compact_name(value)
+    def build_compact_value_attr(value, value_str)
+      compact_value_str  = build_compact_name(value, value_str)
       compact_value_str.nil? ? '' : "compactValue=\"#{CGI.escapeHTML(compact_value_str)}\""
     end
 
