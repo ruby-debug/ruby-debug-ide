@@ -1,3 +1,8 @@
+## [0.4.27](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.26...v0.4.27)
+
+* Redundant quotes dropped from string variable representation
+  [RUBY-16275](https://youtrack.jetbrains.com/issue/RUBY-16275)
+
 ## [0.4.26](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.25...v0.4.26)
 
 * Compact value for inline debugger should be really compact
