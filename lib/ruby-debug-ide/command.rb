@@ -108,8 +108,8 @@ module Debugger
     def debug_eval(str, b = get_binding)
       begin
         str = str.to_s
+        to_inspect = unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
-        to_inspect = str.gsub(/\\n/, "\n")
         @printer.print_debug("Evaluating #{str} with timeout after %i sec", max_time)
         timeout(max_time) do
           eval(to_inspect, b)
@@ -118,6 +118,11 @@ module Debugger
         @printer.print_exception(e, @state.binding) 
         throw :debug_error
       end
+    end
+
+    def unescape_incoming(str)
+        str.gsub(/(?<backsl_escapes>(?:^|[^\\])(?:\\\\)*)\\n/, "\\k<backsl_escapes>\n")
+           .gsub(/\\\\/, '\\')
     end
 
     def debug_silent_eval(str)
