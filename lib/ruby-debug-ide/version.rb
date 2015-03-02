@@ -1,3 +1,3 @@
 module Debugger
-  IDE_VERSION='0.4.27'
+  IDE_VERSION='0.4.28'
 end
