@@ -64,6 +64,11 @@ module Debugger
       def options
         @options ||= {}
       end
+
+      def unescape_incoming(str)
+        str.gsub(/((?:^|[^\\])(?:\\\\)*)\\n/, "\\1\n")
+            .gsub(/\\\\/, '\\')
+      end
     end
     
     def initialize(state, printer)
@@ -104,11 +109,11 @@ module Debugger
         y.kill if y and y.alive?
       end
     end
-    
+
     def debug_eval(str, b = get_binding)
       begin
         str = str.to_s
-        to_inspect = unescape_incoming(str)
+        to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
         @printer.print_debug("Evaluating #{str} with timeout after %i sec", max_time)
         timeout(max_time) do
@@ -118,11 +123,6 @@ module Debugger
         @printer.print_exception(e, @state.binding) 
         throw :debug_error
       end
-    end
-
-    def unescape_incoming(str)
-        str.gsub(/(?<backsl_escapes>(?:^|[^\\])(?:\\\\)*)\\n/, "\\k<backsl_escapes>\n")
-           .gsub(/\\\\/, '\\')
     end
 
     def debug_silent_eval(str)
