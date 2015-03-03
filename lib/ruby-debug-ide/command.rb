@@ -66,8 +66,8 @@ module Debugger
       end
 
       def unescape_incoming(str)
-        str.gsub(/((?:^|[^\\])(?:\\\\)*)\\n/, "\\1\n")
-            .gsub(/\\\\/, '\\')
+        str.gsub(/((?:^|[^\\])(?:\\\\)*)\\n/, "\\1\n").
+            gsub(/\\\\/, '\\')
       end
     end
     
