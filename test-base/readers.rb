@@ -19,6 +19,7 @@ module Readers
   RubyThread = Struct.new("RubyThread", :id, :status)
   Frame = Struct.new("Frame", :no, :file, :line)
   Variable = Struct.new("Variable", :name, :kind, :value, :type, :hasChildren, :objectId)
+  ExpressionInfo = Struct.new("ExpressionInfo", :incomplete, :prompt, :indent)
 
   def read_breakpoint_added
     (@breakpoint_added_reader ||= BreakPointAddedReader.new(parser)).read
@@ -86,6 +87,10 @@ module Readers
 
   def read_processing_exception
     (@processing_exception_reader ||= ProcessingExceptionReader.new(parser)).read
+  end
+
+  def read_expression_info
+    (@expression_info_reader ||= ExpressionInfoReader.new(parser)).read
   end
 
   def parser
@@ -312,6 +317,13 @@ module Readers
     def read
       data = read_element_data('processingException')
       ProcessingException.new(data['type'], data['message'])
+    end
+  end
+
+  class ExpressionInfoReader < BaseReader
+    def read
+      data = read_element_data("expressionInfo")
+      ExpressionInfo.new(data['incomplete'], data['prompt'], data['indent'])
     end
   end
 
