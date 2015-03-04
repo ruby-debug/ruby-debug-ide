@@ -13,23 +13,7 @@ module Debugger
       total_lines = string_to_parse.count("\n") + 1
 
       lexer = RubyLex.new
-      io = StringIO.new(string_to_parse)
-
-      begin
-        encoding = string_to_parse.encoding
-      rescue
-        encoding = 'None'
-      end
-
-      # for passing to the lexer
-      io.instance_exec(encoding) do |string_encoding|
-        @my_encoding = string_encoding
-        def self.encoding
-          @my_encoding
-        end
-      end
-
-      lexer.set_input(io)
+      lexer.set_input(create_io_reader(string_to_parse))
 
       last_statement = ''
       last_prompt = ''
@@ -51,6 +35,21 @@ module Debugger
       end
 
       @printer.print_expression_info(incomplete, last_prompt, last_indent)
+    end
+
+    def create_io_reader(string_to_parse)
+      io = StringIO.new(string_to_parse)
+
+      if string_to_parse.respond_to?(:encoding)
+        io.instance_exec(string_to_parse.encoding) do |string_encoding|
+          @my_encoding = string_encoding
+          def self.encoding
+            @my_encoding
+          end
+        end
+      end
+
+      io
     end
 
     class << self
