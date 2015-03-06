@@ -9,20 +9,11 @@ module Debugger
     end
 
     def execute
-      string_to_parse = @match.post_match.gsub("\\n", "\n") + "\n\n\n"
+      string_to_parse = Command.unescape_incoming(@match.post_match) + "\n\n\n"
       total_lines = string_to_parse.count("\n") + 1
 
       lexer = RubyLex.new
-      io = StringIO.new(string_to_parse)
-      # for passing to the lexer
-      io.instance_exec(string_to_parse.encoding) do |string_encoding|
-        @my_encoding = string_encoding
-        def self.encoding
-          @my_encoding
-        end
-      end
-
-      lexer.set_input(io)
+      lexer.set_input(create_io_reader(string_to_parse))
 
       last_statement = ''
       last_prompt = ''
@@ -39,11 +30,26 @@ module Debugger
       end
 
       incomplete = true
-      if /\A\s*\Z/m =~ last_statement[0]
+      if /\A\s*\Z/m =~ last_statement
         incomplete = false
       end
 
       @printer.print_expression_info(incomplete, last_prompt, last_indent)
+    end
+
+    def create_io_reader(string_to_parse)
+      io = StringIO.new(string_to_parse)
+
+      if string_to_parse.respond_to?(:encoding)
+        io.instance_exec(string_to_parse.encoding) do |string_encoding|
+          @my_encoding = string_encoding
+          def self.encoding
+            @my_encoding
+          end
+        end
+      end
+
+      io
     end
 
     class << self

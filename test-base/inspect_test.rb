@@ -68,5 +68,32 @@ module InspectTest
     send_cont
   end
 
+  def test_inspect_unescaping_escaped_newlines
+    create_socket ["sleep 0.1"]
+    run_to_line(1)
+
+    send_ruby('v inspect "\\\\n".size')
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned.")
+    assert_equal("1", variables[0].value, "There is one char (newline)")
+
+    send_ruby('v inspect "\\\\\\n".size')
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned.")
+    assert_equal("0", variables[0].value, "There are no chars, it's line continuation here")
+
+    send_ruby('v inspect "\\\\\\\\\\n".size')
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned.")
+    assert_equal("2", variables[0].value, "There are two chars: escaped backslash and newline")
+
+    send_ruby('v inspect \'"\\\\n\'.size')
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned.")
+    assert_equal("3", variables[0].value, "There are three chars: quote, backslash and n")
+
+    send_cont
+  end
+
 end
 
