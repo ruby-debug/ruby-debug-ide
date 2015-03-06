@@ -1,3 +1,7 @@
+## [0.4.28](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.27...v0.4.28)
+
+* [better handling for escaped chars and slashes](https://github.com/ruby-debug/ruby-debug-ide/pull/68)
+
 ## [0.4.27](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.26...v0.4.27)
 
 * Redundant quotes dropped from string variable representation
