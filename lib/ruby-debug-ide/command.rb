@@ -115,7 +115,7 @@ module Debugger
         str = str.to_s
         to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
-        @printer.print_debug("Evaluating #{str} with timeout after %i sec", max_time)
+        @printer.print_debug("Evaluating %s with timeout after %i sec", str, max_time)
         timeout(max_time) do
           eval(to_inspect, b)
         end
