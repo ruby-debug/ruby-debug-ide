@@ -1,3 +1,8 @@
+## [0.4.29](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.28...v0.4.29)
+
+* Fixed problem with evaluating "%"
+  [RUBY-16244](https://youtrack.jetbrains.com/issue/RUBY-16244)
+
 ## [0.4.28](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.27...v0.4.28)
 
 * [better handling for escaped chars and slashes](https://github.com/ruby-debug/ruby-debug-ide/pull/68)
