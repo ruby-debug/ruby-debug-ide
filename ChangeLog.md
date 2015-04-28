@@ -1,5 +1,9 @@
 ## [0.4.30](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.29...v0.4.30)
 
+* reverting fix for
+  [RUBY-16192](https://youtrack.jetbrains.com/issue/RUBY-16192) to resolve
+  [RUBY-16435](https://youtrack.jetbrains.com/issue/RUBY-16435)
+
 * unescaping of empty line fixed
   [RUBY-16600](https://youtrack.jetbrains.com/issue/RUBY-16600)
 
