@@ -28,6 +28,10 @@ class UnescaperTest < Test::Unit::TestCase
     do_test('"\\\\\\n".size', "\"\\\n\".size")
   end
 
+  def test_two_newlines
+    do_test('hello\n\nworld', "hello\n\nworld")
+  end
+
   def do_test(input, expected_result)
     assert_equal(expected_result, Debugger::Command.unescape_incoming(input))
   end

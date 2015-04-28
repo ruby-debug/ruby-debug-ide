@@ -1,3 +1,8 @@
+## [0.4.30](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.29...v0.4.30)
+
+* unescaping of empty line fixed
+  [RUBY-16600](https://youtrack.jetbrains.com/issue/RUBY-16600)
+
 ## [0.4.29](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.28...v0.4.29)
 
 * Fixed problem with evaluating "%"
