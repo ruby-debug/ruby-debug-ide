@@ -1,3 +1,8 @@
+## [0.4.31](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.30...v0.4.31)
+
+* need to handle mock objects somehow
+  [RUBY-16665](https://youtrack.jetbrains.com/issue/RUBY-16665)
+
 ## [0.4.30](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.29...v0.4.30)
 
 * reverting fix for

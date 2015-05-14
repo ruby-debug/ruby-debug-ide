@@ -178,6 +178,10 @@ module Debugger
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
       print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.rm_protocol_extensions
       print('</variable>')
+    rescue StandardError => e
+      print_debug "Unexpected exception \"%s\"\n%s", e.to_s, e.backtrace.join("\n")
+      print("<variable name=\"%s\" kind=\"%s\" value=\"%s\"/>",
+            CGI.escapeHTML(name), kind, CGI.escapeHTML(value.to_s))
     end
 
     def print_breakpoints(breakpoints)
