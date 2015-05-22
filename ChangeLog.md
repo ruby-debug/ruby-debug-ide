@@ -1,3 +1,8 @@
+## [0.4.32](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.31...v0.4.32)
+
+* Fixed problem with preloading psych
+  [RUBY-16721](https://youtrack.jetbrains.com/issue/RUBY-16721)
+
 ## [0.4.31](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.30...v0.4.31)
 
 * need to handle mock objects somehow
