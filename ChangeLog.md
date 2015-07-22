@@ -1,3 +1,8 @@
+## [0.4.33](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.32...v0.4.33)
+
+* Fixed problem with inspecting Jbuilder
+  [RUBY-16838](https://youtrack.jetbrains.com/issue/RUBY-16838)
+
 ## [0.4.32](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.31...v0.4.32)
 
 * Fixed problem with preloading psych
