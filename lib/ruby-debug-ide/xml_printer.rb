@@ -1,3 +1,4 @@
+require 'stringio'
 require 'cgi'
 require 'monitor'
 
@@ -180,7 +181,7 @@ module Debugger
     rescue StandardError => e
       print_debug "Unexpected exception \"%s\"\n%s", e.to_s, e.backtrace.join("\n")
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\"/>",
-            CGI.escapeHTML(name), kind, CGI.escapeHTML(value.to_s))
+            CGI.escapeHTML(name), kind, CGI.escapeHTML(safe_to_string(value)))
     end
 
     def print_breakpoints(breakpoints)
@@ -377,6 +378,15 @@ module Debugger
     def build_compact_value_attr(value, value_str)
       compact_value_str  = build_compact_name(value, value_str)
       compact_value_str.nil? ? '' : "compactValue=\"#{CGI.escapeHTML(compact_value_str)}\""
+    end
+
+    def safe_to_string(value)
+      str = value.to_s
+      return str unless str.nil?
+
+      string_io = StringIO.new
+      string_io.write(value)
+      string_io.string
     end
 
     def build_value_attr(escaped_value_str)
