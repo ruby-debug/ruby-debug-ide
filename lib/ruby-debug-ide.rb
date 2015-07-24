@@ -45,7 +45,7 @@ module Debugger
     attr_accessor :control_thread
     attr_reader :interface
     # protocol extensions
-    attr_accessor :catchpoint_deleted_event
+    attr_accessor :catchpoint_deleted_event, :skip_value_attr
 
 
     #

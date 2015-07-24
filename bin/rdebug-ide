@@ -21,7 +21,8 @@ options = OpenStruct.new(
   'dispatcher_port' => -1,
   'evaluation_timeout' => 10,
   'rm_protocol_extensions' => false,
-  'catchpoint_deleted_event' => false
+  'catchpoint_deleted_event' => false,
+  'skip_value_attr' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -61,6 +62,9 @@ EOB
   end
   opts.on("--catchpoint-deleted-event", "Enable chatchpointDeleted event") do
     options.catchpoint_deleted_event = true
+  end
+  opts.on("--skip-value-attr", "Allow to skip value attribute in variable representation") do
+    options.skip_value_attr = true
   end
   opts.separator ""
   opts.separator "Common options:"
@@ -122,6 +126,7 @@ Debugger.tracing = options.tracing
 Debugger.evaluation_timeout = options.evaluation_timeout
 Debugger.rm_protocol_extensions = options.rm_protocol_extensions
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
+Debugger.skip_value_attr = options.skip_value_attr || options.rm_protocol_extensions
 
 Debugger.debug_program(options)
 

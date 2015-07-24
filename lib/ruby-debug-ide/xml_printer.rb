@@ -398,7 +398,7 @@ module Debugger
     end
 
     def build_value_attr(escaped_value_str)
-      Debugger.rm_protocol_extensions ? '' : "value=\"#{escaped_value_str}\""
+      Debugger.skip_value_attr ? '' : "value=\"#{escaped_value_str}\""
     end
 
     instance_methods.each do |m|
