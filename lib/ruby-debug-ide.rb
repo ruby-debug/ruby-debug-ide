@@ -44,6 +44,8 @@ module Debugger
     attr_accessor :cli_debug, :xml_debug, :evaluation_timeout, :rm_protocol_extensions
     attr_accessor :control_thread
     attr_reader :interface
+    # protocol extensions
+    attr_accessor :catchpoint_deleted_event
 
 
     #

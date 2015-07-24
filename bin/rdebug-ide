@@ -20,7 +20,8 @@ options = OpenStruct.new(
   'int_handler' => true,
   'dispatcher_port' => -1,
   'evaluation_timeout' => 10,
-  'rm_protocol_extensions' => false
+  'rm_protocol_extensions' => false,
+  'catchpoint_deleted_event' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -55,8 +56,11 @@ EOB
   
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
-  opts.on("--rubymine-protocol-extensions", "Enable RubyMine-specific incompatible protocol extensions") do
+  opts.on("--rubymine-protocol-extensions", "Enable all RubyMine-specific incompatible protocol extensions") do
     options.rm_protocol_extensions = true
+  end
+  opts.on("--catchpoint-deleted-event", "Enable chatchpointDeleted event") do
+    options.catchpoint_deleted_event = true
   end
   opts.separator ""
   opts.separator "Common options:"
@@ -117,6 +121,7 @@ Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
 Debugger.evaluation_timeout = options.evaluation_timeout
 Debugger.rm_protocol_extensions = options.rm_protocol_extensions
+Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 
 Debugger.debug_program(options)
 
