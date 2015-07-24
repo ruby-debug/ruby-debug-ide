@@ -1,6 +1,7 @@
 ## [0.4.34](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.33...v0.4.34)
 
-* catchpointDeleted event added (under rm-protocol-extensions flag)
+* catchpointDeleted event added (under --catchpoint-deleted-event flag)
+* --value-as-nested-element to enable just this the extension
 
 ## [0.4.33](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.32...v0.4.33)
 

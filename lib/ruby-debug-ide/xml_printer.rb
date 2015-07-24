@@ -176,7 +176,7 @@ module Debugger
           CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
           build_value_attr(escaped_value_str), value.class,
           has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
-      print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.rm_protocol_extensions
+      print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.value_as_nested_element
       print('</variable>')
     rescue StandardError => e
       print_debug "Unexpected exception \"%s\"\n%s", e.to_s, e.backtrace.join("\n")
@@ -398,7 +398,7 @@ module Debugger
     end
 
     def build_value_attr(escaped_value_str)
-      Debugger.skip_value_attr ? '' : "value=\"#{escaped_value_str}\""
+      Debugger.value_as_nested_element ? '' : "value=\"#{escaped_value_str}\""
     end
 
     instance_methods.each do |m|

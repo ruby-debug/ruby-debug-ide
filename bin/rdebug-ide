@@ -22,7 +22,7 @@ options = OpenStruct.new(
   'evaluation_timeout' => 10,
   'rm_protocol_extensions' => false,
   'catchpoint_deleted_event' => false,
-  'skip_value_attr' => false
+  'value_as_nested_element' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -63,8 +63,8 @@ EOB
   opts.on("--catchpoint-deleted-event", "Enable chatchpointDeleted event") do
     options.catchpoint_deleted_event = true
   end
-  opts.on("--skip-value-attr", "Allow to skip value attribute in variable representation") do
-    options.skip_value_attr = true
+  opts.on("--value-as-nested-element", "Allow to pass variable's value as nested element instead of attribute") do
+    options.value_as_nested_element = true
   end
   opts.separator ""
   opts.separator "Common options:"
@@ -124,9 +124,8 @@ end
 Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
 Debugger.evaluation_timeout = options.evaluation_timeout
-Debugger.rm_protocol_extensions = options.rm_protocol_extensions
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
-Debugger.skip_value_attr = options.skip_value_attr || options.rm_protocol_extensions
+Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 
 Debugger.debug_program(options)
 

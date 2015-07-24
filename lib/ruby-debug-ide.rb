@@ -41,11 +41,11 @@ module Debugger
        cleared
     end
 
-    attr_accessor :cli_debug, :xml_debug, :evaluation_timeout, :rm_protocol_extensions
+    attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
     attr_accessor :control_thread
     attr_reader :interface
     # protocol extensions
-    attr_accessor :catchpoint_deleted_event, :skip_value_attr
+    attr_accessor :catchpoint_deleted_event, :value_as_nested_element
 
 
     #
