@@ -25,8 +25,11 @@ module Debugger
         errmsg "Off expected. Got %s\n", @match[2]
       elsif Debugger.catchpoints.member?(excn)
         Debugger.catchpoints.delete(excn)
-        print_catchpoint_set(excn)
-        #print "Catch for exception %s removed.\n", excn
+        if Debugger.rm_protocol_extensions
+          print_catchpoint_deleted(excn)
+        else
+          print_catchpoint_set(excn)
+        end
       else
         errmsg "Catch for exception %s not found.\n", excn
       end
@@ -40,7 +43,9 @@ module Debugger
       def help(cmd)
         %{
           cat[ch]\t\t\tshow catchpoint
+          cat[ch] off \tremove all catch points
           cat[ch] <an Exception>\tset catchpoint to an exception
+          cat[ch] <an Exception> off \tremove catchpoint for an exception
         }
       end
     end

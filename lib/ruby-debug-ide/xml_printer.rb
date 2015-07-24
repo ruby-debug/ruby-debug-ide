@@ -216,6 +216,10 @@ module Debugger
       print "<catchpointSet exception=\"%s\"/>", exception_class_name
     end
 
+    def print_catchpoint_deleted(exception_class_name)
+      print "<catchpointDeleted exception=\"%s\"/>", exception_class_name
+    end
+
     def print_expressions(exps)
       print_element "expressions" do
         exps.each_with_index do |(exp, value), idx|
