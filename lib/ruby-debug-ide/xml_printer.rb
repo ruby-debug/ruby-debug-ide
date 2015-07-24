@@ -217,7 +217,7 @@ module Debugger
     end
 
     def print_catchpoint_deleted(exception_class_name)
-      if Debugger.rm_protocol_extensions
+      if Debugger.catchpoint_deleted_event
         print "<catchpointDeleted exception=\"%s\"/>", exception_class_name
       else
         print_catchpoint_set(exception_class_name)
