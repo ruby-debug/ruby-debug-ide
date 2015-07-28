@@ -184,8 +184,12 @@ module Debugger
             CGI.escapeHTML(name), kind, CGI.escapeHTML(safe_to_string(value)))
     end
 
-    def print_dir_included(file)
+    def print_file_included(file)
       print("<fileIncluded file=\"%s\"/>", file)
+    end
+
+    def print_file_excluded(file)
+      print("<fileExcluded file=\"%s\"/>", file)
     end
 
     def print_breakpoints(breakpoints)
