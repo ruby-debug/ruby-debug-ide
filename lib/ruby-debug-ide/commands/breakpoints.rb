@@ -62,17 +62,6 @@ module Debugger
         }
       end
     end
-
-    private
-      def realpath(filename)
-        filename = File.expand_path(filename) if filename.index(File::SEPARATOR) || \
-            File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
-        if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
-          filename
-        else
-          File.realpath(filename) rescue filename
-        end
-      end
   end
 
   class BreakpointsCommand < Command # :nodoc:

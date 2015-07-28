@@ -70,6 +70,10 @@ module Debugger
           $1 + "\n" * ($2.size / 2)
         end.gsub(/\\\\/, '\\')
       end
+
+      def file_fiter_supported?
+        defined?(Debugger.file_filter)
+      end
     end
     
     def initialize(state, printer)
@@ -145,7 +149,18 @@ module Debugger
 
     def get_context(thnum)
       Debugger.contexts.find{|c| c.thnum == thnum}
-    end  
+    end
+
+    def realpath(filename)
+      if filename.index(File::SEPARATOR) || File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
+        filename = File.expand_path(filename)
+      end
+      if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
+        filename
+      else
+        File.realpath(filename) rescue filename
+      end
+    end
   end
   
   Command.load_commands

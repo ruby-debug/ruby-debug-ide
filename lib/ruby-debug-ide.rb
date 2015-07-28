@@ -108,9 +108,7 @@ module Debugger
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
           server = TCPServer.new(host, port)
-          gem_name = (defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0') ? 'ruby-debug-base' :
-              RUBY_VERSION < '2.0.0' ? 'ruby-debug-base19x' : 'debase'
-          $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{gem_name} #{VERSION}) listens on #{host}:#{port}\n"
+          print_greeting_msg(host, port)
           notify_dispatcher(port) if notify_dispatcher
 
           while (session = server.accept)
@@ -138,7 +136,25 @@ module Debugger
       end
     end
 
+    def print_greeting_msg(host, port)
+      base_gem_name = if defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0'
+        'ruby-debug-base'
+      elsif RUBY_VERSION < '2.0.0'
+        'ruby-debug-base19x'
+      else
+        'debase'
+      end
+
+      file_filtering_support = if Command.file_fiter_supported?
+       'supported'
+      else
+       'not supported'
+      end
+      $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{base_gem_name} #{VERSION}, file filtering is #{file_filtering_support}) listens on #{host}:#{port}\n"
+    end
+
     private
+
 
     def notify_dispatcher(port)
       return unless ENV['IDE_PROCESS_DISPATCHER']
