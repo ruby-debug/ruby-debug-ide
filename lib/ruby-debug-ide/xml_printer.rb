@@ -184,6 +184,10 @@ module Debugger
             CGI.escapeHTML(name), kind, CGI.escapeHTML(safe_to_string(value)))
     end
 
+    def print_dir_included(file)
+      print("<fileIncluded file=\"%s\"/>", file)
+    end
+
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
         breakpoints.sort_by{|b| b.id }.each do |b|
