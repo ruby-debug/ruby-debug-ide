@@ -1,3 +1,9 @@
+## [master](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.5.0...master)
+
+* "file-filter on|off" command added
+* "include file|dir" command added
+* "exclude file|dir" command added
+
 ## [0.5.0](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.4.33...v0.5.0)
 
 * catchpointDeleted event added (under --catchpoint-deleted-event flag)
