@@ -145,7 +145,7 @@ module Debugger
         'debase'
       end
 
-      file_filtering_support = if Command.file_fiter_supported?
+      file_filtering_support = if Command.file_filter_supported?
        'supported'
       else
        'not supported'

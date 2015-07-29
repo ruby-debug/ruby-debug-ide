@@ -12,7 +12,7 @@ module Debugger
       return if file.nil?
       file = realpath(file)
 
-      if Command.file_fiter_supported?
+      if Command.file_filter_supported?
         Debugger.file_filter.include(file)
         print_file_included(file)
       else
@@ -46,7 +46,7 @@ module Debugger
       return if file.nil?
       file = realpath(file)
 
-      if Command.file_fiter_supported?
+      if Command.file_filter_supported?
         Debugger.file_filter.exclude(file)
         print_file_excluded(file)
       else

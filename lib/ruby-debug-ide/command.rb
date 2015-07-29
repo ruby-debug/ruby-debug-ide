@@ -71,7 +71,7 @@ module Debugger
         end.gsub(/\\\\/, '\\')
       end
 
-      def file_fiter_supported?
+      def file_filter_supported?
         defined?(Debugger.file_filter)
       end
     end
