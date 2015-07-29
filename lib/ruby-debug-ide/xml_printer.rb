@@ -192,6 +192,10 @@ module Debugger
       print("<fileExcluded file=\"%s\"/>", file)
     end
 
+    def print_file_filter_status(status)
+      print("<fileFilter status=\"%s\"/>", status)
+    end
+
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
         breakpoints.sort_by{|b| b.id }.each do |b|
