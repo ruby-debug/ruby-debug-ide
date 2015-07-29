@@ -1,5 +1,5 @@
 module Debugger
-  class IncludeDir < Command # :nodoc:
+  class IncludeFile < Command # :nodoc:
     self.control = true
 
     def regexp
