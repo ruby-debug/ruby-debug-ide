@@ -152,13 +152,16 @@ module Debugger
     end
 
     def realpath(filename)
+      is_dir = filename.end_with?(File::SEPARATOR)
       if filename.index(File::SEPARATOR) || File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
         filename = File.expand_path(filename)
       end
       if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
         filename
       else
-        File.realpath(filename) rescue filename
+        filename = File.realpath(filename) rescue filename
+        filename = filename + File::SEPARATOR if is_dir && !filename.end_with?(File::SEPARATOR)
+        filename
       end
     end
   end
