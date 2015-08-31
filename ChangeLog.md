@@ -1,4 +1,4 @@
-## [master](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.5.0...master)
+## [0.6.0](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.5.0...0.6.0)
 
 * "file-filter on|off" command added
 * "include file|dir" command added
