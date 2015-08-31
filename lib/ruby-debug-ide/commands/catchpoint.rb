@@ -16,21 +16,20 @@ module Debugger
       elsif not @match[2]
         # One arg given.
         if 'off' == excn
-          Debugger.catchpoints.clear
+          clear_catchpoints
         else
           Debugger.add_catchpoint(excn)
           print_catchpoint_set(excn)
         end
       elsif @match[2] != 'off'
         errmsg "Off expected. Got %s\n", @match[2]
-      elsif Debugger.catchpoints.member?(excn)
-        Debugger.catchpoints.delete(excn)
+      elsif remove_catchpoint(excn)
         print_catchpoint_deleted(excn)
       else
         errmsg "Catch for exception %s not found.\n", excn
       end
     end
-    
+
     class << self
       def help_command
         'catch'
@@ -44,6 +43,22 @@ module Debugger
           cat[ch] <an Exception> off \tremove catchpoint for an exception
         }
       end
+    end
+
+    private
+
+    def clear_catchpoints
+      if Debugger.respond_to?(:clear_catchpoints)
+        Debugger.clear_catchpoints
+      else
+        Debugger.catchpoints.clear
+      end
+    end
+
+    def remove_catchpoint(excn)
+      return Debugger.remove_catchpoint(excn) if Debugger.respond_to?(:remove_catchpoint)
+      return Debugger.catchpoints.delete(excn) if Debugger.catchpoints.member?(excn)
+      false
     end
   end
 end

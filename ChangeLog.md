@@ -1,3 +1,7 @@
+## [master](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.6.0...master)
+
+* let's use Debugger#remove_catchpoint and Debugger#clear_catchpoints if available
+
 ## [0.6.0](https://github.com/ruby-debug/ruby-debug-ide/compare/v0.5.0...0.6.0)
 
 * "file-filter on|off" command added
