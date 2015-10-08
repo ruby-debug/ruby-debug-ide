@@ -199,13 +199,13 @@ module Debugger
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
         breakpoints.sort_by{|b| b.id }.each do |b|
-          print "<breakpoint n=\"%d\" file=\"%s\" line=\"%s\" />", b.id, b.source, b.pos.to_s
+          print "<breakpoint n=\"%d\" file=\"%s\" line=\"%s\" />", b.id, CGI.escapeHTML(b.source), b.pos.to_s
         end
       end
     end
     
     def print_breakpoint_added(b)
-      print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", b.id, b.source, b.pos
+      print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", b.id, CGI.escapeHTML(b.source), b.pos
     end
     
     def print_breakpoint_deleted(b)
@@ -289,14 +289,14 @@ module Debugger
     # Events
     
     def print_breakpoint(_, breakpoint)
-      print("<breakpoint file=\"%s\" line=\"%s\" threadId=\"%d\"/>", 
-      breakpoint.source, breakpoint.pos, Debugger.current_context.thnum)
+      print("<breakpoint file=\"%s\" line=\"%s\" threadId=\"%d\"/>",
+      CGI.escapeHTML(breakpoint.source), breakpoint.pos, Debugger.current_context.thnum)
     end
     
     def print_catchpoint(exception)
       context = Debugger.current_context
       print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>", 
-      context.frame_file(0), context.frame_line(0), exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
+      CGI.escapeHTML(context.frame_file(0)), context.frame_line(0), exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
     end
     
     def print_trace(context, file, line)
