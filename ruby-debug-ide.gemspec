@@ -32,6 +32,7 @@ EOF
 
   spec.author = "Markus Barchfeld, Martin Krauskopf, Mark Moseley, JetBrains RubyMine Team"
   spec.email = "rubymine-feedback@jetbrains.com"
+  spec.license = "MIT"
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.bindir = "bin"
