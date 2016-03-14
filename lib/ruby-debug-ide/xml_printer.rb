@@ -401,7 +401,11 @@ module Debugger
     end
 
     def safe_to_string(value)
-      str = value.to_s
+      begin
+        str = value.to_s
+      rescue NoMethodError
+        str = "(Object doesn't support #to_s)"
+      end
       return str unless str.nil?
 
       string_io = StringIO.new
