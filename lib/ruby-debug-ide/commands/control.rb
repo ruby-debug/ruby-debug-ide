@@ -126,4 +126,31 @@ module Debugger
       end
     end
   end
+
+
+  class DetachCommand < Command # :nodoc:
+    self.control = true
+
+    def regexp
+      /^\s*detach\s*$/
+    end
+
+    def execute
+      Debugger.stop
+      Debugger.control_thread = nil
+      Thread.current.exit #@control_thread is a current thread
+    end
+
+    class << self
+      def help_command
+        'detach'
+      end
+
+      def help(cmd)
+        %{
+          detach\ndetach debugger\nnote: this option is only for remote debugging (or local attach)
+        }
+      end
+    end
+  end
 end

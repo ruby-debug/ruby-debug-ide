@@ -22,7 +22,8 @@ options = OpenStruct.new(
   'evaluation_timeout' => 10,
   'rm_protocol_extensions' => false,
   'catchpoint_deleted_event' => false,
-  'value_as_nested_element' => false
+  'value_as_nested_element' => false,
+  'attach_mode' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -54,7 +55,9 @@ EOB
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
-  
+  opts.on("--attach-mode", "Tells that rdebug-ide is working in attach mode") do
+    options.attach_mode = true
+  end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
   opts.on("--rubymine-protocol-extensions", "Enable all RubyMine-specific incompatible protocol extensions") do
@@ -89,15 +92,17 @@ rescue StandardError => e
   exit(1)
 end
 
-if ARGV.empty?
+if ARGV.empty? && !options.attach_mode
   puts opts
   puts
   puts "Must specify a script to run"
   exit(1)
-end    
+end
 
-# save script name
-Debugger::PROG_SCRIPT = ARGV.shift
+unless options.attach_mode
+  # save script name
+  Debugger::PROG_SCRIPT = ARGV.shift
+end
 
 if options.dispatcher_port != -1
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
@@ -119,7 +124,7 @@ if options.int_handler
   # install interruption handler
   trap('INT') { Debugger.interrupt_last }
 end
-  
+
 # set options
 Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
@@ -127,5 +132,12 @@ Debugger.evaluation_timeout = options.evaluation_timeout
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 
-Debugger.debug_program(options)
+if options.attach_mode
+  Debugger::MultiProcess::pre_child(options)
 
+  if Debugger::FRONT_END == "debase"
+    Debugger.enable_trace_points
+  end
+else
+  Debugger.debug_program(options)
+end

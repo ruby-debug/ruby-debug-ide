@@ -1,5 +1,5 @@
-require 'ruby-debug-ide/interface'
-require 'ruby-debug-ide/command'
+require_relative 'interface'
+require_relative 'command'
 
 module Debugger
   class IdeCommandProcessor
@@ -77,7 +77,6 @@ module Debugger
       ctrl_cmd_classes = Command.commands.select{|cmd| cmd.control}
       state = ControlState.new(@interface)
       ctrl_cmds = ctrl_cmd_classes.map{|cmd| cmd.new(state, @printer)}
-      
       while input = @interface.read_command
         # escape % since print_debug might use printf
         # sleep 0.3
