@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'ostruct'
+
+options = OpenStruct.new(
+  'pid' => nil,
+  'sdk_path' => nil,
+  'uid' => nil,
+  'gems_to_include' => []
+)
+
+opts = OptionParser.new do |opts|
+  # TODO need some banner
+  opts.banner = <<EOB
+Some usefull banner.
+EOB
+
+  opts.on("--pid PID", "pid of process you want to attach to for debugging") do |pid|
+    options.pid = pid
+  end
+
+  opts.on("--sdk-path SDK_PATH", "path to ruby interpreter") do |sdk_path|
+    options.sdk_path = sdk_path
+  end
+
+  opts.on("--uid UID", "uid which this process should set after executing gdb attach") do |uid|
+    options.uid = uid
+  end
+
+  opts.on("--include-gem GEM_LIB_PATH", "lib of gem to include") do |gem_lib_path|
+    options.gems_to_include << gem_lib_path
+  end
+end
+
+opts.parse! ARGV
+
+unless options.pid
+  $stderr.puts "You must specify PID of process you want to attach to"
+  exit 1
+end
+
+unless options.sdk_path
+  $stderr.puts "You must specify SDK_PATH of ruby interpreter"
+  exit 1
+end
+
+# TODO Denis told not to implement this hack
+# So this is only for me while debugging as
+# I don't want to get any warnings.
+sigints_caught = 0
+trap('INT') do
+  sigints_caught += 1
+  if sigints_caught == 2
+    exit 0
+  end
+end
+
+argv = '["' + ARGV * '", "' + '"]'
+gems_to_include = '["' + options.gems_to_include * '", "' + '"]'
+
+commands_list = []
+
+def commands_list.add_command(command)
+  self << "-ex \"#{command}\""
+end
+
+path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + "/../lib/ruby-debug-ide/attach/debugger_loader"
+
+# rb_finish: wait while execution comes to the next line (this is essential!)
+commands_list.add_command("call rb_eval_string_protect(\\\"set_trace_func lambda{|event, file, line, id, binding, classname| if /line/ =~ event; sleep 0; set_trace_func(nil); end}\\\", (int *)0)")
+commands_list.add_command("tbreak rb_f_sleep")
+commands_list.add_command("cont")
+
+# evalr: loading debugger into the process
+evalr = "call rb_eval_string_protect(%s, (int *)0)"
+commands_list.add_command("#{evalr}" % ["(\\\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\\\")"])
+
+# q: exit gdb and continue process execution with debugger
+commands_list.add_command("q")
+
+cmd = "gdb #{options.sdk_path} #{options.pid} -nh -nx -batch #{commands_list.join(" ")}"
+
+$stderr.puts "Fast Debugger "
+$stderr.puts "Running command #{cmd}"
+
+`#{cmd}` or raise "GDB failed. Aborting."
+
+if options.uid
+  Process::Sys.setuid(options.uid.to_i)
+end
+
+sleep
