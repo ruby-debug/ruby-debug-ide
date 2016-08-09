@@ -137,6 +137,7 @@ module Debugger
 
     def execute
       Debugger.stop
+      Debugger.interface.close
       Debugger.control_thread = nil
       Thread.current.exit #@control_thread is a current thread
     end
