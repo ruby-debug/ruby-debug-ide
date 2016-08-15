@@ -99,9 +99,11 @@ if ARGV.empty? && !options.attach_mode
   exit(1)
 end
 
-unless options.attach_mode
-  # save script name
+# save script name
+if !options.attach_mode
   Debugger::PROG_SCRIPT = ARGV.shift
+else
+  Debugger::PROG_SCRIPT = $0
 end
 
 if options.dispatcher_port != -1
@@ -135,8 +137,11 @@ Debugger.value_as_nested_element = options.value_as_nested_element || options.rm
 if options.attach_mode
   Debugger::MultiProcess::pre_child(options)
 
+  # This will trigger `setup_tracepoints` and `prepare_context` (which is private in debase)
+  # without any actual excessive code execution.
   if Debugger::FRONT_END == "debase"
-    Debugger.enable_trace_points
+    EMPTY_TEMPLATE = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/empty_file.rb'
+    Debugger.debug_load(EMPTY_TEMPLATE)
   end
 else
   Debugger.debug_program(options)

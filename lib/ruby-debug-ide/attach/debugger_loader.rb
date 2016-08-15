@@ -1,8 +1,8 @@
 def load_debugger(gems_to_include, new_argv)
-  path_to_rdebug = File.expand_path(File.dirname(__FILE__)) + "/../../../bin/rdebug-ide"
+  path_to_rdebug = File.expand_path(File.dirname(__FILE__)) + '/../../../bin/rdebug-ide'
 
   old_argv = ARGV.clone
-  ARGV.reject {|x| true}
+  ARGV.clear
   new_argv.each do |x|
     ARGV << x
   end
@@ -13,7 +13,7 @@ def load_debugger(gems_to_include, new_argv)
 
   load path_to_rdebug
   
-  ARGV.reject {|x| true}
+  ARGV.clear
   old_argv.each do |x|
     ARGV << x
   end

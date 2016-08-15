@@ -36,7 +36,7 @@ EOF
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.bindir = "bin"
-  spec.executables = ["rdebug-ide"]
+  spec.executables = ["rdebug-ide", "gdb_wrapper"]
   spec.files = FILES
 
   spec.extensions << "ext/mkrf_conf.rb" unless ENV['NO_EXT']

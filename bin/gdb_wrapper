@@ -13,15 +13,15 @@ options = OpenStruct.new(
 opts = OptionParser.new do |opts|
   # TODO need some banner
   opts.banner = <<EOB
-Some usefull banner.
+Some useful banner.
 EOB
 
   opts.on("--pid PID", "pid of process you want to attach to for debugging") do |pid|
     options.pid = pid
   end
 
-  opts.on("--sdk-path SDK_PATH", "path to ruby interpreter") do |sdk_path|
-    options.sdk_path = sdk_path
+  opts.on("--ruby-path SDK_PATH", "path to ruby interpreter") do |ruby_path|
+    options.ruby_path = ruby_path
   end
 
   opts.on("--uid UID", "uid which this process should set after executing gdb attach") do |uid|
@@ -40,8 +40,8 @@ unless options.pid
   exit 1
 end
 
-unless options.sdk_path
-  $stderr.puts "You must specify SDK_PATH of ruby interpreter"
+unless options.ruby_path
+  $stderr.puts "You must specify RUBY_PATH of ruby interpreter"
   exit 1
 end
 
@@ -61,27 +61,34 @@ gems_to_include = '["' + options.gems_to_include * '", "' + '"]'
 
 commands_list = []
 
-def commands_list.add_command(command)
-  self << "-ex \"#{command}\""
+def commands_list.<<(command)
+  self.push "-ex \"#{command}\""
 end
 
-path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + "/../lib/ruby-debug-ide/attach/debugger_loader"
+path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
-# rb_finish: wait while execution comes to the next line (this is essential!)
-commands_list.add_command("call rb_eval_string_protect(\\\"set_trace_func lambda{|event, file, line, id, binding, classname| if /line/ =~ event; sleep 0; set_trace_func(nil); end}\\\", (int *)0)")
-commands_list.add_command("tbreak rb_f_sleep")
-commands_list.add_command("cont")
+# rb_finish: wait while execution comes to the next line.
+# This is essential because we could interrupt process in a middle
+# of some evaluations (e.g., system call)
+commands_list << "call rb_eval_string_protect(\\\"set_trace_func lambda{|event, file, line, id, binding, classname| if /line/ =~ event; sleep 0; set_trace_func(nil); end}\\\", (int *)0)"
+commands_list << "tbreak rb_f_sleep"
+commands_list << "cont"
 
 # evalr: loading debugger into the process
 evalr = "call rb_eval_string_protect(%s, (int *)0)"
-commands_list.add_command("#{evalr}" % ["(\\\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\\\")"])
+commands_list << ("#{evalr}" % ["(\\\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\\\")"])
 
 # q: exit gdb and continue process execution with debugger
-commands_list.add_command("q")
+commands_list << "q"
 
-cmd = "gdb #{options.sdk_path} #{options.pid} -nh -nx -batch #{commands_list.join(" ")}"
+cmd = "gdb #{options.ruby_path} #{options.pid} -nh -nx -batch #{commands_list.join(" ")}"
 
-$stderr.puts "Fast Debugger "
+options.gems_to_include.each do |gem_path|
+  $LOAD_PATH.unshift(gem_path) unless $LOAD_PATH.include?(gem_path)
+end
+
+require 'ruby-debug-ide/greeter'
+Debugger::print_greeting_msg(nil, nil)
 $stderr.puts "Running command #{cmd}"
 
 `#{cmd}` or raise "GDB failed. Aborting."

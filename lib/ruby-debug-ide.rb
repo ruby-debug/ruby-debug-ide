@@ -10,10 +10,10 @@ else
   Debugger::FRONT_END = "debase"
 end
 
-require_relative 'ruby-debug-ide/version'
-require_relative 'ruby-debug-ide/xml_printer'
-require_relative 'ruby-debug-ide/ide_processor'
-require_relative 'ruby-debug-ide/event_processor'
+require 'ruby-debug-ide/greeter'
+require 'ruby-debug-ide/xml_printer'
+require 'ruby-debug-ide/ide_processor'
+require 'ruby-debug-ide/event_processor'
 
 module Debugger
 
@@ -135,23 +135,6 @@ module Debugger
           exit 2
         end
       end
-    end
-
-    def print_greeting_msg(host, port)
-      base_gem_name = if defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0'
-        'ruby-debug-base'
-      elsif RUBY_VERSION < '2.0.0'
-        'ruby-debug-base19x'
-      else
-        'debase'
-      end
-
-      file_filtering_support = if Command.file_filter_supported?
-       'supported'
-      else
-       'not supported'
-      end
-      $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{base_gem_name} #{VERSION}, file filtering is #{file_filtering_support}) listens on #{host}:#{port}\n"
     end
 
     private

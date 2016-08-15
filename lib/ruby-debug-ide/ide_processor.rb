@@ -1,5 +1,5 @@
-require_relative 'interface'
-require_relative 'command'
+require 'ruby-debug-ide/interface'
+require 'ruby-debug-ide/command'
 
 module Debugger
   class IdeCommandProcessor
