@@ -3,11 +3,14 @@
 require 'optparse'
 require 'ostruct'
 
+$stdout.sync = true
+$stderr.sync = true
+
 options = OpenStruct.new(
-  'pid' => nil,
-  'sdk_path' => nil,
-  'uid' => nil,
-  'gems_to_include' => []
+    'pid' => nil,
+    'sdk_path' => nil,
+    'uid' => nil,
+    'gems_to_include' => []
 )
 
 opts = OptionParser.new do |opts|
@@ -16,19 +19,19 @@ opts = OptionParser.new do |opts|
 Some useful banner.
 EOB
 
-  opts.on("--pid PID", "pid of process you want to attach to for debugging") do |pid|
+  opts.on('--pid PID', 'pid of process you want to attach to for debugging') do |pid|
     options.pid = pid
   end
 
-  opts.on("--ruby-path SDK_PATH", "path to ruby interpreter") do |ruby_path|
+  opts.on('--ruby-path RUBY_PATH', 'path to ruby interpreter') do |ruby_path|
     options.ruby_path = ruby_path
   end
 
-  opts.on("--uid UID", "uid which this process should set after executing gdb attach") do |uid|
+  opts.on('--uid UID', 'uid which this process should set after executing gdb attach') do |uid|
     options.uid = uid
   end
 
-  opts.on("--include-gem GEM_LIB_PATH", "lib of gem to include") do |gem_lib_path|
+  opts.on('--include-gem GEM_LIB_PATH', 'lib of gem to include') do |gem_lib_path|
     options.gems_to_include << gem_lib_path
   end
 end
@@ -36,52 +39,19 @@ end
 opts.parse! ARGV
 
 unless options.pid
-  $stderr.puts "You must specify PID of process you want to attach to"
+  $stderr.puts 'You should specify PID of process you want to attach to'
   exit 1
 end
 
 unless options.ruby_path
-  $stderr.puts "You must specify RUBY_PATH of ruby interpreter"
+  $stderr.puts 'You should specify path to the ruby interpreter'
   exit 1
-end
-
-# TODO Denis told not to implement this hack
-# So this is only for me while debugging as
-# I don't want to get any warnings.
-sigints_caught = 0
-trap('INT') do
-  sigints_caught += 1
-  if sigints_caught == 2
-    exit 0
-  end
 end
 
 argv = '["' + ARGV * '", "' + '"]'
 gems_to_include = '["' + options.gems_to_include * '", "' + '"]'
 
-commands_list = []
-
-def commands_list.<<(command)
-  self.push "-ex \"#{command}\""
-end
-
 path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
-
-# rb_finish: wait while execution comes to the next line.
-# This is essential because we could interrupt process in a middle
-# of some evaluations (e.g., system call)
-commands_list << "call rb_eval_string_protect(\\\"set_trace_func lambda{|event, file, line, id, binding, classname| if /line/ =~ event; sleep 0; set_trace_func(nil); end}\\\", (int *)0)"
-commands_list << "tbreak rb_f_sleep"
-commands_list << "cont"
-
-# evalr: loading debugger into the process
-evalr = "call rb_eval_string_protect(%s, (int *)0)"
-commands_list << ("#{evalr}" % ["(\\\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\\\")"])
-
-# q: exit gdb and continue process execution with debugger
-commands_list << "q"
-
-cmd = "gdb #{options.ruby_path} #{options.pid} -nh -nx -batch #{commands_list.join(" ")}"
 
 options.gems_to_include.each do |gem_path|
   $LOAD_PATH.unshift(gem_path) unless $LOAD_PATH.include?(gem_path)
@@ -89,9 +59,204 @@ end
 
 require 'ruby-debug-ide/greeter'
 Debugger::print_greeting_msg(nil, nil)
-$stderr.puts "Running command #{cmd}"
 
-`#{cmd}` or raise "GDB failed. Aborting."
+$pid = options.pid
+$last_bt = ''
+$gdb_tmp_file = '/tmp/gdb_out.txt'
+
+begin
+  file = File.open($gdb_tmp_file, 'w')
+  file.truncate(0)
+  file.close
+rescue Exception => e
+  $stderr.puts e
+  $stderr.puts "Could not create file #{$gdb_tmp_file} for gdb logging. Aborting."
+  exit!
+end
+
+gdb_executed_all_commands = false
+
+IO.popen("gdb #{options.ruby_path} #{options.pid} -nh -nx", 'r+') do |gdb|
+
+  $gdb = gdb
+  $main_thread = nil
+
+  class ProcessThread
+
+    attr_reader :thread_num, :is_main
+
+    def initialize(thread_num, is_main)
+      @thread_num = thread_num
+      @is_main = is_main
+    end
+
+    def switch
+      $gdb.execute "thread #{thread_num}"
+    end
+
+    def finish
+      $gdb.finish
+    end
+
+    def get_bt
+      return $gdb.execute 'bt'
+    end
+
+    def top_caller_match(bt, pattern)
+      return bt.split('#')[1] =~ /#{pattern}/
+    end
+
+    def any_caller_match(bt, pattern)
+      return bt =~ /#{pattern}/
+    end
+
+    def is_inside_malloc(bt = get_bt)
+      if any_caller_match(bt, '(malloc\.c)')
+        $stderr.puts "process #{$pid} is currently inside malloc."
+        return true
+      else
+        return false
+      end
+    end
+
+    def is_inside_gc(bt = get_bt)
+      if any_caller_match(bt, '(gc\.c)')
+        $stderr.puts "process #{$pid} is currently in garbage collection phase."
+        return true
+      else
+        return false
+      end
+    end
+
+    def need_finish_frame
+      bt = get_bt
+      return is_inside_malloc(bt) || is_inside_gc(bt)
+    end
+
+  end
+
+  def gdb.update_threads
+    process_threads = []
+    info_threads = (self.execute 'info threads').split("\n")
+    # first line of gdb's response is `  Id   Target Id         Frame` info line
+    # last line of gdb's response is `(gdb) `
+    info_threads.shift
+    info_threads.pop
+    # each thread info looks like this:
+    #  3    Thread 0x7ff535405700 (LWP 8291) "ruby-timer-thr" 0x00007ff534a15fdd in poll () at ../sysdeps/unix/syscall-template.S:81
+    info_threads.each do |thread_info|
+      next unless thread_info =~ /[\s*]*\d+\s+Thread.*/
+      $stderr.puts "thread_info: #{thread_info}"
+      is_main = thread_info[0] == '*'
+      thread_info.sub!(/[\s*]*/, '')
+      thread_info.sub!(/\s.*$/, '')
+      thread = ProcessThread.new(thread_info.to_i, is_main)
+      if thread.is_main
+        $main_thread = thread
+      end
+      process_threads << thread
+    end
+    process_threads
+  end
+
+  def gdb.get_response
+    content = ''
+    loop do
+      sleep 0.01 # give time to gdb to finish command execution and print it to file
+      file = File.open($gdb_tmp_file, 'r')
+      content = file.read
+      file.close
+      break if content =~ /\(gdb\)\s\z/
+    end
+    content
+  end
+
+  def gdb.enable_logging
+    self.puts 'set logging on'
+  end
+
+  def gdb.disable_logging
+    self.puts 'set logging off'
+  end
+
+  def gdb.overwrite_file
+    disable_logging
+    enable_logging
+  end
+
+  def gdb.execute(command)
+    self.overwrite_file
+    self.puts command
+    $stdout.puts "executed command '#{command}' inside gdb."
+    if command == 'q'
+      return ''
+    end
+    response = self.get_response
+    if command == 'bt'
+      $last_bt = response
+    end
+    return response
+  end
+
+  def gdb.finish
+    $stdout.puts 'trying to finish current frame.'
+    self.execute 'finish'
+  end
+
+  def gdb.set_logging
+    self.puts "set logging file #{$gdb_tmp_file}"
+    self.puts 'set logging overwrite on'
+    self.puts 'set logging redirect on'
+    self.enable_logging
+
+    $stdout.puts "all gdb output redirected to #{$gdb_tmp_file}."
+  end
+
+  def gdb.check_already_under_debug
+    threads = self.execute 'info threads'
+    return threads =~ /ruby-debug-ide/
+  end
+
+  gdb.set_logging
+
+  if gdb.check_already_under_debug
+    $stderr.puts "Process #{$pid} is already under debug"
+    gdb.execute 'q'
+  end
+
+  gdb.execute 'set scheduler-locking off'
+  gdb.execute 'set unwindonsignal on'
+
+  should_check_threads_state = true
+
+  while should_check_threads_state
+    should_check_threads_state = false
+    gdb.update_threads.each do |thread|
+      thread.switch
+      while thread.need_finish_frame
+        should_check_threads_state = true
+        thread.finish
+      end
+    end
+  end
+
+  $main_thread.switch
+
+  gdb.execute "call dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
+  gdb.execute "call start_attach(\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\")"
+
+  gdb_executed_all_commands = true
+  gdb.execute 'q'
+
+end
+
+trap('INT') do
+  unless gdb_executed_all_commands
+    $stderr.puts "Seems like could not attach to process. Its backtrace:\n#{$last_bt}"
+    $stderr.flush
+  end
+  exit 1
+end
 
 if options.uid
   Process::Sys.setuid(options.uid.to_i)
