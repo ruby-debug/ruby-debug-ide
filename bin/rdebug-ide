@@ -23,7 +23,8 @@ options = OpenStruct.new(
   'rm_protocol_extensions' => false,
   'catchpoint_deleted_event' => false,
   'value_as_nested_element' => false,
-  'attach_mode' => false
+  'attach_mode' => false,
+  'cli_debug' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -48,6 +49,7 @@ EOB
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.cli_debug = true
+    options.cli_debug = true
   end
   opts.on("--xml-debug", "Debug self - sends information <message>s for debugging ruby-debug itself") do
     Debugger.xml_debug = true
@@ -109,16 +111,20 @@ end
 if options.dispatcher_port != -1
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
   if RUBY_VERSION < "1.9"
-    $: << File.expand_path(File.dirname(__FILE__) + "/../lib/")
+    lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
+    $: << lib_path unless $:.include? lib_path
     require 'ruby-debug-ide/multiprocess'
   else
     require_relative '../lib/ruby-debug-ide/multiprocess'
   end
 
   ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB'] 
-  old_opts = ENV['RUBYOPT']
-  ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
-  ENV['RUBYOPT'] += " #{old_opts}" if old_opts
+  old_opts = ENV['RUBYOPT'] || ''
+  starter = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
+  unless old_opts.include? starter
+    ENV['RUBYOPT'] = starter
+    ENV['RUBYOPT'] += " #{old_opts}" if old_opts != ''
+  end
   ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug.to_s
 end
 
@@ -135,13 +141,15 @@ Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 
 if options.attach_mode
+  if Debugger::FRONT_END == "debase"
+    Debugger.init_variables
+  end
+
   Debugger::MultiProcess::pre_child(options)
 
-  # This will trigger `setup_tracepoints` and `prepare_context` (which is private in debase)
-  # without any actual excessive code execution.
   if Debugger::FRONT_END == "debase"
-    EMPTY_TEMPLATE = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/empty_file.rb'
-    Debugger.debug_load(EMPTY_TEMPLATE)
+    Debugger.setup_tracepoints
+    Debugger.prepare_context
   end
 else
   Debugger.debug_program(options)
