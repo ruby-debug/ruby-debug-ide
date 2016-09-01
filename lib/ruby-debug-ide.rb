@@ -43,6 +43,7 @@ module Debugger
        cleared
     end
 
+    attr_accessor :attached
     attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
     attr_accessor :control_thread
     attr_reader :interface

@@ -136,6 +136,7 @@ module Debugger
     end
 
     def execute
+      Debugger.attached = false
       Debugger.stop
       Debugger.interface.close
       Debugger.control_thread = nil
