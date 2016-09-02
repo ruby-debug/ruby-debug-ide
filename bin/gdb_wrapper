@@ -6,7 +6,7 @@ require 'ostruct'
 $stdout.sync = true
 $stderr.sync = true
 
-options = OpenStruct.new(
+@options = OpenStruct.new(
     'pid' => nil,
     'sdk_path' => nil,
     'uid' => nil,
@@ -20,246 +20,332 @@ Some useful banner.
 EOB
 
   opts.on('--pid PID', 'pid of process you want to attach to for debugging') do |pid|
-    options.pid = pid
+    @options.pid = pid
   end
 
   opts.on('--ruby-path RUBY_PATH', 'path to ruby interpreter') do |ruby_path|
-    options.ruby_path = ruby_path
+    @options.ruby_path = ruby_path
   end
 
   opts.on('--uid UID', 'uid which this process should set after executing gdb attach') do |uid|
-    options.uid = uid
+    @options.uid = uid
   end
 
   opts.on('--include-gem GEM_LIB_PATH', 'lib of gem to include') do |gem_lib_path|
-    options.gems_to_include << gem_lib_path
+    @options.gems_to_include << gem_lib_path
   end
 end
 
 opts.parse! ARGV
 
-unless options.pid
+unless @options.pid
   $stderr.puts 'You should specify PID of process you want to attach to'
   exit 1
 end
 
-unless options.ruby_path
+unless @options.ruby_path
   $stderr.puts 'You should specify path to the ruby interpreter'
   exit 1
 end
 
-argv = '["' + ARGV * '", "' + '"]'
-gems_to_include = '["' + options.gems_to_include * '", "' + '"]'
+$argv = '["' + ARGV * '", "' + '"]'
+$gems_to_include = '["' + @options.gems_to_include * '", "' + '"]'
+$path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
-path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
-
-options.gems_to_include.each do |gem_path|
+@options.gems_to_include.each do |gem_path|
   $LOAD_PATH.unshift(gem_path) unless $LOAD_PATH.include?(gem_path)
 end
 
 require 'ruby-debug-ide/greeter'
 Debugger::print_greeting_msg(nil, nil)
 
-$pid = options.pid
-$last_bt = ''
-$gdb_tmp_file = '/tmp/gdb_out.txt'
+# this class is some kind of "interface"
+class NativeDebugger
 
-begin
-  file = File.open($gdb_tmp_file, 'w')
-  file.truncate(0)
-  file.close
-rescue Exception => e
-  $stderr.puts e
-  $stderr.puts "Could not create file #{$gdb_tmp_file} for gdb logging. Aborting."
-  exit!
-end
+  attr_reader :pid, :last_bt
 
-gdb_executed_all_commands = false
+  # @param executable -- path to ruby interpreter
+  # @param pid -- pid of process you want to debug
+  # @param options -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
+  def initialize(executable, pid, options)
+    @pid = pid
+    @main_thread = nil
+    @delimiter = '__OUTPUT_FINISHED__' # for getting response
+    @last_bt = '' # to shaw it to user
 
-IO.popen("gdb #{options.ruby_path} #{options.pid} -nh -nx", 'r+') do |gdb|
+    launch_string = "#{self} #{executable} #{options}"
+    @pipe = IO.popen(launch_string, 'r+')
+    $stdout.puts "executed '#{launch_string}'"
+  end
 
-  $gdb = gdb
-  $main_thread = nil
+  def attach_to_process
+    execute "attach #{@pid}"
+  end
 
-  class ProcessThread
-
-    attr_reader :thread_num, :is_main
-
-    def initialize(thread_num, is_main)
-      @thread_num = thread_num
-      @is_main = is_main
+  def execute(command)
+    @pipe.puts command
+    $stdout.puts "executed `#{command}` command inside #{self}."
+    if command == 'q'
+      @pipe.close
+      return ''
     end
-
-    def switch
-      $gdb.execute "thread #{thread_num}"
+    response = get_response
+    if command == 'bt'
+      @last_bt = response
     end
+    $stdout.puts "response for #{command}:\n#{response}\n\n\n\n"
+    response
+  end
 
-    def finish
-      $gdb.finish
-    end
+  def get_response
+    # we need this hack to understand that debugger gave us all output from last executed command
+    @pipe.puts "print \"#{@delimiter}\""
 
-    def get_bt
-      return $gdb.execute 'bt'
+    content = ''
+    loop do
+      line = @pipe.readline
+      $stderr.puts line
+      next if line =~ /\(lldb\)/ # lldb repeats your input to its output
+      break if line =~ /\$\d+\s=\s"__OUTPUT_FINISHED__"/
+      content += line
     end
+    content
+  end
 
-    def top_caller_match(bt, pattern)
-      return bt.split('#')[1] =~ /#{pattern}/
-    end
-
-    def any_caller_match(bt, pattern)
-      return bt =~ /#{pattern}/
-    end
-
-    def is_inside_malloc(bt = get_bt)
-      if any_caller_match(bt, '(malloc\.c)')
-        $stderr.puts "process #{$pid} is currently inside malloc."
-        return true
-      else
-        return false
-      end
-    end
-
-    def is_inside_gc(bt = get_bt)
-      if any_caller_match(bt, '(gc\.c)')
-        $stderr.puts "process #{$pid} is currently in garbage collection phase."
-        return true
-      else
-        return false
-      end
-    end
-
-    def need_finish_frame
-      bt = get_bt
-      return is_inside_malloc(bt) || is_inside_gc(bt)
-    end
+  def update_threads
 
   end
 
-  def gdb.update_threads
+  def check_already_under_debug
+
+  end
+
+  def switch_to_thread
+
+  end
+
+  def set_tbreak(str)
+    execute "tbreak #{str}"
+  end
+
+  def continue
+    @pipe.puts 'c'
+    loop do
+      line = @pipe.readline
+      break if line =~ /__func_to_set_breakpoint_at/
+    end
+    get_response
+  end
+
+  def call_start_attach
+    raise 'No main thread found. Did you forget to call `update_threads`?' if @main_thread == nil
+    @main_thread.switch
+  end
+
+  def exit
+    execute 'q'
+  end
+
+  def to_s
+    'native_debugger'
+  end
+
+end
+
+class LLDB < NativeDebugger
+
+  def initialize(executable, pid, options)
+    super(executable, pid, options)
+  end
+
+  def set_flags
+
+  end
+
+  def update_threads
     process_threads = []
-    info_threads = (self.execute 'info threads').split("\n")
-    # first line of gdb's response is `  Id   Target Id         Frame` info line
-    # last line of gdb's response is `(gdb) `
-    info_threads.shift
-    info_threads.pop
-    # each thread info looks like this:
-    #  3    Thread 0x7ff535405700 (LWP 8291) "ruby-timer-thr" 0x00007ff534a15fdd in poll () at ../sysdeps/unix/syscall-template.S:81
+    info_threads = (execute 'thread list').split("\n")
     info_threads.each do |thread_info|
-      next unless thread_info =~ /[\s*]*\d+\s+Thread.*/
-      $stderr.puts "thread_info: #{thread_info}"
+      next unless thread_info =~ /[\s*]*thread\s#\d+.*/
+      $stdout.puts "thread_info: #{thread_info}"
       is_main = thread_info[0] == '*'
-      thread_info.sub!(/[\s*]*/, '')
-      thread_info.sub!(/\s.*$/, '')
-      thread = ProcessThread.new(thread_info.to_i, is_main)
+      thread_num = thread_info.sub(/[\s*]*thread\s#/, '').sub(/:\s.*$/, '').to_i
+      thread = ProcessThread.new(thread_num, is_main, self)
       if thread.is_main
-        $main_thread = thread
+        @main_thread = thread
       end
       process_threads << thread
     end
     process_threads
   end
 
-  def gdb.get_response
-    content = ''
-    loop do
-      sleep 0.01 # give time to gdb to finish command execution and print it to file
-      file = File.open($gdb_tmp_file, 'r')
-      content = file.read
-      file.close
-      break if content =~ /\(gdb\)\s\z/
-    end
-    content
+  def check_already_under_debug
+    threads = execute 'thread list'
+    threads =~ /ruby-debug-ide/
   end
 
-  def gdb.enable_logging
-    self.puts 'set logging on'
+  def switch_to_thread(thread_num)
+    execute "thread select #{thread_num}"
   end
 
-  def gdb.disable_logging
-    self.puts 'set logging off'
+  def call_start_attach
+    super()
+    execute "expr (void *) dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
+    execute "call start_attach(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\")"
   end
 
-  def gdb.overwrite_file
-    disable_logging
-    enable_logging
+  def to_s
+    'lldb-3.8'
   end
-
-  def gdb.execute(command)
-    self.overwrite_file
-    self.puts command
-    $stdout.puts "executed command '#{command}' inside gdb."
-    if command == 'q'
-      return ''
-    end
-    response = self.get_response
-    if command == 'bt'
-      $last_bt = response
-    end
-    return response
-  end
-
-  def gdb.finish
-    $stdout.puts 'trying to finish current frame.'
-    self.execute 'finish'
-  end
-
-  def gdb.set_logging
-    self.puts "set logging file #{$gdb_tmp_file}"
-    self.puts 'set logging overwrite on'
-    self.puts 'set logging redirect on'
-    self.enable_logging
-
-    $stdout.puts "all gdb output redirected to #{$gdb_tmp_file}."
-  end
-
-  def gdb.check_already_under_debug
-    threads = self.execute 'info threads'
-    return threads =~ /ruby-debug-ide/
-  end
-
-  gdb.set_logging
-
-  if gdb.check_already_under_debug
-    $stderr.puts "Process #{$pid} is already under debug"
-    gdb.execute 'q'
-  end
-
-  gdb.execute 'set scheduler-locking off'
-  gdb.execute 'set unwindonsignal on'
-
-  should_check_threads_state = true
-
-  while should_check_threads_state
-    should_check_threads_state = false
-    gdb.update_threads.each do |thread|
-      thread.switch
-      while thread.need_finish_frame
-        should_check_threads_state = true
-        thread.finish
-      end
-    end
-  end
-
-  $main_thread.switch
-
-  gdb.execute "call dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
-  gdb.execute "call start_attach(\"require '#{path_to_debugger_loader}'; load_debugger(#{gems_to_include.gsub("\"", "'")}, #{argv.gsub("\"", "'")})\")"
-
-  gdb_executed_all_commands = true
-  gdb.execute 'q'
 
 end
+
+class GDB < NativeDebugger
+
+  def initialize(executable, pid, options)
+    super(executable, pid, options)
+  end
+
+  def set_flags
+    execute 'set scheduler-locking off' # we will deadlock with it
+    execute 'set unwindonsignal on'     # in case of some signal we will exit gdb
+  end
+
+  def update_threads
+    process_threads = []
+    info_threads = (execute 'info threads').split("\n")
+    # each thread info looks like this:
+    #  3    Thread 0x7ff535405700 (LWP 8291) "ruby-timer-thr" 0x00007ff534a15fdd in poll () at ../sysdeps/unix/syscall-template.S:81
+    info_threads.each do |thread_info|
+      next unless thread_info =~ /[\s*]*\d+\s+Thread.*/
+      $stdout.puts "thread_info: #{thread_info}"
+      is_main = thread_info[0] == '*'
+      thread_num = thread_info.sub(/[\s*]*/, '').sub(/\s.*$/, '').to_i
+      thread = ProcessThread.new(thread_num, is_main, self)
+      if thread.is_main
+        @main_thread = thread
+      end
+      process_threads << thread
+    end
+    process_threads
+  end
+
+  def check_already_under_debug
+    threads = execute 'info threads'
+    threads =~ /ruby-debug-ide/
+  end
+
+  def switch_to_thread(thread_num)
+    execute "thread #{thread_num}"
+  end
+
+  def call_start_attach
+    super()
+    execute "call dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
+    execute "call start_attach(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\")"
+  end
+
+  def to_s
+    'gdb'
+  end
+
+end
+
+class ProcessThread
+
+  attr_reader :thread_num, :is_main
+
+  def initialize(thread_num, is_main, native_debugger)
+    @thread_num = thread_num
+    @is_main = is_main
+    @native_debugger = native_debugger
+  end
+
+  def switch
+    @native_debugger.switch_to_thread(thread_num)
+  end
+
+  def finish
+    @native_debugger.execute 'finish'
+  end
+
+  def get_bt
+    @native_debugger.execute 'bt'
+  end
+
+  def any_caller_match(bt, pattern)
+    bt =~ /#{pattern}/
+  end
+
+  def is_inside_malloc(bt = get_bt)
+    if any_caller_match(bt, '(malloc\.c)')
+      $stderr.puts "process #{@native_debugger.pid} is currently inside malloc."
+      true
+    else
+      false
+    end
+  end
+
+  def is_inside_gc(bt = get_bt)
+    if any_caller_match(bt, '(gc\.c)')
+      $stderr.puts "process #{@native_debugger.pid} is currently in garbage collection phase."
+      true
+    else
+      false
+    end
+  end
+
+  def need_finish_frame
+    bt = get_bt
+    is_inside_malloc(bt) || is_inside_gc(bt)
+  end
+
+end
+
+def choose_debugger
+  if true
+    GDB.new(@options.ruby_path, @options.pid, '-nh -nx')
+  else
+    LLDB.new(@options.ruby_path, @options.pid, '--no-lldbinit')
+  end
+end
+
+gdb = choose_debugger
+gdb.attach_to_process
+gdb.set_flags
+
+if gdb.check_already_under_debug
+  $stderr.puts "Process #{gdb.pid} is already under debug"
+  gdb.exit
+  exit!
+end
+
+should_check_threads_state = true
+
+while should_check_threads_state
+  should_check_threads_state = false
+  gdb.update_threads.each do |thread|
+    thread.switch
+    while thread.need_finish_frame
+      should_check_threads_state = true
+      thread.finish
+    end
+  end
+end
+
+gdb.call_start_attach
+gdb.set_tbreak('__func_to_set_breakpoint_at')
+gdb.continue
+gdb.execute "call rb_eval_string_protect(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\", (int *)0)"
+gdb.exit
 
 trap('INT') do
-  unless gdb_executed_all_commands
-    $stderr.puts "Seems like could not attach to process. Its backtrace:\n#{$last_bt}"
-    $stderr.flush
-  end
-  exit 1
+  $stderr.puts "Last backtrace:\n#{gdb.last_bt}"
+  exit!
 end
 
-if options.uid
-  Process::Sys.setuid(options.uid.to_i)
+if @options.uid
+  Process::Sys.setuid(@options.uid.to_i)
 end
 
 sleep

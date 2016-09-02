@@ -5,6 +5,6 @@
 #include <ruby/debug.h>
 #include <stdio.h>
 
-void start_attach(const char *command);
+int start_attach(const char *command);
 
 #endif //__DO_ATTACH_H__
