@@ -59,19 +59,19 @@ end
 require 'ruby-debug-ide/greeter'
 Debugger::print_greeting_msg(nil, nil)
 
-# this class is some kind of "interface"
 class NativeDebugger
 
-  attr_reader :pid, :last_bt
+  attr_reader :pid, :main_thread, :process_threads
 
   # @param executable -- path to ruby interpreter
   # @param pid -- pid of process you want to debug
   # @param options -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
   def initialize(executable, pid, options)
     @pid = pid
-    @main_thread = nil
     @delimiter = '__OUTPUT_FINISHED__' # for getting response
-    @last_bt = '' # to shaw it to user
+    @tbreak = '__func_to_set_breakpoint_at'
+    @main_thread = nil
+    @process_threads = nil
 
     launch_string = "#{self} #{executable} #{options}"
     @pipe = IO.popen(launch_string, 'r+')
@@ -90,9 +90,6 @@ class NativeDebugger
       return ''
     end
     response = get_response
-    if command == 'bt'
-      @last_bt = response
-    end
     $stdout.puts "response for #{command}:\n#{response}\n\n\n\n"
     response
   end
@@ -106,7 +103,7 @@ class NativeDebugger
       line = @pipe.readline
       $stderr.puts line
       next if line =~ /\(lldb\)/ # lldb repeats your input to its output
-      break if line =~ /\$\d+\s=\s"__OUTPUT_FINISHED__"/
+      break if line =~ /\$\d+\s=\s"#{@delimiter}"/
       content += line
     end
     content
@@ -129,10 +126,12 @@ class NativeDebugger
   end
 
   def continue
+    $stdout.puts 'continuing'
     @pipe.puts 'c'
     loop do
       line = @pipe.readline
-      break if line =~ /__func_to_set_breakpoint_at/
+      $stderr.puts line
+      break if line =~ /#{Regexp.escape(@tbreak)}/
     end
     get_response
   end
@@ -140,6 +139,15 @@ class NativeDebugger
   def call_start_attach
     raise 'No main thread found. Did you forget to call `update_threads`?' if @main_thread == nil
     @main_thread.switch
+  end
+
+  def wait_line_event
+    call_start_attach
+    continue
+  end
+
+  def load_debugger
+    execute "call rb_eval_string_protect(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\", (int *)0)"
   end
 
   def exit
@@ -163,20 +171,20 @@ class LLDB < NativeDebugger
   end
 
   def update_threads
-    process_threads = []
+    @process_threads = []
     info_threads = (execute 'thread list').split("\n")
     info_threads.each do |thread_info|
       next unless thread_info =~ /[\s*]*thread\s#\d+.*/
       $stdout.puts "thread_info: #{thread_info}"
       is_main = thread_info[0] == '*'
       thread_num = thread_info.sub(/[\s*]*thread\s#/, '').sub(/:\s.*$/, '').to_i
-      thread = ProcessThread.new(thread_num, is_main, self)
+      thread = ProcessThread.new(thread_num, is_main, thread_info, self)
       if thread.is_main
         @main_thread = thread
       end
-      process_threads << thread
+      @process_threads << thread
     end
-    process_threads
+    @process_threads
   end
 
   def check_already_under_debug
@@ -191,11 +199,12 @@ class LLDB < NativeDebugger
   def call_start_attach
     super()
     execute "expr (void *) dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
-    execute "call start_attach(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\")"
+    execute 'call start_attach()'
+    set_tbreak(@tbreak)
   end
 
   def to_s
-    'lldb-3.8'
+    'lldb'
   end
 
 end
@@ -212,22 +221,20 @@ class GDB < NativeDebugger
   end
 
   def update_threads
-    process_threads = []
+    @process_threads = []
     info_threads = (execute 'info threads').split("\n")
-    # each thread info looks like this:
-    #  3    Thread 0x7ff535405700 (LWP 8291) "ruby-timer-thr" 0x00007ff534a15fdd in poll () at ../sysdeps/unix/syscall-template.S:81
     info_threads.each do |thread_info|
       next unless thread_info =~ /[\s*]*\d+\s+Thread.*/
       $stdout.puts "thread_info: #{thread_info}"
       is_main = thread_info[0] == '*'
       thread_num = thread_info.sub(/[\s*]*/, '').sub(/\s.*$/, '').to_i
-      thread = ProcessThread.new(thread_num, is_main, self)
+      thread = ProcessThread.new(thread_num, is_main, thread_info, self)
       if thread.is_main
         @main_thread = thread
       end
-      process_threads << thread
+      @process_threads << thread
     end
-    process_threads
+    @process_threads
   end
 
   def check_already_under_debug
@@ -242,7 +249,8 @@ class GDB < NativeDebugger
   def call_start_attach
     super()
     execute "call dlopen(\"/home/equi/Job/JetBrains/Internship_2016/ruby-debug-ide/ext/libAttach.so\", 2)"
-    execute "call start_attach(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\")"
+    execute 'call start_attach()'
+    set_tbreak(@tbreak)
   end
 
   def to_s
@@ -253,12 +261,14 @@ end
 
 class ProcessThread
 
-  attr_reader :thread_num, :is_main
+  attr_reader :thread_num, :is_main, :thread_info, :last_bt
 
-  def initialize(thread_num, is_main, native_debugger)
+  def initialize(thread_num, is_main, thread_info, native_debugger)
     @thread_num = thread_num
     @is_main = is_main
     @native_debugger = native_debugger
+    @thread_info = thread_info
+    @last_bt = nil
   end
 
   def switch
@@ -270,7 +280,7 @@ class ProcessThread
   end
 
   def get_bt
-    @native_debugger.execute 'bt'
+    @last_bt = @native_debugger.execute 'bt'
   end
 
   def any_caller_match(bt, pattern)
@@ -302,11 +312,19 @@ class ProcessThread
 
 end
 
+def exists_command(command)
+  `command -v #{command} >/dev/null 2>&1 || { exit 1; }`
+  $?.exitstatus == 0
+end
+
 def choose_debugger
-  if true
+  $stderr.puts "exists: #{exists_command('gdb')}, #{exists_command('lldb')}"
+  if exists_command('gdb')
     GDB.new(@options.ruby_path, @options.pid, '-nh -nx')
-  else
+  elsif exists_command('lldb')
     LLDB.new(@options.ruby_path, @options.pid, '--no-lldbinit')
+  else
+    raise 'Neither gdb nor lldb was found. Aborting.'
   end
 end
 
@@ -333,14 +351,14 @@ while should_check_threads_state
   end
 end
 
-gdb.call_start_attach
-gdb.set_tbreak('__func_to_set_breakpoint_at')
-gdb.continue
-gdb.execute "call rb_eval_string_protect(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\", (int *)0)"
+gdb.wait_line_event
+gdb.load_debugger
 gdb.exit
 
 trap('INT') do
-  $stderr.puts "Last backtrace:\n#{gdb.last_bt}"
+  gdb.process_threads.each do |thread|
+    $stderr.puts "Last backtrace for thread #{thread.thread_info}:\n#{thread.last_bt}"
+  end
   exit!
 end
 
