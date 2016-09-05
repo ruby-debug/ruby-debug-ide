@@ -61,7 +61,7 @@ Debugger::print_greeting_msg(nil, nil)
 
 class NativeDebugger
 
-  attr_reader :pid, :main_thread, :process_threads
+  attr_reader :pid, :main_thread, :process_threads, :pipe
 
   # @param executable -- path to ruby interpreter
   # @param pid -- pid of process you want to debug
@@ -89,9 +89,7 @@ class NativeDebugger
       @pipe.close
       return ''
     end
-    response = get_response
-    $stdout.puts "response for #{command}:\n#{response}\n\n\n\n"
-    response
+    get_response
   end
 
   def get_response
@@ -101,7 +99,6 @@ class NativeDebugger
     content = ''
     loop do
       line = @pipe.readline
-      $stderr.puts line
       next if line =~ /\(lldb\)/ # lldb repeats your input to its output
       break if line =~ /\$\d+\s=\s"#{@delimiter}"/
       content += line
@@ -152,6 +149,7 @@ class NativeDebugger
 
   def exit
     execute 'q'
+    @pipe.close
   end
 
   def to_s
@@ -312,29 +310,44 @@ class ProcessThread
 
 end
 
-def exists_command(command)
+def command_exists(command)
   `command -v #{command} >/dev/null 2>&1 || { exit 1; }`
   $?.exitstatus == 0
 end
 
 def choose_debugger
-  $stderr.puts "exists: #{exists_command('gdb')}, #{exists_command('lldb')}"
-  if exists_command('gdb')
-    GDB.new(@options.ruby_path, @options.pid, '-nh -nx')
-  elsif exists_command('lldb')
-    LLDB.new(@options.ruby_path, @options.pid, '--no-lldbinit')
+  if command_exists('gdb')
+    debugger = GDB.new(@options.ruby_path, @options.pid, '-nh -nx')
+  elsif command_exists('lldb')
+    debugger = LLDB.new(@options.ruby_path, @options.pid, '--no-lldbinit')
   else
     raise 'Neither gdb nor lldb was found. Aborting.'
   end
+
+  trap('INT') do
+    unless debugger.pipe.closed?
+      $stderr.puts "backtraces for threads:\n\n"
+      debugger.process_threads.each do |thread|
+        $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
+      end
+    end
+    exit!
+  end
+
+  debugger
 end
 
-gdb = choose_debugger
-gdb.attach_to_process
-gdb.set_flags
+debugger = choose_debugger
+debugger.attach_to_process
+debugger.set_flags
 
-if gdb.check_already_under_debug
-  $stderr.puts "Process #{gdb.pid} is already under debug"
-  gdb.exit
+if @options.uid
+  Process::Sys.setuid(@options.uid.to_i)
+end
+
+if debugger.check_already_under_debug
+  $stderr.puts "Process #{debugger.pid} is already under debug"
+  debugger.exit
   exit!
 end
 
@@ -342,7 +355,7 @@ should_check_threads_state = true
 
 while should_check_threads_state
   should_check_threads_state = false
-  gdb.update_threads.each do |thread|
+  debugger.update_threads.each do |thread|
     thread.switch
     while thread.need_finish_frame
       should_check_threads_state = true
@@ -351,19 +364,8 @@ while should_check_threads_state
   end
 end
 
-gdb.wait_line_event
-gdb.load_debugger
-gdb.exit
-
-trap('INT') do
-  gdb.process_threads.each do |thread|
-    $stderr.puts "Last backtrace for thread #{thread.thread_info}:\n#{thread.last_bt}"
-  end
-  exit!
-end
-
-if @options.uid
-  Process::Sys.setuid(@options.uid.to_i)
-end
+debugger.wait_line_event
+debugger.load_debugger
+debugger.exit
 
 sleep
