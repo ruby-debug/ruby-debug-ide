@@ -127,7 +127,6 @@ class NativeDebugger
     @pipe.puts 'c'
     loop do
       line = @pipe.readline
-      $stderr.puts line
       break if line =~ /#{Regexp.escape(@tbreak)}/
     end
     get_response
