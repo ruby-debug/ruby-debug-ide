@@ -91,7 +91,6 @@ class NativeDebugger
     @pipe.puts command
     $stdout.puts "executed `#{command}` command inside #{self}."
     if command == 'q'
-      @pipe.close
       return ''
     end
     get_response
