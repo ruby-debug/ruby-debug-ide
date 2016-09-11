@@ -6,7 +6,7 @@ require 'ostruct'
 $stdout.sync = true
 $stderr.sync = true
 
-$options = OpenStruct.new(
+options = OpenStruct.new(
     'pid' => nil,
     'sdk_path' => nil,
     'uid' => nil,
@@ -20,39 +20,38 @@ Some useful banner.
 EOB
 
   opts.on('--pid PID', 'pid of process you want to attach to for debugging') do |pid|
-    $options.pid = pid
+    options.pid = pid
   end
 
   opts.on('--ruby-path RUBY_PATH', 'path to ruby interpreter') do |ruby_path|
-    $options.ruby_path = ruby_path
+    options.ruby_path = ruby_path
   end
 
   opts.on('--uid UID', 'uid which this process should set after executing gdb attach') do |uid|
-    $options.uid = uid
+    options.uid = uid
   end
 
   opts.on('--include-gem GEM_LIB_PATH', 'lib of gem to include') do |gem_lib_path|
-    $options.gems_to_include << gem_lib_path
+    options.gems_to_include << gem_lib_path
   end
 end
 
 opts.parse! ARGV
 
-unless $options.pid
+unless options.pid
   $stderr.puts 'You should specify PID of process you want to attach to'
   exit 1
 end
 
-unless $options.ruby_path
+unless options.ruby_path
   $stderr.puts 'You should specify path to the ruby interpreter'
   exit 1
 end
 
-$argv = '["' + ARGV * '", "' + '"]'
-$gems_to_include = '["' + $options.gems_to_include * '", "' + '"]'
-$path_to_debugger_loader = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
+argv = '["' + ARGV * '", "' + '"]'
+debugger_loader_path = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
-$options.gems_to_include.each do |gem_path|
+options.gems_to_include.each do |gem_path|
   $LOAD_PATH.unshift(gem_path) unless $LOAD_PATH.include?(gem_path)
 end
 
@@ -65,20 +64,24 @@ class NativeDebugger
 
   # @param executable -- path to ruby interpreter
   # @param pid -- pid of process you want to debug
-  # @param options -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
-  def initialize(executable, pid, options)
+  # @param flags -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
+  def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
     @pid = pid
     @delimiter = '__OUTPUT_FINISHED__' # for getting response
     @tbreak = '__func_to_set_breakpoint_at'
     @main_thread = nil
     @process_threads = nil
-    debase_path = $options.gems_to_include.select {|gem_path| gem_path =~ /debase/}
+    debase_path = gems_to_include.select {|gem_path| gem_path =~ /debase/}
     if debase_path.size == 0
       raise 'No debase gem found.'
     end
     @path_to_attach = debase_path[0] + '/attach.so'
 
-    launch_string = "#{self} #{executable} #{options}"
+    @gems_to_include = '["' + gems_to_include * '", "' + '"]'
+    @debugger_loader_path = debugger_loader_path
+    @argv = argv
+
+    launch_string = "#{self} #{executable} #{flags}"
     @pipe = IO.popen(launch_string, 'r+')
     $stdout.puts "executed '#{launch_string}'"
   end
@@ -147,7 +150,7 @@ class NativeDebugger
   end
 
   def load_debugger
-    execute "call rb_eval_string_protect(\"require '#{$path_to_debugger_loader}'; load_debugger(#{$gems_to_include.gsub("\"", "'")}, #{$argv.gsub("\"", "'")})\", (int *)0)"
+    execute "call rb_eval_string_protect(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
   end
 
   def exit
@@ -163,8 +166,8 @@ end
 
 class LLDB < NativeDebugger
 
-  def initialize(executable, pid, options)
-    super(executable, pid, options)
+  def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
+    super(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
   end
 
   def set_flags
@@ -212,8 +215,8 @@ end
 
 class GDB < NativeDebugger
 
-  def initialize(executable, pid, options)
-    super(executable, pid, options)
+  def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
+    super(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
   end
 
   def set_flags
@@ -318,11 +321,11 @@ def command_exists(command)
   $?.exitstatus == 0
 end
 
-def choose_debugger
+def choose_debugger(ruby_path, pid, gems_to_include, debugger_loader_path, argv)
   if command_exists('gdb')
-    debugger = GDB.new($options.ruby_path, $options.pid, '-nh -nx')
+    debugger = GDB.new(ruby_path, pid, '-nh -nx', gems_to_include, debugger_loader_path, argv)
   elsif command_exists('lldb')
-    debugger = LLDB.new($options.ruby_path, $options.pid, '--no-lldbinit')
+    debugger = LLDB.new(ruby_path, pid, '--no-lldbinit', gems_to_include, debugger_loader_path, argv)
   else
     raise 'Neither gdb nor lldb was found. Aborting.'
   end
@@ -340,12 +343,12 @@ def choose_debugger
   debugger
 end
 
-debugger = choose_debugger
+debugger = choose_debugger(options.ruby_path, options.pid, options.gems_to_include, debugger_loader_path, argv)
 debugger.attach_to_process
 debugger.set_flags
 
-if $options.uid
-  Process::Sys.setuid($options.uid.to_i)
+if options.uid
+  Process::Sys.setuid(options.uid.to_i)
 end
 
 if debugger.check_already_under_debug
