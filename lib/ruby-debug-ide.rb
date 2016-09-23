@@ -4,11 +4,13 @@ require "socket"
 require 'thread'
 if RUBY_VERSION < '2.0' || defined?(JRUBY_VERSION)
   require 'ruby-debug-base'
+  Debugger::FRONT_END = "ruby-debug-base"
 else
   require 'debase'
+  Debugger::FRONT_END = "debase"
 end
 
-require 'ruby-debug-ide/version'
+require 'ruby-debug-ide/greeter'
 require 'ruby-debug-ide/xml_printer'
 require 'ruby-debug-ide/ide_processor'
 require 'ruby-debug-ide/event_processor'
@@ -41,6 +43,7 @@ module Debugger
        cleared
     end
 
+    attr_accessor :attached
     attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
     attr_accessor :control_thread
     attr_reader :interface
@@ -110,7 +113,6 @@ module Debugger
           server = TCPServer.new(host, port)
           print_greeting_msg(host, port)
           notify_dispatcher(port) if notify_dispatcher
-
           while (session = server.accept)
             $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
@@ -136,23 +138,6 @@ module Debugger
       end
     end
 
-    def print_greeting_msg(host, port)
-      base_gem_name = if defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0'
-        'ruby-debug-base'
-      elsif RUBY_VERSION < '2.0.0'
-        'ruby-debug-base19x'
-      else
-        'debase'
-      end
-
-      file_filtering_support = if Command.file_filter_supported?
-       'supported'
-      else
-       'not supported'
-      end
-      $stderr.printf "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{base_gem_name} #{VERSION}, file filtering is #{file_filtering_support}) listens on #{host}:#{port}\n"
-    end
-
     private
 
 
@@ -160,8 +145,8 @@ module Debugger
       return unless ENV['IDE_PROCESS_DISPATCHER']
       acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
       acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
-
       connected = false
+
       3.times do |i|
         begin
           s = TCPSocket.open(acceptor_host, acceptor_port)

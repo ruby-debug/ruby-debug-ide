@@ -77,7 +77,6 @@ module Debugger
       ctrl_cmd_classes = Command.commands.select{|cmd| cmd.control}
       state = ControlState.new(@interface)
       ctrl_cmds = ctrl_cmd_classes.map{|cmd| cmd.new(state, @printer)}
-      
       while input = @interface.read_command
         # escape % since print_debug might use printf
         # sleep 0.3

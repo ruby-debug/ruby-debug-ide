@@ -22,7 +22,9 @@ options = OpenStruct.new(
   'evaluation_timeout' => 10,
   'rm_protocol_extensions' => false,
   'catchpoint_deleted_event' => false,
-  'value_as_nested_element' => false
+  'value_as_nested_element' => false,
+  'attach_mode' => false,
+  'cli_debug' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -47,6 +49,7 @@ EOB
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.cli_debug = true
+    options.cli_debug = true
   end
   opts.on("--xml-debug", "Debug self - sends information <message>s for debugging ruby-debug itself") do
     Debugger.xml_debug = true
@@ -54,7 +57,9 @@ EOB
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
-  
+  opts.on("--attach-mode", "Tells that rdebug-ide is working in attach mode") do
+    options.attach_mode = true
+  end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
   opts.on("--rubymine-protocol-extensions", "Enable all RubyMine-specific incompatible protocol extensions") do
@@ -89,29 +94,37 @@ rescue StandardError => e
   exit(1)
 end
 
-if ARGV.empty?
+if ARGV.empty? && !options.attach_mode
   puts opts
   puts
   puts "Must specify a script to run"
   exit(1)
-end    
+end
 
 # save script name
-Debugger::PROG_SCRIPT = ARGV.shift
+if !options.attach_mode
+  Debugger::PROG_SCRIPT = ARGV.shift
+else
+  Debugger::PROG_SCRIPT = $0
+end
 
 if options.dispatcher_port != -1
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
   if RUBY_VERSION < "1.9"
-    $: << File.expand_path(File.dirname(__FILE__) + "/../lib/")
+    lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
+    $: << lib_path unless $:.include? lib_path
     require 'ruby-debug-ide/multiprocess'
   else
     require_relative '../lib/ruby-debug-ide/multiprocess'
   end
 
   ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB'] 
-  old_opts = ENV['RUBYOPT']
-  ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
-  ENV['RUBYOPT'] += " #{old_opts}" if old_opts
+  old_opts = ENV['RUBYOPT'] || ''
+  starter = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
+  unless old_opts.include? starter
+    ENV['RUBYOPT'] = starter
+    ENV['RUBYOPT'] += " #{old_opts}" if old_opts != ''
+  end
   ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug.to_s
 end
 
@@ -119,7 +132,7 @@ if options.int_handler
   # install interruption handler
   trap('INT') { Debugger.interrupt_last }
 end
-  
+
 # set options
 Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
@@ -127,5 +140,19 @@ Debugger.evaluation_timeout = options.evaluation_timeout
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 
-Debugger.debug_program(options)
+Debugger.attached = true
 
+if options.attach_mode
+  if Debugger::FRONT_END == "debase"
+    Debugger.init_variables
+  end
+
+  Debugger::MultiProcess::pre_child(options)
+
+  if Debugger::FRONT_END == "debase"
+    Debugger.setup_tracepoints
+    Debugger.prepare_context
+  end
+else
+  Debugger.debug_program(options)
+end

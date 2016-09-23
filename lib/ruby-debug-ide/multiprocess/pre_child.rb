@@ -1,19 +1,19 @@
 module Debugger
   module MultiProcess
     class << self
-      def pre_child
+      def pre_child(options = nil)
+        return unless Debugger.attached
 
         require 'socket'
         require 'ostruct'
 
         host = ENV['DEBUGGER_HOST']
-        port = find_free_port(host)
 
-        options = OpenStruct.new(
+        options ||= OpenStruct.new(
             'frame_bind'  => false,
             'host'        => host,
             'load_mode'   => false,
-            'port'        => port,
+            'port'        => find_free_port(host),
             'stop'        => false,
             'tracing'     => false,
             'int_handler' => true,
