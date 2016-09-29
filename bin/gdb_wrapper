@@ -13,6 +13,30 @@ options = OpenStruct.new(
     'gems_to_include' => []
 )
 
+module DebugPrinter
+
+  class << self
+    attr_accessor :cli_debug
+
+    def print_debug(msg)
+      if DebugPrinter.cli_debug
+        delimiter = '=' * 10
+        upper_border = "\n#{delimiter}\n"
+        lower_border = "#{delimiter}\n\n"
+
+        if msg.length > 0 and msg[msg.length - 1] != "\n"
+          lower_border = "\n" + lower_border
+        end
+
+        $stdout.puts upper_border + msg + lower_border
+      end
+    end
+  end
+
+end
+
+DebugPrinter.cli_debug = ARGV.include? '--debug'
+
 opts = OptionParser.new do |opts|
   # TODO need some banner
   opts.banner = <<EOB
@@ -110,6 +134,9 @@ class NativeDebugger
       break if line =~ /\$\d+\s=\s"#{@delimiter}"/
       content += line
     end
+
+    DebugPrinter.print_debug(content)
+
     content
   end
 
@@ -317,7 +344,13 @@ class ProcessThread
 end
 
 def command_exists(command)
+  checking_command = "checking command #{command} for existence\n"
   `command -v #{command} >/dev/null 2>&1 || { exit 1; }`
+  if $?.exitstatus != 0
+    DebugPrinter.print_debug("#{checking_command}command does not exist.")
+  else
+    DebugPrinter.print_debug("#{checking_command}command does exist.")
+  end
   $?.exitstatus == 0
 end
 
@@ -348,6 +381,7 @@ debugger.attach_to_process
 debugger.set_flags
 
 if options.uid
+  DebugPrinter.print_debug("changing current uid from #{Process.uid} to #{options.uid}")
   Process::Sys.setuid(options.uid.to_i)
 end
 
