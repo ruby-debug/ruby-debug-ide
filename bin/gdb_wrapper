@@ -365,10 +365,10 @@ def command_exists(command)
 end
 
 def choose_debugger(ruby_path, pid, gems_to_include, debugger_loader_path, argv)
-  if command_exists('gdb')
-    debugger = GDB.new(ruby_path, pid, '-nh -nx', gems_to_include, debugger_loader_path, argv)
-  elsif command_exists('lldb')
+  if command_exists('lldb')
     debugger = LLDB.new(ruby_path, pid, '--no-lldbinit', gems_to_include, debugger_loader_path, argv)
+  elsif command_exists('gdb')
+    debugger = GDB.new(ruby_path, pid, '-nh -nx', gems_to_include, debugger_loader_path, argv)
   else
     raise 'Neither gdb nor lldb was found. Aborting.'
   end
