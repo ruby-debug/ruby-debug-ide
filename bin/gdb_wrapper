@@ -99,7 +99,7 @@ class NativeDebugger
     if debase_path.size == 0
       raise 'No debase gem found.'
     end
-    @path_to_attach = debase_path[0] + '/attach.so'
+    @path_to_attach = find_attach_lib(debase_path[0])
 
     @gems_to_include = '["' + gems_to_include * '", "' + '"]'
     @debugger_loader_path = debugger_loader_path
@@ -110,6 +110,18 @@ class NativeDebugger
     launch_string = "#{self} #{executable} #{flags}"
     @pipe = IO.popen(launch_string, 'r+')
     $stdout.puts "executed '#{launch_string}'"
+  end
+
+  def find_attach_lib(debase_path)
+    attach_lib = debase_path + '/attach'
+    known_extensions = %w(.so .bundle .dll)
+    known_extensions.each do |ext|
+      if File.file?(attach_lib + ext)
+        return attach_lib + ext
+      end
+    end
+
+    raise 'Could not find attach library'
   end
 
   def attach_to_process
