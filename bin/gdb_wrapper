@@ -105,6 +105,8 @@ class NativeDebugger
     @debugger_loader_path = debugger_loader_path
     @argv = argv
 
+    @eval_string = "rb_eval_string_protect(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
+
     launch_string = "#{self} #{executable} #{flags}"
     @pipe = IO.popen(launch_string, 'r+')
     $stdout.puts "executed '#{launch_string}'"
@@ -177,7 +179,7 @@ class NativeDebugger
   end
 
   def load_debugger
-    execute "call rb_eval_string_protect(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
+
   end
 
   def exit
@@ -230,8 +232,12 @@ class LLDB < NativeDebugger
   def call_start_attach
     super()
     execute "expr (void *) dlopen(\"#{@path_to_attach}\", 2)"
-    execute 'call start_attach()'
+    execute 'expr (int) start_attach()'
     set_tbreak(@tbreak)
+  end
+
+  def load_debugger
+    execute "expr (VALUE) #{@eval_string}"
   end
 
   def to_s
@@ -282,6 +288,10 @@ class GDB < NativeDebugger
     execute "call dlopen(\"#{@path_to_attach}\", 2)"
     execute 'call start_attach()'
     set_tbreak(@tbreak)
+  end
+
+  def load_debugger
+    execute "call #{@eval_string}"
   end
 
   def to_s
