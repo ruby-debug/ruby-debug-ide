@@ -20,15 +20,7 @@ module DebugPrinter
 
     def print_debug(msg)
       if DebugPrinter.cli_debug
-        delimiter = '=' * 10
-        upper_border = "\n#{delimiter}\n"
-        lower_border = "#{delimiter}\n\n"
-
-        if msg.length > 0 and msg[msg.length - 1] != "\n"
-          lower_border = "\n" + lower_border
-        end
-
-        $stdout.puts upper_border + msg + lower_border
+        $stderr.puts msg
       end
     end
   end
@@ -139,17 +131,16 @@ class NativeDebugger
 
   def get_response
     # we need this hack to understand that debugger gave us all output from last executed command
-    @pipe.puts "print \"#{@delimiter}\""
+    print_delimiter
 
     content = ''
     loop do
       line = @pipe.readline
+      break if check_delimiter(line)
+      DebugPrinter.print_debug('respond line: ' + line)
       next if line =~ /\(lldb\)/ # lldb repeats your input to its output
-      break if line =~ /\$\d+\s=\s"#{@delimiter}"/
       content += line
     end
-
-    DebugPrinter.print_debug(content)
 
     content
   end
@@ -159,6 +150,14 @@ class NativeDebugger
   end
 
   def check_already_under_debug
+
+  end
+
+  def print_delimiter
+
+  end
+
+  def check_delimiter(line)
 
   end
 
@@ -220,7 +219,6 @@ class LLDB < NativeDebugger
     info_threads = (execute 'thread list').split("\n")
     info_threads.each do |thread_info|
       next unless thread_info =~ /[\s*]*thread\s#\d+.*/
-      $stdout.puts "thread_info: #{thread_info}"
       is_main = thread_info[0] == '*'
       thread_num = thread_info.sub(/[\s*]*thread\s#/, '').sub(/:\s.*$/, '').to_i
       thread = ProcessThread.new(thread_num, is_main, thread_info, self)
@@ -246,6 +244,14 @@ class LLDB < NativeDebugger
     execute "expr (void *) dlopen(\"#{@path_to_attach}\", 2)"
     execute 'expr (int) start_attach()'
     set_tbreak(@tbreak)
+  end
+
+  def print_delimiter
+    @pipe.puts "script print \"#{@delimiter}\""
+  end
+
+  def check_delimiter(line)
+    line =~ /#{@delimiter}$/
   end
 
   def load_debugger
@@ -300,6 +306,14 @@ class GDB < NativeDebugger
     execute "call dlopen(\"#{@path_to_attach}\", 2)"
     execute 'call start_attach()'
     set_tbreak(@tbreak)
+  end
+
+  def print_delimiter
+    @pipe.puts "print \"#{@delimiter}\""
+  end
+
+  def check_delimiter(line)
+    line =~ /\$\d+\s=\s"#{@delimiter}"/
   end
 
   def load_debugger
