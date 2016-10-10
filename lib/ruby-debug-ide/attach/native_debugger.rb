@@ -60,8 +60,8 @@ class NativeDebugger
     content = ''
     loop do
       line = @pipe.readline
-      break if check_delimiter(line)
       DebugPrinter.print_debug('respond line: ' + line)
+      break if check_delimiter(line)
       next if line =~ /\(lldb\)/ # lldb repeats your input to its output
       content += line
     end
@@ -98,6 +98,7 @@ class NativeDebugger
     @pipe.puts 'c'
     loop do
       line = @pipe.readline
+      DebugPrinter.print_debug('respond line: ' + line)
       break if line =~ /#{Regexp.escape(@tbreak)}/
     end
     get_response
