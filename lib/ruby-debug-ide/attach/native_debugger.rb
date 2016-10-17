@@ -30,7 +30,7 @@ class NativeDebugger
 
   def find_attach_lib(debase_path)
     attach_lib = debase_path + '/attach'
-    known_extensions = %w(.so .bundle .dll)
+    known_extensions = %w(.so .bundle .dll .dylib)
     known_extensions.each do |ext|
       if File.file?(attach_lib + ext)
         return attach_lib + ext
