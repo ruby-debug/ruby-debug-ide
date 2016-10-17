@@ -89,8 +89,8 @@ class NativeDebugger
 
   end
 
-  def set_tbreak(str)
-    execute "tbreak #{str}"
+  def set_break(str)
+
   end
 
   def continue

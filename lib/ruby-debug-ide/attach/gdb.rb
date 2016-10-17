@@ -37,11 +37,15 @@ class GDB < NativeDebugger
     execute "thread #{thread_num}"
   end
 
+  def set_break(str)
+    execute "tbreak #{str}"
+  end
+
   def call_start_attach
     super()
     execute "call dlopen(\"#{@path_to_attach}\", 2)"
     execute 'call start_attach()'
-    set_tbreak(@tbreak)
+    set_break(@tbreak)
   end
 
   def print_delimiter
