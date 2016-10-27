@@ -44,7 +44,7 @@ class GDB < NativeDebugger
   def call_start_attach
     super()
     execute "call dlopen(\"#{@path_to_attach}\", 2)"
-    execute 'call start_attach()'
+    execute 'call debase_start_attach()'
     set_break(@tbreak)
   end
 
