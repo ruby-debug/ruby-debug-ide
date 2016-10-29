@@ -35,11 +35,15 @@ class LLDB < NativeDebugger
     execute "thread select #{thread_num}"
   end
 
+  def set_break(str)
+    execute "breakpoint set --shlib #{@path_to_attach} --name #{str}"
+  end
+
   def call_start_attach
     super()
     execute "expr (void *) dlopen(\"#{@path_to_attach}\", 2)"
-    execute 'expr (int) start_attach()'
-    set_tbreak(@tbreak)
+    execute 'expr (int) debase_start_attach()'
+    set_break(@tbreak)
   end
 
   def print_delimiter
@@ -51,7 +55,7 @@ class LLDB < NativeDebugger
   end
 
   def load_debugger
-    execute "expr (VALUE) #{@eval_string}"
+    execute "expr (void) #{@eval_string}"
   end
 
   def to_s

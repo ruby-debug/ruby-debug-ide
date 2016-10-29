@@ -21,7 +21,7 @@ class NativeDebugger
     @debugger_loader_path = debugger_loader_path
     @argv = argv
 
-    @eval_string = "rb_eval_string_protect(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
+    @eval_string = "debase_rb_eval(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
 
     launch_string = "#{self} #{executable} #{flags}"
     @pipe = IO.popen(launch_string, 'r+')
@@ -30,7 +30,7 @@ class NativeDebugger
 
   def find_attach_lib(debase_path)
     attach_lib = debase_path + '/attach'
-    known_extensions = %w(.so .bundle .dll)
+    known_extensions = %w(.so .bundle .dll .dylib)
     known_extensions.each do |ext|
       if File.file?(attach_lib + ext)
         return attach_lib + ext
@@ -60,8 +60,8 @@ class NativeDebugger
     content = ''
     loop do
       line = @pipe.readline
-      break if check_delimiter(line)
       DebugPrinter.print_debug('respond line: ' + line)
+      break if check_delimiter(line)
       next if line =~ /\(lldb\)/ # lldb repeats your input to its output
       content += line
     end
@@ -89,8 +89,8 @@ class NativeDebugger
 
   end
 
-  def set_tbreak(str)
-    execute "tbreak #{str}"
+  def set_break(str)
+
   end
 
   def continue
@@ -98,6 +98,7 @@ class NativeDebugger
     @pipe.puts 'c'
     loop do
       line = @pipe.readline
+      DebugPrinter.print_debug('respond line: ' + line)
       break if line =~ /#{Regexp.escape(@tbreak)}/
     end
     get_response
