@@ -21,7 +21,7 @@ class NativeDebugger
     @debugger_loader_path = debugger_loader_path
     @argv = argv
 
-    @eval_string = "debase_rb_eval(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\", (int *)0)"
+    @eval_string = "debase_rb_eval(\"require '#{@debugger_loader_path}'; load_debugger(#{@gems_to_include.gsub("\"", "'")}, #{@argv.gsub("\"", "'")})\")"
 
     launch_string = "#{self} #{executable} #{flags}"
     @pipe = IO.popen(launch_string, 'r+')
