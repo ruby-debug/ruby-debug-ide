@@ -72,7 +72,7 @@ options.gems_to_include.each do |gem_path|
 end
 
 require 'ruby-debug-ide/greeter'
-Debugger::print_greeting_msg(nil, nil)
+Debugger::print_greeting_msg($stdout, nil, nil)
 
 require 'ruby-debug-ide/attach/util'
 require 'ruby-debug-ide/attach/native_debugger'
