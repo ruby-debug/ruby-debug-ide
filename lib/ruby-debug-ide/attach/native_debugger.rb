@@ -118,8 +118,11 @@ class NativeDebugger
 
   end
 
+  def exited?
+    @pipe.closed?
+  end
+
   def exit
-    execute 'q'
     @pipe.close
   end
 

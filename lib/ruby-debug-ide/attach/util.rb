@@ -21,15 +21,5 @@ def choose_debugger(ruby_path, pid, gems_to_include, debugger_loader_path, argv)
     raise 'Neither gdb nor lldb was found. Aborting.'
   end
 
-  trap('INT') do
-    unless debugger.pipe.closed?
-      $stderr.puts "backtraces for threads:\n\n"
-      debugger.process_threads.each do |thread|
-        $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
-      end
-    end
-    exit!
-  end
-
   debugger
 end

@@ -72,13 +72,28 @@ options.gems_to_include.each do |gem_path|
 end
 
 require 'ruby-debug-ide/greeter'
-Debugger::print_greeting_msg(nil, nil)
+Debugger::print_greeting_msg($stdout, nil, nil)
 
 require 'ruby-debug-ide/attach/util'
 require 'ruby-debug-ide/attach/native_debugger'
 require 'ruby-debug-ide/attach/process_thread'
 
 debugger = choose_debugger(options.ruby_path, options.pid, options.gems_to_include, debugger_loader_path, argv)
+
+trap('INT') do
+  unless debugger.exited?
+    $stderr.puts "backtraces for threads:\n\n"
+    process_threads = debugger.process_threads
+    if process_threads
+      process_threads.each do |thread|
+        $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
+      end
+    end
+    debugger.exit
+  end
+  exit!
+end
+
 debugger.attach_to_process
 debugger.set_flags
 
