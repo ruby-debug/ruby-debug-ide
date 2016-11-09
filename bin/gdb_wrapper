@@ -81,11 +81,15 @@ require 'ruby-debug-ide/attach/process_thread'
 debugger = choose_debugger(options.ruby_path, options.pid, options.gems_to_include, debugger_loader_path, argv)
 
 trap('INT') do
-  unless debugger.pipe.closed?
+  unless debugger.exited?
     $stderr.puts "backtraces for threads:\n\n"
-    debugger.process_threads.each do |thread|
-      $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
+    process_threads = debugger.process_threads
+    if process_threads
+      process_threads.each do |thread|
+        $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
+      end
     end
+    debugger.exit
   end
   exit!
 end
