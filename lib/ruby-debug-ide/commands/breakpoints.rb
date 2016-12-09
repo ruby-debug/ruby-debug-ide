@@ -98,7 +98,11 @@ module Debugger
     def execute
       brkpts = @match[1]
       unless brkpts
+        if defined? Debugger.remove_all_breakpoints
+          Debugger.remove_all_breakpoints
+        else
           Debugger.breakpoints.clear
+        end
       else
         brkpts.split(/[ \t]+/).each do |pos|
           pos = get_int(pos, "Delete", 1)
