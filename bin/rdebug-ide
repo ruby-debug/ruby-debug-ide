@@ -117,6 +117,7 @@ if options.dispatcher_port != -1
   else
     require_relative '../lib/ruby-debug-ide/multiprocess'
   end
+  Debugger::MultiProcess.do_monkey
 
   ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB'] 
   old_opts = ENV['RUBYOPT'] || ''
@@ -139,8 +140,6 @@ Debugger.tracing = options.tracing
 Debugger.evaluation_timeout = options.evaluation_timeout
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
-
-Debugger.attached = true
 
 if options.attach_mode
   if Debugger::FRONT_END == "debase"

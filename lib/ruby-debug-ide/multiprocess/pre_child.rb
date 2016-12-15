@@ -2,8 +2,6 @@ module Debugger
   module MultiProcess
     class << self
       def pre_child(options = nil)
-        return unless Debugger.attached
-
         require 'socket'
         require 'ostruct'
 

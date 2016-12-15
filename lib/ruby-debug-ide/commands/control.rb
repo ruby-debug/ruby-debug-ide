@@ -136,9 +136,9 @@ module Debugger
     end
 
     def execute
-      Debugger.attached = false
       Debugger.stop
       Debugger.interface.close
+      Debugger::MultiProcess.undo_monkey
       Debugger.control_thread = nil
       Thread.current.exit #@control_thread is a current thread
     end
