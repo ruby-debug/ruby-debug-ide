@@ -421,9 +421,8 @@ module Debugger
         compact[0..compact.size-2] + ", ...]"
       end
       compact
-    rescue StandardError, ScriptError => e
-      @printer.print_exception(e, @state.binding) 
-      throw :debug_error
+    rescue StandardError => e
+      return nil
     end
 
 
