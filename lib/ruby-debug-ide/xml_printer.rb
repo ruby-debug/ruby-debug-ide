@@ -1,6 +1,7 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
+require 'objspace'
 
 module Debugger
 
@@ -95,6 +96,7 @@ module Debugger
     end
     
     def print_variables(vars, kind)
+      
       print_element("variables") do
         # print self at top position
         print_variable('self', yield('self'), kind) if vars.include?('self')
@@ -139,6 +141,7 @@ module Debugger
     end
     
     def print_variable(name, value, kind)
+      
       name = name.to_s
       if value.nil?
         print("<variable name=\"%s\" kind=\"%s\"/>", CGI.escapeHTML(name), kind)
@@ -170,7 +173,10 @@ module Debugger
         rescue
         end
       end
+
+
       value_str = handle_binary_data(value_str)
+      
       escaped_value_str = CGI.escapeHTML(value_str)
       print("<variable name=\"%s\" %s kind=\"%s\" %s type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
           CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
@@ -380,14 +386,59 @@ module Debugger
       50
     end
 
+    def timeout(sec)
+      return yield if sec == nil or sec.zero?
+      if Thread.respond_to?(:critical) and Thread.critical
+        raise ThreadError, "timeout within critical session"      
+      end
+      begin
+        x = Thread.current
+        y = DebugThread.start {
+          sleep sec
+          x.raise StandardError, "Timeout: evaluation took longer than #{sec} seconds." if x.alive?
+        }
+        yield
+      ensure
+        y.kill if y and y.alive?
+      end
+    end
+
+    def inspect_with_allocation_control(slice)
+      
+      begin
+        x = Thread.current
+        start_alloc_size = ObjectSpace.memsize_of_all
+        y = DebugThread.start {
+          10.times do
+            sleep 0.1
+            curr_alloc_size = ObjectSpace.memsize_of_all
+            
+            if(curr_alloc_size - start_alloc_size > 1000000)
+              x.raise StandardError, "Memory limit." if x.alive?
+            end
+          end
+          
+        }
+        slice.inspect
+      ensure
+        y.kill if y and y.alive?
+      end
+    end
+
     def compact_array_str(value)
       slice   = value[0..10]
-      compact = slice.inspect
+      
+      compact = inspect_with_allocation_control(slice)
+      
       if value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
       end
       compact
+    rescue StandardError, ScriptError => e
+      @printer.print_exception(e, @state.binding) 
+      throw :debug_error
     end
+
 
     def compact_hash_str(value)
       slice   = value.sort_by { |k, _| k.to_s }[0..5]
