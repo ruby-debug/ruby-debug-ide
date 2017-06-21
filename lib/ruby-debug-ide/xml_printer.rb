@@ -386,23 +386,6 @@ module Debugger
       50
     end
 
-    def timeout(sec)
-      return yield if sec == nil or sec.zero?
-      if Thread.respond_to?(:critical) and Thread.critical
-        raise ThreadError, "timeout within critical session"      
-      end
-      begin
-        x = Thread.current
-        y = DebugThread.start {
-          sleep sec
-          x.raise StandardError, "Timeout: evaluation took longer than #{sec} seconds." if x.alive?
-        }
-        yield
-      ensure
-        y.kill if y and y.alive?
-      end
-    end
-
     def inspect_with_allocation_control(slice)
       
       begin
@@ -428,7 +411,11 @@ module Debugger
     def compact_array_str(value)
       slice   = value[0..10]
       
-      compact = inspect_with_allocation_control(slice)
+      if defined?(JRUBY_VERSION)
+        compact = slice.inspect
+      else  
+        compact = inspect_with_allocation_control(slice)
+      end 
       
       if value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
