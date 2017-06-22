@@ -118,7 +118,7 @@ module Debugger
     def debug_eval(str, b = get_binding)
       begin
         str = str.to_s
-        str.force_encoding('UTF-8') if(RUBY_VERSION > '2.0')
+        str.force_encoding('UTF-8') if(RUBY_VERSION > 2.0)
         to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
         @printer.print_debug("Evaluating %s with timeout after %i sec", str, max_time)
