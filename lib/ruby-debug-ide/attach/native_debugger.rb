@@ -2,11 +2,25 @@ class NativeDebugger
 
   attr_reader :pid, :main_thread, :process_threads, :pipe
 
+  def add_child_pids(pid)
+    @pids << pid
+
+    pipe = IO.popen("pgrep -P #{pid}")
+
+    pipe.readlines.each do |child_pid|
+      add_child_pids(child_pid.to_i)
+    end
+  end
+
   # @param executable -- path to ruby interpreter
   # @param pid -- pid of process you want to debug
   # @param flags -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
   def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
-    @pid = pid
+    
+    @pids = Array.new
+    add_child_pids(pid.to_s)
+    $stdout.puts '@pid : ' + @pids.to_s
+
     @delimiter = '__OUTPUT_FINISHED__' # for getting response
     @tbreak = '__func_to_set_breakpoint_at'
     @main_thread = nil
@@ -41,7 +55,16 @@ class NativeDebugger
   end
 
   def attach_to_process
-    execute "attach #{@pid}"
+    
+    @pids.each_with_index do |pid, index|
+      
+      if(index > 0)
+        execute "add-inferior" 
+        execute "inferior #{index + 1}" 
+      end
+      execute "attach #{pid}"
+    end  
+    
   end
 
   def execute(command)
