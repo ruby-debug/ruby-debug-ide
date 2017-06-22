@@ -387,26 +387,26 @@ module Debugger
     end
 
     def inspect_with_allocation_control(slice)
+      x = Thread.current
       
-      begin
-        x = Thread.current
-        start_alloc_size = ObjectSpace.memsize_of_all
-        y = DebugThread.start {
-          10.times do
-            sleep 0.1
-            curr_alloc_size = ObjectSpace.memsize_of_all
-            
-            if(curr_alloc_size - start_alloc_size > 1000000)
-              x.raise StandardError, "Memory limit." if x.alive?
-            end
-          end
+      start_alloc_size = ObjectSpace.memsize_of_all
+      
+      trace = TracePoint.new(:c_call, :call) do |tp|
+        curr_alloc_size = ObjectSpace.memsize_of_all
+        
+        if(curr_alloc_size - start_alloc_size > 1e7)
           
-        }
-        slice.inspect
-      ensure
-        y.kill if y and y.alive?
+          trace.disable
+          x.raise StandardError, "Out of memory: evaluation took longer than 10mb." if x.alive?
+        end
+        p [tp.path, tp.lineno, tp.event]
       end
+
+      trace.enable
+      slice.inspect
+      trace.disable 
     end
+    
 
     def compact_array_str(value)
       slice   = value[0..10]
