@@ -1,8 +1,12 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
+require 'objspace'
 
 module Debugger
+
+  class MemoryLimitError < StandardError  
+  end  
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
@@ -380,14 +384,44 @@ module Debugger
       50
     end
 
+    def inspect_with_allocation_control(slice, memory_limit)
+      x = Thread.current
+      
+      start_alloc_size = ObjectSpace.memsize_of_all
+      
+      trace = TracePoint.new(:c_call, :call) do |tp|
+        curr_alloc_size = ObjectSpace.memsize_of_all
+        
+        if(curr_alloc_size - start_alloc_size > 1e6*memory_limit)
+          
+          trace.disable
+          x.raise MemoryLimitError, "Out of memory: evaluation took longer than 10mb." if x.alive?
+        end
+      end
+
+      trace.enable
+      slice.inspect
+      trace.disable 
+    rescue MemoryLimitError
+      return nil
+    end
+    
+
     def compact_array_str(value)
       slice   = value[0..10]
-      compact = slice.inspect
+      
+      if defined?(JRUBY_VERSION)
+        compact = slice.inspect
+      else  
+        compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
+      end 
+      
       if value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
       end
       compact
     end
+
 
     def compact_hash_str(value)
       slice   = value.sort_by { |k, _| k.to_s }[0..5]
