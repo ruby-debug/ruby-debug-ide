@@ -404,8 +404,7 @@ module Debugger
       trace.disable 
     rescue MemoryLimitError
       return nil
-    end
-    
+    end 
 
     def compact_array_str(value)
       slice   = value[0..10]
@@ -421,7 +420,6 @@ module Debugger
       end
       compact
     end
-
 
     def compact_hash_str(value)
       slice   = value.sort_by { |k, _| k.to_s }[0..5]
