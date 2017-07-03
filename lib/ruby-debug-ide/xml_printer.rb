@@ -409,7 +409,7 @@ module Debugger
     def compact_array_str(value)
       slice   = value[0..10]
       
-      if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT_DISABLED'] == 'true')
+      if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
         compact = slice.inspect
       else  
         compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)

@@ -38,14 +38,10 @@ EOB
   opts.separator "Options:"
   
   ENV['DEBUGGER_MEMORY_LIMIT'] = '10'
-  opts.on("-m", "--memory-limit LIMIT", "evaluation memory limit in mb (default: 10)") do |limit| 
+  opts.on("-m", "--memory-limit LIMIT", Integer, "evaluation memory limit in mb (default: 10)") do |limit| 
     ENV['DEBUGGER_MEMORY_LIMIT'] = limit
   end
   
-  ENV['DEBUGGER_MEMORY_LIMIT_DISABLED'] = 'false'
-  opts.on("--memory-limit-disable", "disables the memory check") {ENV['DEBUGGER_MEMORY_LIMIT_DISABLED'] = 'true'}
-
-
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
