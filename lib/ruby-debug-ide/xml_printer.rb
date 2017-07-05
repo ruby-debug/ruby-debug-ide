@@ -404,7 +404,7 @@ module Debugger
       trace.disable
       result 
     rescue MemoryLimitError => e
-      print_msg(e.message)
+      print_debug(e.message)
       return nil
     end 
 
