@@ -45,7 +45,6 @@ module Debugger
     end
     
     def print_msg(*args)
-      puts 'def print_msg(*args)'
       msg, *args = args
       xml_message = CGI.escapeHTML(msg % args)
       print "<message>#{xml_message}</message>"
