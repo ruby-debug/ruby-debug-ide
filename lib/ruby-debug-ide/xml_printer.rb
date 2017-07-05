@@ -384,7 +384,7 @@ module Debugger
       50
     end
 
-    def inspect_with_allocation_control(slice, memory_limit, obj_id)
+    def inspect_with_allocation_control(slice, memory_limit)
       curr_thread = Thread.current
       
       start_alloc_size = ObjectSpace.memsize_of_all
@@ -395,7 +395,7 @@ module Debugger
         if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
           
           trace.disable
-          curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect for obj(#{obj_id}) took more than #{memory_limit}mb." if curr_thread.alive?
+          curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb." if curr_thread.alive?
         end
       end
 
@@ -414,7 +414,7 @@ module Debugger
       compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   slice.inspect
                 else  
-                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, value.object_id.to_s)
+                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
                 end 
       
       if compact && value.size != slice.size
