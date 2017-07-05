@@ -395,7 +395,7 @@ module Debugger
         if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
           
           trace.disable
-          curr_thread.raise MemoryLimitError, "Out of memory: evaluation took longer than 10mb." if curr_thread.alive?
+          curr_thread.raise MemoryLimitError, "Out of memory: evaluation took longer than #{memory_limit}mb." if curr_thread.alive?
         end
       end
 
