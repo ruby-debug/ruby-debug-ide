@@ -45,6 +45,7 @@ module Debugger
     end
     
     def print_msg(*args)
+      puts 'def print_msg(*args)'
       msg, *args = args
       xml_message = CGI.escapeHTML(msg % args)
       print "<message>#{xml_message}</message>"
@@ -384,7 +385,7 @@ module Debugger
       50
     end
 
-    def inspect_with_allocation_control(slice, memory_limit)
+    def inspect_with_allocation_control(slice, memory_limit, obj_id)
       curr_thread = Thread.current
       
       start_alloc_size = ObjectSpace.memsize_of_all
@@ -395,7 +396,7 @@ module Debugger
         if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
           
           trace.disable
-          curr_thread.raise MemoryLimitError, "Out of memory: evaluation took longer than #{memory_limit}mb." if curr_thread.alive?
+          curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect for obj(#{obj_id}) took more than #{memory_limit}mb." if curr_thread.alive?
         end
       end
 
@@ -404,6 +405,7 @@ module Debugger
       trace.disable
       result 
     rescue MemoryLimitError => e
+      print_msg(e.message)
       return nil
     end 
 
@@ -413,7 +415,7 @@ module Debugger
       compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   slice.inspect
                 else  
-                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
+                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, value.object_id.to_s)
                 end 
       
       if compact && value.size != slice.size
