@@ -51,7 +51,6 @@ EOB
     options.evaluation_timeout = timeout
   end
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
-  
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do

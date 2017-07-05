@@ -385,37 +385,38 @@ module Debugger
     end
 
     def inspect_with_allocation_control(slice, memory_limit)
-      x = Thread.current
+      curr_thread = Thread.current
       
       start_alloc_size = ObjectSpace.memsize_of_all
       
       trace = TracePoint.new(:c_call, :call) do |tp|
         curr_alloc_size = ObjectSpace.memsize_of_all
         
-        if(curr_alloc_size - start_alloc_size > 1e6*memory_limit)
+        if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
           
           trace.disable
-          x.raise MemoryLimitError, "Out of memory: evaluation took longer than 10mb." if x.alive?
+          curr_thread.raise MemoryLimitError, "Out of memory: evaluation took longer than 10mb." if curr_thread.alive?
         end
       end
 
       trace.enable
-      slice.inspect
-      trace.disable 
-    rescue MemoryLimitError
+      result = slice.inspect
+      trace.disable
+      result 
+    rescue MemoryLimitError => e
       return nil
     end 
 
     def compact_array_str(value)
       slice   = value[0..10]
+
+      compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
+                  slice.inspect
+                else  
+                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
+                end 
       
-      if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
-        compact = slice.inspect
-      else  
-        compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
-      end 
-      
-      if value.size != slice.size
+      if compact && value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
       end
       compact
