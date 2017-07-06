@@ -386,27 +386,29 @@ module Debugger
 
     def inspect_with_allocation_control(slice, memory_limit)
       curr_thread = Thread.current
-      
-      start_alloc_size = ObjectSpace.memsize_of_all
-      
-      trace = TracePoint.new(:c_call, :call) do |tp|
-        curr_alloc_size = ObjectSpace.memsize_of_all
-        
-        if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+      result = nil
+      inspect_thread = DebugThread.start {
+        start_alloc_size = ObjectSpace.memsize_of_all
+        trace = TracePoint.new(:c_call, :call) do |tp|
           
-          trace.disable
-          curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb." if curr_thread.alive?
-        end
-      end
-
-      trace.enable
-      result = slice.inspect
-      trace.disable
-      result 
+          curr_alloc_size = ObjectSpace.memsize_of_all
+          start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
+          
+          if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+            curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
+            trace.disable
+          end
+        end.enable {
+          result = slice.inspect
+        }
+      }
+      inspect_thread.join
+      inspect_thread.kill
+      return result
     rescue MemoryLimitError => e
       print_debug(e.message)
       return nil
-    end 
+    end
 
     def compact_array_str(value)
       slice   = value[0..10]
@@ -420,7 +422,7 @@ module Debugger
       if compact && value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
       end
-      compact
+      compact     
     end
 
     def compact_hash_str(value)
