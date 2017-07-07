@@ -431,7 +431,7 @@ module Debugger
       compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   slice.inspect
                 else  
-                  compact = inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
+                  inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
                 end 
       
       if compact && value.size != slice.size
