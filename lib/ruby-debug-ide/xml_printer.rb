@@ -397,19 +397,21 @@ module Debugger
 
         trace = TracePoint.new(:c_call, :call) do |tp|
           
-          curr_alloc_size = ObjectSpace.memsize_of_all
-          curr_time = Time.now
-          
-          if(curr_time - start_time > max_time) 
-            curr_thread.raise TimeLimitError, "Timeout: evaluation of inspect took longer than #{max_time}sec. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
-            trace.disable
-          end
+          if(rand > 0.75) 
+            curr_alloc_size = ObjectSpace.memsize_of_all
+            curr_time = Time.now
+            
+            if(curr_time - start_time > max_time) 
+              curr_thread.raise TimeLimitError, "Timeout: evaluation of inspect took longer than #{max_time}sec. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
+              trace.disable
+            end
 
-          start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
-          
-          if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-            curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
-            trace.disable
+            start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
+            
+            if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+              curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
+              trace.disable
+            end
           end
         end.enable {
           result = slice.inspect
