@@ -8,6 +8,9 @@ module Debugger
   class MemoryLimitError < StandardError  
   end  
 
+  class TimeLimitError < StandardError  
+  end
+
   class XmlPrinter # :nodoc:
     class ExceptionProxy
       instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^instance_variables$|^instance_eval$)/ }
@@ -389,9 +392,19 @@ module Debugger
       result = nil
       inspect_thread = DebugThread.start {
         start_alloc_size = ObjectSpace.memsize_of_all
+        start_time = Time.now
+        max_time = Debugger.evaluation_timeout
+
         trace = TracePoint.new(:c_call, :call) do |tp|
           
           curr_alloc_size = ObjectSpace.memsize_of_all
+          curr_time = Time.now
+          
+          if(curr_time - start_time > max_time) 
+            curr_thread.raise TimeLimitError, "Timeout: evaluation of inspect took longer than #{max_time}sec. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
+            trace.disable
+          end
+
           start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
           
           if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
@@ -405,7 +418,7 @@ module Debugger
       inspect_thread.join
       inspect_thread.kill
       return result
-    rescue MemoryLimitError => e
+    rescue MemoryLimitError, TimeLimitError => e
       print_debug(e.message)
       return nil
     end

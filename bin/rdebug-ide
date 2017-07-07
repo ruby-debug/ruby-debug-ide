@@ -37,8 +37,8 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   
-  ENV['DEBUGGER_MEMORY_LIMIT'] = '1'
-  opts.on("-m", "--memory-limit LIMIT", Integer, "evaluation memory limit in mb (default: 1)") do |limit| 
+  ENV['DEBUGGER_MEMORY_LIMIT'] = '10'
+  opts.on("-m", "--memory-limit LIMIT", Integer, "evaluation memory limit in mb (default: 10)") do |limit| 
     ENV['DEBUGGER_MEMORY_LIMIT'] = limit
   end
   
