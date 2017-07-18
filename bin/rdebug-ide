@@ -42,6 +42,11 @@ EOB
     ENV['DEBUGGER_MEMORY_LIMIT'] = limit
   end
   
+  ENV['INSPECT_TIME_LIMIT'] = '100'
+  opts.on("-t", "--time-limit LIMIT", Integer, "evaluation time limit in milliseconds (default: 100)") do |limit| 
+    ENV['INSPECT_TIME_LIMIT'] = limit
+  end
+
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 

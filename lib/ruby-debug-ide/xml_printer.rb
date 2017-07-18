@@ -6,10 +6,24 @@ require 'objspace'
 module Debugger
 
   class MemoryLimitError < StandardError  
+    attr_reader :message
+    attr_reader :backtrace
+
+    def initialize(message, backtrace)
+      @message = message
+      @backtrace = backtrace
+    end
   end  
 
   class TimeLimitError < StandardError  
-  end
+    attr_reader :message
+    attr_reader :backtrace
+
+    def initialize(message, backtrace = '')
+      @message = message
+      @backtrace = backtrace
+    end
+  end  
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
@@ -144,7 +158,46 @@ module Debugger
         print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')         
       end
     end
-    
+
+    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, flag)
+      curr_thread = Thread.current
+      result = nil
+      inspect_thread = DebugThread.start {
+        start_alloc_size = ObjectSpace.memsize_of_all
+        start_time = Time.now.to_f
+        
+        trace = TracePoint.new(:c_call, :call) do |tp|
+          
+          if(rand > 0.75) 
+            curr_alloc_size = ObjectSpace.memsize_of_all
+            curr_time = Time.now.to_f
+            
+            if((curr_time - start_time) * 1e3 > time_limit) 
+              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", "#{caller.map{|l| "\t#{l}"}.join("\n")}")
+              inspect_thread.kill
+            end
+
+            start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
+            
+            if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map{|l| "\t#{l}"}.join("\n")}")
+              inspect_thread.kill
+            end
+          end
+        end.enable {
+          result = value.send exec_method
+        }
+      }
+      inspect_thread.join
+      inspect_thread.kill
+      return result
+    rescue MemoryLimitError, TimeLimitError => e
+      print_debug(e.message + "\n" + e.backtrace)
+      
+      return nil if flag
+      return e.message
+    end
+
     def print_variable(name, value, kind)
       name = name.to_s
       if value.nil?
@@ -164,7 +217,13 @@ module Debugger
         value_str = value
       else  
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
-        value_str = value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+        
+        value_str = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
+                  value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+                else  
+                  exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, false) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+                end
+        
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
         end
@@ -387,51 +446,13 @@ module Debugger
       50
     end
 
-    def inspect_with_allocation_control(slice, memory_limit)
-      curr_thread = Thread.current
-      result = nil
-      inspect_thread = DebugThread.start {
-        start_alloc_size = ObjectSpace.memsize_of_all
-        start_time = Time.now
-        max_time = Debugger.evaluation_timeout
-
-        trace = TracePoint.new(:c_call, :call) do |tp|
-          
-          if(rand > 0.75) 
-            curr_alloc_size = ObjectSpace.memsize_of_all
-            curr_time = Time.now
-            
-            if(curr_time - start_time > max_time) 
-              curr_thread.raise TimeLimitError, "Timeout: evaluation of inspect took longer than #{max_time}sec. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
-              trace.disable
-            end
-
-            start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
-            
-            if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-              curr_thread.raise MemoryLimitError, "Out of memory: evaluation of inspect took more than #{memory_limit}mb. \n#{caller.map{|l| "\t#{l}"}.join("\n")}"
-              trace.disable
-            end
-          end
-        end.enable {
-          result = slice.inspect
-        }
-      }
-      inspect_thread.join
-      inspect_thread.kill
-      return result
-    rescue MemoryLimitError, TimeLimitError => e
-      print_debug(e.message)
-      return nil
-    end
-
     def compact_array_str(value)
       slice   = value[0..10]
 
       compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   slice.inspect
                 else  
-                  inspect_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i)
+                  exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, true)
                 end 
       
       if compact && value.size != slice.size
