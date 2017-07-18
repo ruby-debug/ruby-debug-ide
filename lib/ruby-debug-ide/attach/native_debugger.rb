@@ -19,8 +19,7 @@ class NativeDebugger
     
     @pids = Array.new
     add_child_pids(pid.to_s)
-    $stdout.puts '@pid : ' + @pids.to_s
-
+    
     @delimiter = '__OUTPUT_FINISHED__' # for getting response
     @tbreak = '__func_to_set_breakpoint_at'
     @main_thread = nil
