@@ -36,6 +36,17 @@ Usage: rdebug-ide is supposed to be called from RDT, NetBeans, RubyMine, or
 EOB
   opts.separator ""
   opts.separator "Options:"
+  
+  ENV['DEBUGGER_MEMORY_LIMIT'] = '10'
+  opts.on("-m", "--memory-limit LIMIT", Integer, "evaluation memory limit in mb (default: 10)") do |limit| 
+    ENV['DEBUGGER_MEMORY_LIMIT'] = limit
+  end
+  
+  ENV['INSPECT_TIME_LIMIT'] = '100'
+  opts.on("-t", "--time-limit LIMIT", Integer, "evaluation time limit in milliseconds (default: 100)") do |limit| 
+    ENV['INSPECT_TIME_LIMIT'] = limit
+  end
+
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
