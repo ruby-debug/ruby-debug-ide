@@ -9,7 +9,7 @@ module Debugger
     attr_reader :message
     attr_reader :backtrace
 
-    def initialize(message, backtrace)
+    def initialize(message, backtrace = '')
       @message = message
       @backtrace = backtrace
     end
@@ -159,7 +159,7 @@ module Debugger
       end
     end
 
-    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, flag)
+    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, return_message_if_overflow)
       curr_thread = Thread.current
       result = nil
       inspect_thread = DebugThread.start {
@@ -194,8 +194,7 @@ module Debugger
     rescue MemoryLimitError, TimeLimitError => e
       print_debug(e.message + "\n" + e.backtrace)
       
-      return nil if flag
-      return e.message
+      return return_message_if_overflow ? e.message : nil
     end
 
     def print_variable(name, value, kind)
