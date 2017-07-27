@@ -37,7 +37,7 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
-  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
     options.dispatcher_port = dp
   end
