@@ -80,7 +80,6 @@ require 'ruby-debug-ide/attach/native_debugger'
 require 'ruby-debug-ide/attach/process_thread'
 
 pids = get_child_pids(options.pid)
-puts pids.to_s
 attach_threads = Array.new
 
 pids.each_with_index do |pid, i|
