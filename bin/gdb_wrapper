@@ -51,9 +51,6 @@ EOB
   opts.on('--include-gem GEM_LIB_PATH', 'lib of gem to include') do |gem_lib_path|
     options.gems_to_include << gem_lib_path
   end
-  opts.on('--port PORT', 'port') do |port|
-    options.port << port
-  end
 end
 
 opts.parse! ARGV
@@ -82,17 +79,14 @@ require 'ruby-debug-ide/attach/util'
 require 'ruby-debug-ide/attach/native_debugger'
 require 'ruby-debug-ide/attach/process_thread'
 
-pids = get_child_pids(options.pid.to_s)
+pids = get_child_pids(options.pid)
+puts pids.to_s
 attach_threads = Array.new
 
 pids.each_with_index do |pid, i|
 
   if(i > 0)
-    ARGV.each_with_index do |val, i| 
-      ARGV[i + 1] = -1 if(val == '--port')
-    end
-
-    argv = '["' + ARGV * '", "' + '"]'
+    argv = reset_port(ARGV) # Only the first process works with the initialized port, the rest need to be recalculated
   end
 
   attach_threads << Thread.new(argv) do |argv|

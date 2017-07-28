@@ -2,14 +2,31 @@ require 'ruby-debug-ide/attach/lldb'
 require 'ruby-debug-ide/attach/gdb'
 require 'socket'
 
-def get_child_pids(pid, pids = Array.new)
-  pids << pid
-  pipe = IO.popen("pgrep -P #{pid}")
+def get_child_pids(pid)
+  pids = Array.new
 
-  pipe.readlines.each do |child_pid|
-    pids = get_child_pids(child_pid.to_i, pids)
+  q = Queue.new
+  q.push(pid)
+
+  while(!q.empty?) do
+    pid = q.pop
+    pids << pid
+    pipe = IO.popen("ps --ppid #{pid} -o pid --no-headers")  
+    
+    pipe.readlines.each do |child_pid|
+      q.push(child_pid.to_i)
+    end
   end
+
   pids
+end
+
+def reset_port(argv)
+  argv.each_with_index do |val, i| 
+    argv[i + 1] = -1 if(val == '--port')
+  end
+
+  '["' + argv * '", "' + '"]'
 end
 
 def command_exists(command)
