@@ -12,10 +12,12 @@ def get_child_pids(pid)
     pid = q.pop
     pids << pid
 
-    pipe = IO.popen("pgrep -P #{pid}")
-    
-    pipe.readlines.each do |child_pid|
-      q.push(child_pid.to_i)
+    if(command_exists 'pgrep')
+      pipe = IO.popen("pgrep -P #{pid}")
+      
+      pipe.readlines.each do |child_pid|
+        q.push(child_pid.to_i)
+      end
     end
   end
 
