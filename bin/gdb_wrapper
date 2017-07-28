@@ -84,7 +84,7 @@ attach_threads = Array.new
 
 pids.each_with_index do |pid, i|
 
-  if(i == 0)
+  if(i == 1)
     argv = reset_port(ARGV) # Only the first process works with the initialized port, the rest need to be recalculated
   end
 

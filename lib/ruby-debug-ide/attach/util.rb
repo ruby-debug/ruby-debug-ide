@@ -11,7 +11,8 @@ def get_child_pids(pid)
   while(!q.empty?) do
     pid = q.pop
     pids << pid
-    pipe = IO.popen("ps --ppid #{pid} -o pid | awk 'NR>1'")  
+
+    pipe = IO.popen("pgrep -P #{pid}")
     
     pipe.readlines.each do |child_pid|
       q.push(child_pid.to_i)
