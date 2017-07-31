@@ -3,10 +3,8 @@ class NativeDebugger
   attr_reader :pid, :main_thread, :process_threads, :pipe
 
   # @param executable -- path to ruby interpreter
-  # @param pid -- pid of process you want to debug
   # @param flags -- flags you want to specify to your debugger as a string (e.g. "-nx -nh" for gdb to disable .gdbinit)
-  def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
-    @pid = pid
+  def initialize(executable, flags, gems_to_include, debugger_loader_path, argv)
     @delimiter = '__OUTPUT_FINISHED__' # for getting response
     @tbreak = '__func_to_set_breakpoint_at'
     @main_thread = nil
@@ -40,8 +38,8 @@ class NativeDebugger
     raise 'Could not find attach library'
   end
 
-  def attach_to_process
-    execute "attach #{@pid}"
+  def attach_to_process(pid)
+    execute "attach #{pid}"
   end
 
   def execute(command)
