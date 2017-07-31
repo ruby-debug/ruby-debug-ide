@@ -65,7 +65,7 @@ unless options.ruby_path
   exit 1
 end
 
-argv = '["' + ARGV * '", "' + '"]'
+argv = '["' + ARGV * '", "'
 debugger_loader_path = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
 options.gems_to_include.each do |gem_path|
@@ -79,60 +79,14 @@ require 'ruby-debug-ide/attach/util'
 require 'ruby-debug-ide/attach/native_debugger'
 require 'ruby-debug-ide/attach/process_thread'
 
-pids = get_child_pids(options.pid.to_s)
+
+child_pids = get_child_pids(options.pid.to_s)
 attach_threads = Array.new
+attach_threads << attach_and_return_thread(options, options.pid, debugger_loader_path, argv + '"]')
 
-pids.each_with_index do |pid, i|
+argv +=  "', '--attach-child" + '"]'
+attach_threads << child_pids.map {|pid| attach_and_return_thread(options, pid, debugger_loader_path, argv)}
 
-  if(i == 1)
-    argv = reset_port(ARGV) # Only the first process works with the initialized port, the rest need to be recalculated
-  end
-
-  attach_threads << Thread.new(argv) do |argv|
-
-    debugger = choose_debugger(options.ruby_path, options.gems_to_include, debugger_loader_path, argv)
-
-    trap('INT') do
-      unless debugger.exited?
-        $stderr.puts "backtraces for threads:\n\n"
-        process_threads = debugger.process_threads
-        if process_threads
-          process_threads.each do |thread|
-            $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
-          end
-        end
-        debugger.exit
-      end
-      exit!
-    end
-
-    debugger.attach_to_process(pid)
-    debugger.set_flags
-
-    if debugger.check_already_under_debug
-      $stderr.puts "Process #{debugger.pid} is already under debug"
-      debugger.exit
-      exit!
-    end
-
-    should_check_threads_state = true
-
-    while should_check_threads_state
-      should_check_threads_state = false
-      debugger.update_threads.each do |thread|
-        thread.switch
-        while thread.need_finish_frame
-          should_check_threads_state = true
-          thread.finish
-        end
-      end
-    end
-
-    debugger.wait_line_event
-    debugger.load_debugger
-    debugger.exit
-  end
-end
 
 attach_threads.each {|thread| thread.join}
 if options.uid

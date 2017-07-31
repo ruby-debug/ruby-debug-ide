@@ -19,7 +19,7 @@ module Debugger
             'notify_dispatcher' => true
         )
 
-        if(options.port == -1)
+        if(options.attach_child)
           options.port = find_free_port(options.host)
           options.notify_dispatcher = true
         end

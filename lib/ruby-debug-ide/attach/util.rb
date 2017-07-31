@@ -2,34 +2,76 @@ require 'ruby-debug-ide/attach/lldb'
 require 'ruby-debug-ide/attach/gdb'
 require 'socket'
 
+def attach_and_return_thread(options, pid, debugger_loader_path, argv)
+  Thread.new(argv) do |argv|
+
+    debugger = choose_debugger(options.ruby_path, pid, options.gems_to_include, debugger_loader_path, argv)
+
+    trap('INT') do
+      unless debugger.exited?
+        $stderr.puts "backtraces for threads:\n\n"
+        process_threads = debugger.process_threads
+        if process_threads
+          process_threads.each do |thread|
+            $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
+          end
+        end
+        debugger.exit
+      end
+      exit!
+    end
+
+    debugger.attach_to_process
+    debugger.set_flags
+
+    if debugger.check_already_under_debug
+      $stderr.puts "Process #{debugger.pid} is already under debug"
+      debugger.exit
+      exit!
+    end
+
+    should_check_threads_state = true
+
+    while should_check_threads_state
+      should_check_threads_state = false
+      debugger.update_threads.each do |thread|
+        thread.switch
+        while thread.need_finish_frame
+          should_check_threads_state = true
+          thread.finish
+        end
+      end
+    end
+
+    debugger.wait_line_event
+    debugger.load_debugger
+    debugger.exit
+  end
+end
+
 def get_child_pids(pid)
   pids = Array.new
+
+  if (!command_exists 'pgrep')
+    return pids
+  end
 
   q = Queue.new
   q.push(pid)
 
-  while(!q.empty?) do
+  while (!q.empty?) do
     pid = q.pop
-    pids << pid
 
-    if(command_exists 'pgrep')
-      pipe = IO.popen("pgrep -P #{pid}")
-      
-      pipe.readlines.each do |child_pid|
-        q.push(child_pid.to_i)
-      end
+    pipe = IO.popen("pgrep -P #{pid}")
+
+    pipe.readlines.each do |child|
+      child_pid = child.strip.to_i
+      q.push(child_pid)
+      pids << child_pid
     end
   end
 
   pids
-end
-
-def reset_port(argv)
-  argv.each_with_index do |val, i| 
-    argv[i + 1] = -1 if(val == '--port')
-  end
-
-  '["' + argv * '", "' + '"]'
 end
 
 def command_exists(command)
@@ -43,11 +85,11 @@ def command_exists(command)
   $?.exitstatus == 0
 end
 
-def choose_debugger(ruby_path, gems_to_include, debugger_loader_path, argv)
+def choose_debugger(ruby_path, pid, gems_to_include, debugger_loader_path, argv)
   if command_exists(LLDB.to_s)
-    debugger = LLDB.new(ruby_path, '--no-lldbinit', gems_to_include, debugger_loader_path, argv)
+    debugger = LLDB.new(ruby_path, pid, '--no-lldbinit', gems_to_include, debugger_loader_path, argv)
   elsif command_exists(GDB.to_s)
-    debugger = GDB.new(ruby_path, '-nh -nx', gems_to_include, debugger_loader_path, argv)
+    debugger = GDB.new(ruby_path, pid, '-nh -nx', gems_to_include, debugger_loader_path, argv)
   else
     raise 'Neither gdb nor lldb was found. Aborting.'
   end

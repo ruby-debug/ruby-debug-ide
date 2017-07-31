@@ -2,8 +2,8 @@ require 'ruby-debug-ide/attach/native_debugger'
 
 class GDB < NativeDebugger
 
-  def initialize(executable, flags, gems_to_include, debugger_loader_path, argv)
-    super(executable, flags, gems_to_include, debugger_loader_path, argv)
+  def initialize(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
+    super(executable, pid, flags, gems_to_include, debugger_loader_path, argv)
   end
 
   def set_flags

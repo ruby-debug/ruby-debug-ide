@@ -60,6 +60,9 @@ EOB
   opts.on("--attach-mode", "Tells that rdebug-ide is working in attach mode") do
     options.attach_mode = true
   end
+  opts.on("--attach-child", "child process for attach") do
+    options.attach_child = true
+  end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
   opts.on("--rubymine-protocol-extensions", "Enable all RubyMine-specific incompatible protocol extensions") do
