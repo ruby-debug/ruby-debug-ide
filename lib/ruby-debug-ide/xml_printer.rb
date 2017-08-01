@@ -220,7 +220,7 @@ module Debugger
         value_str = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
                 else  
-                  exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, false) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+                  exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
                 end
         
         unless value_str.is_a?(String)
