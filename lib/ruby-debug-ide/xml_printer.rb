@@ -5,7 +5,7 @@ require 'objspace'
 
 module Debugger
 
-  class MemoryLimitError < StandardError  
+  class MemoryLimitError < StandardError
     attr_reader :message
     attr_reader :backtrace
 
@@ -13,9 +13,9 @@ module Debugger
       @message = message
       @backtrace = backtrace
     end
-  end  
+  end
 
-  class TimeLimitError < StandardError  
+  class TimeLimitError < StandardError
     attr_reader :message
     attr_reader :backtrace
 
@@ -23,11 +23,11 @@ module Debugger
       @message = message
       @backtrace = backtrace
     end
-  end  
+  end
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
-      instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^instance_variables$|^instance_eval$)/ }
+      instance_methods.each {|m| undef_method m unless m =~ /(^__|^send$|^object_id$|^instance_variables$|^instance_eval$)/}
 
       def initialize(exception)
         @exception = exception
@@ -35,9 +35,9 @@ module Debugger
         @backtrace = Debugger.cleanup_backtrace(exception.backtrace)
       end
 
-      private 
-      def method_missing(called, *args, &block) 
-        @exception.__send__(called, *args, &block) 
+      private
+      def method_missing(called, *args, &block)
+        @exception.__send__(called, *args, &block)
       end
     end
 
@@ -52,15 +52,15 @@ module Debugger
           end
         end
       }
-    end    
+    end
 
     @@monitor = Monitor.new
     attr_accessor :interface
-    
+
     def initialize(interface)
       @interface = interface
     end
-    
+
     def print_msg(*args)
       msg, *args = args
       xml_message = CGI.escapeHTML(msg % args)
@@ -83,7 +83,7 @@ module Debugger
         print CGI.escapeHTML(msg % args)
       end
     end
-    
+
     def print_frames(context, current_frame_id)
       print_element("frames") do
         (0...context.stack_size).each do |id|
@@ -91,18 +91,18 @@ module Debugger
         end
       end
     end
-    
+
     def print_current_frame(frame_pos)
       print_debug "Selected frame no #{frame_pos}"
     end
-    
+
     def print_frame(context, frame_id, current_frame_id)
       # idx + 1: one-based numbering as classic-debugger
       file = context.frame_file(frame_id)
       print "<frame no=\"%s\" file=\"%s\" line=\"%s\" #{"current='true' " if frame_id == current_frame_id}/>",
-        frame_id + 1, CGI.escapeHTML(File.expand_path(file)), context.frame_line(frame_id)
+            frame_id + 1, CGI.escapeHTML(File.expand_path(file)), context.frame_line(frame_id)
     end
-    
+
     def print_contexts(contexts)
       print_element("threads") do
         contexts.each do |c|
@@ -110,11 +110,11 @@ module Debugger
         end
       end
     end
-    
+
     def print_context(context)
       print "<thread id=\"%s\" status=\"%s\" pid=\"%s\" #{current_thread_attr(context)}/>", context.thnum, context.thread.status, Process.pid
     end
-    
+
     def print_variables(vars, kind)
       print_element("variables") do
         # print self at top position
@@ -124,26 +124,26 @@ module Debugger
         end
       end
     end
-    
+
     def print_array(array)
       print_element("variables") do
-        index = 0 
-        array.each { |e|
-          print_variable('[' + index.to_s + ']', e, 'instance') 
-          index += 1 
+        index = 0
+        array.each {|e|
+          print_variable('[' + index.to_s + ']', e, 'instance')
+          index += 1
         }
       end
     end
-    
+
     def print_hash(hash)
       print_element("variables") do
-        hash.keys.each { | k |
+        hash.keys.each {|k|
           if k.class.name == "String"
             name = '\'' + k + '\''
           else
             name = k.to_s
           end
-          print_variable(name, hash[k], 'instance') 
+          print_variable(name, hash[k], 'instance')
         }
       end
     end
@@ -155,7 +155,7 @@ module Debugger
           InspectCommand.reference_result(bytes)
           print_variable('bytes', bytes, 'instance')
         end
-        print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')         
+        print_variable('encoding', string.encoding, 'instance') if string.respond_to?('encoding')
       end
     end
 
@@ -165,22 +165,22 @@ module Debugger
       inspect_thread = DebugThread.start {
         start_alloc_size = ObjectSpace.memsize_of_all
         start_time = Time.now.to_f
-        
+
         trace = TracePoint.new(:c_call, :call) do |tp|
-          
-          if(rand > 0.75) 
+
+          if (rand > 0.75)
             curr_alloc_size = ObjectSpace.memsize_of_all
             curr_time = Time.now.to_f
-            
-            if((curr_time - start_time) * 1e3 > time_limit) 
-              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", "#{caller.map{|l| "\t#{l}"}.join("\n")}")
+
+            if ((curr_time - start_time) * 1e3 > time_limit)
+              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
               inspect_thread.kill
             end
 
             start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
-            
-            if(curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map{|l| "\t#{l}"}.join("\n")}")
+
+            if (curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
               inspect_thread.kill
             end
           end
@@ -193,7 +193,7 @@ module Debugger
       return result
     rescue MemoryLimitError, TimeLimitError => e
       print_debug(e.message + "\n" + e.backtrace)
-      
+
       return return_message_if_overflow ? e.message : nil
     end
 
@@ -206,7 +206,7 @@ module Debugger
       if value.is_a?(Array) || value.is_a?(Hash)
         has_children = !value.empty?
         if has_children
-          size      = value.size
+          size = value.size
           value_str = "#{value.class} (#{value.size} element#{size > 1 ? "s" : "" })"
         else
           value_str = "Empty #{value.class}"
@@ -214,33 +214,33 @@ module Debugger
       elsif value.is_a?(String)
         has_children = value.respond_to?('bytes') || value.respond_to?('encoding')
         value_str = value
-      else  
+      else
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
-        
+
         value_str = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
-                  value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-                else  
-                  exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-                end
-        
+                      value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+                    else
+                      exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+                    end
+
         unless value_str.is_a?(String)
-          value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String." 
+          value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
         end
       end
 
       if value_str.respond_to?('encode')
         # noinspection RubyEmptyRescueBlockInspection
         begin
-         value_str = value_str.encode("UTF-8")
+          value_str = value_str.encode("UTF-8")
         rescue
         end
       end
       value_str = handle_binary_data(value_str)
       escaped_value_str = CGI.escapeHTML(value_str)
       print("<variable name=\"%s\" %s kind=\"%s\" %s type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
-          CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
-          build_value_attr(escaped_value_str), value.class,
-          has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
+            CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
+            build_value_attr(escaped_value_str), value.class,
+            has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
       print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.value_as_nested_element
       print('</variable>')
     rescue StandardError => e
@@ -263,28 +263,28 @@ module Debugger
 
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
-        breakpoints.sort_by{|b| b.id }.each do |b|
+        breakpoints.sort_by {|b| b.id}.each do |b|
           print "<breakpoint n=\"%d\" file=\"%s\" line=\"%s\" />", b.id, CGI.escapeHTML(b.source), b.pos.to_s
         end
       end
     end
-    
+
     def print_breakpoint_added(b)
       print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", b.id, CGI.escapeHTML(b.source), b.pos
     end
-    
+
     def print_breakpoint_deleted(b)
       print "<breakpointDeleted no=\"%s\"/>", b.id
     end
-    
+
     def print_breakpoint_enabled(b)
       print "<breakpointEnabled bp_id=\"%s\"/>", b.id
     end
-    
+
     def print_breakpoint_disabled(b)
       print "<breakpointDisabled bp_id=\"%s\"/>", b.id
     end
-    
+
     def print_contdition_set(bp_id)
       print "<conditionSet bp_id=\"%d\"/>", bp_id
     end
@@ -308,24 +308,24 @@ module Debugger
         end
       end unless exps.empty?
     end
-    
+
     def print_expression(exp, value, idx)
       print "<dispay name=\"%s\" value=\"%s\" no=\"%d\" />", exp, value, idx
     end
 
     def print_expression_info(incomplete, prompt, indent)
       print "<expressionInfo incomplete=\"%s\" prompt=\"%s\" indent=\"%s\"></expressionInfo>",
-        incomplete, CGI.escapeHTML(prompt), indent
+            incomplete, CGI.escapeHTML(prompt), indent
     end
-    
+
     def print_eval(exp, value)
-      print "<eval expression=\"%s\" value=\"%s\" />",  CGI.escapeHTML(exp), value
+      print "<eval expression=\"%s\" value=\"%s\" />", CGI.escapeHTML(exp), value
     end
-    
+
     def print_pp(value)
       print value
     end
-    
+
     def print_list(b, e, file, line)
       print "[%d, %d] in %s\n", b, e, file
       if (lines = Debugger.source_for(file))
@@ -342,7 +342,7 @@ module Debugger
         print "No source-file available for %s\n", file
       end
     end
-    
+
     def print_methods(methods)
       print_element "methods" do
         methods.each do |method|
@@ -350,31 +350,31 @@ module Debugger
         end
       end
     end
-    
+
     # Events
-    
+
     def print_breakpoint(_, breakpoint)
       print("<breakpoint file=\"%s\" line=\"%s\" threadId=\"%d\"/>",
-      CGI.escapeHTML(breakpoint.source), breakpoint.pos, Debugger.current_context.thnum)
+            CGI.escapeHTML(breakpoint.source), breakpoint.pos, Debugger.current_context.thnum)
     end
-    
+
     def print_catchpoint(exception)
       context = Debugger.current_context
-      print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>", 
-      CGI.escapeHTML(context.frame_file(0)), context.frame_line(0), exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
+      print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>",
+            CGI.escapeHTML(context.frame_file(0)), context.frame_line(0), exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
     end
-    
+
     def print_trace(context, file, line)
       Debugger::print_debug "trace: location=\"%s:%s\", threadId=%d", file, line, context.thnum
       # TBD: do we want to clog fronend with the <trace> elements? There are tons of them.
       # print "<trace file=\"%s\" line=\"%s\" threadId=\"%d\" />", file, line, context.thnum
     end
-    
+
     def print_at_line(context, file, line)
       print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\" frames=\"%d\"/>",
             CGI.escapeHTML(File.expand_path(file)), line, context.thnum, context.stack_size
     end
-    
+
     def print_exception(exception, _)
       print_element("variables") do
         proxy = ExceptionProxy.new(exception)
@@ -382,21 +382,21 @@ module Debugger
         print_variable('error', proxy, 'exception')
       end
     rescue Exception
-      print "<processingException type=\"%s\" message=\"%s\"/>", 
-        exception.class, CGI.escapeHTML(exception.to_s)
+      print "<processingException type=\"%s\" message=\"%s\"/>",
+            exception.class, CGI.escapeHTML(exception.to_s)
     end
-    
+
     def print_inspect(eval_result)
-      print_element("variables") do 
+      print_element("variables") do
         print_variable("eval_result", eval_result, 'local')
       end
     end
-    
+
     def print_load_result(file, exception=nil)
       if exception
-        print("<loadResult file=\"%s\" exceptionType=\"%s\" exceptionMessage=\"%s\"/>", file, exception.class, CGI.escapeHTML(exception.to_s))        
+        print("<loadResult file=\"%s\" exceptionType=\"%s\" exceptionMessage=\"%s\"/>", file, exception.class, CGI.escapeHTML(exception.to_s))
       else
-        print("<loadResult file=\"%s\" status=\"OK\"/>", file)        
+        print("<loadResult file=\"%s\" status=\"OK\"/>", file)
       end
     end
 
@@ -410,7 +410,7 @@ module Debugger
     end
 
     private
-    
+
     def print(*params)
       Debugger::print_debug(*params)
       @interface.print(*params)
@@ -446,28 +446,28 @@ module Debugger
     end
 
     def compact_array_str(value)
-      slice   = value[0..10]
+      slice = value[0..10]
 
       compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
                   slice.inspect
-                else  
+                else
                   exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, true)
-                end 
-      
+                end
+
       if compact && value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
       end
-      compact     
+      compact
     end
 
     def compact_hash_str(value)
-      slice   = value.sort_by { |k, _| k.to_s }[0..5]
-      compact = slice.map { |kv| "#{kv[0]}: #{handle_binary_data(kv[1])}" }.join(", ")
+      slice = value.sort_by {|k, _| k.to_s}[0..5]
+      compact = slice.map {|kv| "#{kv[0]}: #{handle_binary_data(kv[1])}"}.join(", ")
       "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
     end
 
     def build_compact_value_attr(value, value_str)
-      compact_value_str  = build_compact_name(value, value_str)
+      compact_value_str = build_compact_name(value, value_str)
       compact_value_str.nil? ? '' : "compactValue=\"#{CGI.escapeHTML(compact_value_str)}\""
     end
 
@@ -493,7 +493,7 @@ module Debugger
         protect m
       end
     end
-    
+
   end
 
 end
