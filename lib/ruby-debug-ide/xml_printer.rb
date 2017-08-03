@@ -147,7 +147,7 @@ module Debugger
           if k.class.name == "String"
             name = '\'' + k + '\''
           else
-            name = k.to_s
+            name = exec_with_allocation_control(k, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::EXCEPTION_MESSAGE)
           end
           print_variable(name, hash[k], 'instance')
         }
@@ -462,8 +462,19 @@ module Debugger
     end
 
     def compact_hash_str(value)
-      slice = value.sort_by {|k, _| k.to_s}[0..5]
-      compact = slice.map {|kv| "#{kv[0]}: #{handle_binary_data(kv[1])}"}.join(", ")
+      keys_strings = Hash.new
+
+      slice = value.sort_by do |k, _|
+        keys_string = exec_with_allocation_control(k, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
+        keys_strings[k] = keys_string
+        keys_string
+      end[0..5]
+
+      compact = slice.map do |kv|
+        key_string = keys_strings[kv[0]]
+        value_string = exec_with_allocation_control(kv[1], ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
+        "#{key_string}: #{handle_binary_data(value_string)}"
+      end.join(", ")
       "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
     end
 
