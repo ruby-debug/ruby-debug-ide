@@ -5,6 +5,12 @@ require 'objspace'
 
 module Debugger
 
+  module OverflowMessageType
+    NIL_MESSAGE = lambda {|e| nil}
+    EXCEPTION_MESSAGE = lambda {|e| e.message}
+    SPECIAL_SYMBOL_MESSAGE = lambda {|e| '<?>'}
+  end
+
   class MemoryLimitError < StandardError
     attr_reader :message
     attr_reader :backtrace
@@ -159,7 +165,7 @@ module Debugger
       end
     end
 
-    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, return_message_if_overflow)
+    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
       if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
         return value.send exec_method
       end
@@ -197,7 +203,7 @@ module Debugger
     rescue MemoryLimitError, TimeLimitError => e
       print_debug(e.message + "\n" + e.backtrace)
 
-      return return_message_if_overflow ? e.message : nil
+      return overflow_message_type.call(e)
     end
 
     def print_variable(name, value, kind)
@@ -220,7 +226,7 @@ module Debugger
       else
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
 
-        value_str = exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+        value_str = exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::EXCEPTION_MESSAGE) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
 
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
@@ -447,7 +453,7 @@ module Debugger
     def compact_array_str(value)
       slice = value[0..10]
 
-      compact = exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, true)
+      compact = exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, OverflowMessageType::NIL_MESSAGE)
 
       if compact && value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
