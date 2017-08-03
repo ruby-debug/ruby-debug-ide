@@ -160,6 +160,9 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, return_message_if_overflow)
+      if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
+        return value.send exec_method
+      end
       curr_thread = Thread.current
       result = nil
       inspect_thread = DebugThread.start {
@@ -217,11 +220,7 @@ module Debugger
       else
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
 
-        value_str = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
-                      value.to_s || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-                    else
-                      exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-                    end
+        value_str = exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, true) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
 
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
@@ -448,11 +447,7 @@ module Debugger
     def compact_array_str(value)
       slice = value[0..10]
 
-      compact = if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
-                  slice.inspect
-                else
-                  exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, true)
-                end
+      compact = exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, true)
 
       if compact && value.size != slice.size
         compact[0..compact.size-2] + ", ...]"
