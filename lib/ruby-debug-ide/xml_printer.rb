@@ -166,19 +166,20 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
+      check_memory_limit = true
       if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
-        return value.send exec_method
+        check_memory_limit = false
       end
       curr_thread = Thread.current
       result = nil
       inspect_thread = DebugThread.start {
-        start_alloc_size = ObjectSpace.memsize_of_all
+
+        start_alloc_size = ObjectSpace.memsize_of_all if (check_memory_limit)
         start_time = Time.now.to_f
 
         trace = TracePoint.new(:c_call, :call) do |tp|
 
           if (rand > 0.75)
-            curr_alloc_size = ObjectSpace.memsize_of_all
             curr_time = Time.now.to_f
 
             if ((curr_time - start_time) * 1e3 > time_limit)
@@ -186,11 +187,14 @@ module Debugger
               inspect_thread.kill
             end
 
-            start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
+            if (check_memory_limit)
+              curr_alloc_size = ObjectSpace.memsize_of_all
+              start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
 
-            if (curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
-              inspect_thread.kill
+              if (curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
+                curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
+                inspect_thread.kill
+              end
             end
           end
         end.enable {
@@ -309,7 +313,7 @@ module Debugger
     def print_expressions(exps)
       print_element "expressions" do
         exps.each_with_index do |(exp, value), idx|
-          print_expression(exp, value, idx+1)
+          print_expression(exp, value, idx + 1)
         end
       end unless exps.empty?
     end
@@ -335,11 +339,11 @@ module Debugger
       print "[%d, %d] in %s\n", b, e, file
       if (lines = Debugger.source_for(file))
         b.upto(e) do |n|
-          if n > 0 && lines[n-1]
+          if n > 0 && lines[n - 1]
             if n == line
-              print "=> %d  %s\n", n, lines[n-1].chomp
+              print "=> %d  %s\n", n, lines[n - 1].chomp
             else
-              print "   %d  %s\n", n, lines[n-1].chomp
+              print "   %d  %s\n", n, lines[n - 1].chomp
             end
           end
         end
@@ -397,7 +401,7 @@ module Debugger
       end
     end
 
-    def print_load_result(file, exception=nil)
+    def print_load_result(file, exception = nil)
       if exception
         print("<loadResult file=\"%s\" exceptionType=\"%s\" exceptionMessage=\"%s\"/>", file, exception.class, CGI.escapeHTML(exception.to_s))
       else
@@ -456,7 +460,7 @@ module Debugger
       compact = exec_with_allocation_control(slice, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :inspect, OverflowMessageType::NIL_MESSAGE)
 
       if compact && value.size != slice.size
-        compact[0..compact.size-2] + ", ...]"
+        compact[0..compact.size - 2] + ", ...]"
       end
       compact
     end
