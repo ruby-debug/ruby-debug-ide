@@ -65,7 +65,8 @@ unless options.ruby_path
   exit 1
 end
 
-argv = '["' + ARGV * '", "'
+argv = '["' + ARGV * '", "' + '"]'
+child_argv = '["' + ARGV * '", "' + "', '--ignore-port" + '"]'
 debugger_loader_path = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
 options.gems_to_include.each do |gem_path|
@@ -82,10 +83,9 @@ require 'ruby-debug-ide/attach/process_thread'
 
 child_pids = get_child_pids(options.pid.to_s)
 attach_threads = Array.new
-attach_threads << attach_and_return_thread(options, options.pid, debugger_loader_path, argv + '"]')
+attach_threads << attach_and_return_thread(options, options.pid, debugger_loader_path, argv)
 
-argv +=  "', '--attach-child" + '"]'
-attach_threads << child_pids.map {|pid| attach_and_return_thread(options, pid, debugger_loader_path, argv)}
+attach_threads << child_pids.map {|pid| attach_and_return_thread(options, pid, debugger_loader_path, child_argv)}
 
 
 attach_threads.each {|thread| thread.join}

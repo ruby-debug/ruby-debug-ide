@@ -50,11 +50,9 @@ def attach_and_return_thread(options, pid, debugger_loader_path, argv)
 end
 
 def get_child_pids(pid)
-  pids = Array.new
+  return [] unless command_exists 'pgrep'
 
-  if (!command_exists 'pgrep')
-    return pids
-  end
+  pids = Array.new
 
   q = Queue.new
   q.push(pid)
