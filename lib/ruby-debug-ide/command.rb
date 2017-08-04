@@ -128,9 +128,18 @@ module Debugger
         to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
         @printer.print_debug("Evaluating %s with timeout after %i sec", str, max_time)
+
+        Debugger::TimeoutHandler.do_thread_alias
+
+        eval_result = nil
+
         timeout(max_time) do
-          eval(to_inspect, b)
+          eval_result = eval(to_inspect, b)
         end
+
+        Debugger::TimeoutHandler.undo_thread_alias
+
+        return eval_result
       rescue StandardError, ScriptError => e
         @printer.print_exception(e, @state.binding) 
         throw :debug_error
