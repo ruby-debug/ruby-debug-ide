@@ -4,8 +4,7 @@ require 'delegate'
 module Debugger
 
   class Command < SimpleDelegator # :nodoc:
-    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
-      defined?(SubcmdStruct)
+    SubcmdStruct = Struct.new(:name, :min, :short_help, :long_help) unless defined?(SubcmdStruct)
 
     # Find param in subcmds. param id downcased and can be abbreviated
     # to the minimum length listed in the subcommands
@@ -13,7 +12,7 @@ module Debugger
       param.downcase!
       for try_subcmd in subcmds do
         if (param.size >= try_subcmd.min) and
-            (try_subcmd.name[0..param.size-1] == param)
+            (try_subcmd.name[0..param.size - 1] == param)
           return try_subcmd
         end
       end
@@ -24,31 +23,31 @@ module Debugger
       def commands
         @commands ||= []
       end
-      
+
       DEF_OPTIONS = {
-        :event => true, 
-        :control => false, 
-        :unknown => false,
-        :need_context => false,
+          :event => true,
+          :control => false,
+          :unknown => false,
+          :need_context => false,
       }
-      
+
       def inherited(klass)
         DEF_OPTIONS.each do |o, v|
           klass.options[o] = v if klass.options[o].nil?
         end
         commands << klass
-      end 
+      end
 
       def load_commands
         dir = File.dirname(__FILE__)
         Dir[File.join(dir, 'commands', '*')].each do |file|
           require file if file =~ /\.rb$/
         end
-        Debugger.constants.grep(/Functions$/).map { |name| Debugger.const_get(name) }.each do |mod|
+        Debugger.constants.grep(/Functions$/).map {|name| Debugger.const_get(name)}.each do |mod|
           include mod
         end
       end
-      
+
       def method_missing(meth, *args, &block)
         if meth.to_s =~ /^(.+?)=$/
           @options[$1.intern] = args.first
@@ -60,7 +59,7 @@ module Debugger
           end
         end
       end
-      
+
       def options
         @options ||= {}
       end
@@ -75,12 +74,12 @@ module Debugger
         defined?(Debugger.file_filter)
       end
     end
-    
+
     def initialize(state, printer)
       @state, @printer = state, printer
       super @printer
     end
-    
+
     def match(input)
       @match = regexp.match(input)
     end
@@ -101,7 +100,7 @@ module Debugger
     def timeout(sec)
       return yield if sec == nil or sec.zero?
       if Thread.respond_to?(:critical) and Thread.critical
-        raise ThreadError, "timeout within critical session"      
+        raise ThreadError, "timeout within critical session"
       end
       begin
         x = Thread.current
@@ -118,15 +117,24 @@ module Debugger
     def debug_eval(str, b = get_binding)
       begin
         str = str.to_s
-        str.force_encoding('UTF-8') if(RUBY_VERSION > '2.0')
+        str.force_encoding('UTF-8') if (RUBY_VERSION > '2.0')
         to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
         @printer.print_debug("Evaluating %s with timeout after %i sec", str, max_time)
+
+        Debugger::TimeoutHandler.do_timeout_monkey
+
+        eval_result = nil
+
         timeout(max_time) do
-          eval(to_inspect, b)
+          eval_result = eval(to_inspect, b)
         end
+
+        Debugger::TimeoutHandler.undo_timeout_monkey
+
+        return eval_result
       rescue StandardError, ScriptError => e
-        @printer.print_exception(e, @state.binding) 
+        @printer.print_exception(e, @state.binding)
         throw :debug_error
       end
     end
@@ -139,7 +147,7 @@ module Debugger
         nil
       end
     end
-    
+
     def get_binding
       @state.context.frame_binding(@state.frame_pos)
     end
@@ -149,7 +157,7 @@ module Debugger
     end
 
     def get_context(thnum)
-      Debugger.contexts.find{|c| c.thnum == thnum}
+      Debugger.contexts.find {|c| c.thnum == thnum}
     end
 
     def realpath(filename)
@@ -166,6 +174,6 @@ module Debugger
       end
     end
   end
-  
+
   Command.load_commands
 end
