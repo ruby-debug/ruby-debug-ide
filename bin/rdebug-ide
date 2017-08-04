@@ -131,6 +131,14 @@ else
   Debugger::PROG_SCRIPT = $0
 end
 
+if RUBY_VERSION < "1.9"
+   lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
+   $: << lib_path unless $:.include? lib_path
+   require 'ruby-debug-ide/timeout_monkeypatch'
+else
+  require_relative '../lib/ruby-debug-ide/timeout_monkeypatch'
+end
+
 if options.dispatcher_port != -1
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
   if RUBY_VERSION < "1.9"
