@@ -19,6 +19,11 @@ module Debugger
             'notify_dispatcher' => true
         )
 
+        if(options.ignore_port)
+          options.port = find_free_port(options.host)
+          options.notify_dispatcher = true
+        end
+      
         start_debugger(options)
       end
 
@@ -39,7 +44,6 @@ module Debugger
         Debugger.keep_frame_binding = options.frame_bind
         Debugger.tracing = options.tracing
         Debugger.cli_debug = options.cli_debug
-
         Debugger.prepare_debugger(options)
       end
 

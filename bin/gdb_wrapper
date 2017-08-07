@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
+require 'thread'
 require 'ostruct'
 
 $stdout.sync = true
@@ -65,6 +66,7 @@ unless options.ruby_path
 end
 
 argv = '["' + ARGV * '", "' + '"]'
+child_argv = '["' + ARGV * '", "' + "', '--ignore-port" + '"]'
 debugger_loader_path = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
 options.gems_to_include.each do |gem_path|
@@ -78,51 +80,17 @@ require 'ruby-debug-ide/attach/util'
 require 'ruby-debug-ide/attach/native_debugger'
 require 'ruby-debug-ide/attach/process_thread'
 
-debugger = choose_debugger(options.ruby_path, options.pid, options.gems_to_include, debugger_loader_path, argv)
 
-trap('INT') do
-  unless debugger.exited?
-    $stderr.puts "backtraces for threads:\n\n"
-    process_threads = debugger.process_threads
-    if process_threads
-      process_threads.each do |thread|
-        $stderr.puts "#{thread.thread_info}\n#{thread.last_bt}\n\n"
-      end
-    end
-    debugger.exit
-  end
-  exit!
-end
+child_pids = get_child_pids(options.pid.to_s)
+attach_threads = Array.new
+attach_threads << attach_and_return_thread(options, options.pid, debugger_loader_path, argv)
 
-debugger.attach_to_process
-debugger.set_flags
+attach_threads << child_pids.map {|pid| attach_and_return_thread(options, pid, debugger_loader_path, child_argv)}
 
+
+attach_threads.each {|thread| thread.join}
 if options.uid
   DebugPrinter.print_debug("changing current uid from #{Process.uid} to #{options.uid}")
   Process::Sys.setuid(options.uid.to_i)
 end
-
-if debugger.check_already_under_debug
-  $stderr.puts "Process #{debugger.pid} is already under debug"
-  debugger.exit
-  exit!
-end
-
-should_check_threads_state = true
-
-while should_check_threads_state
-  should_check_threads_state = false
-  debugger.update_threads.each do |thread|
-    thread.switch
-    while thread.need_finish_frame
-      should_check_threads_state = true
-      thread.finish
-    end
-  end
-end
-
-debugger.wait_line_event
-debugger.load_debugger
-debugger.exit
-
 sleep
