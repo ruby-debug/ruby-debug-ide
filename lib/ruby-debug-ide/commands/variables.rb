@@ -129,8 +129,7 @@ module Debugger
       locals = @state.context.frame_locals(@state.frame_pos)
       _self = @state.context.frame_self(@state.frame_pos)
       begin
-        _self_str = exec_with_allocation_control(_self, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, false)
-        locals['self'] = _self unless "main" == _self_str
+        locals['self'] = _self unless TOPLEVEL_BINDING.eval('self') == _self
       rescue => ex
         locals['self'] = "<Cannot evaluate self>"
         $stderr << "Cannot evaluate self\n#{ex.class.name}: #{ex.message}\n  #{ex.backtrace.join("\n  ")}"
