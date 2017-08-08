@@ -208,7 +208,7 @@ module Debugger
       return result
     rescue MemoryLimitError, TimeLimitError => e
       e.trace_point.disable
-      print_debug(e.message + "\n" + e.backtrace.map{|l| "\t#{l}"}.join("\n"))
+      print_debug(e.message + "\n" + e.backtrace.map {|l| "\t#{l}"}.join("\n"))
       return overflow_message_type.call(e)
     ensure
       inspect_thread.kill if inspect_thread && inspect_thread.alive?
