@@ -1,7 +1,9 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
-require 'objspace'
+if (!defined?(JRUBY_VERSION))
+  require 'objspace'
+end
 
 module Debugger
 
@@ -14,20 +16,24 @@ module Debugger
   class MemoryLimitError < StandardError
     attr_reader :message
     attr_reader :backtrace
+    attr_reader :trace_point
 
-    def initialize(message, backtrace = '')
+    def initialize(message, backtrace = [], trace_point)
       @message = message
       @backtrace = backtrace
+      @trace_point = trace_point
     end
   end
 
   class TimeLimitError < StandardError
     attr_reader :message
     attr_reader :backtrace
+    attr_reader :trace_point
 
-    def initialize(message, backtrace = '')
+    def initialize(message, backtrace = [], trace_point)
       @message = message
       @backtrace = backtrace
+      @trace_point = trace_point
     end
   end
 
@@ -173,18 +179,15 @@ module Debugger
       curr_thread = Thread.current
       result = nil
       inspect_thread = DebugThread.start {
-
         start_alloc_size = ObjectSpace.memsize_of_all if (check_memory_limit)
         start_time = Time.now.to_f
 
-        trace = TracePoint.new(:c_call, :call) do |tp|
-
-          if (rand > 0.75)
+        trace_point = TracePoint.new(:c_call, :call) do | |
+          if (Thread.current == inspect_thread)
             curr_time = Time.now.to_f
 
             if ((curr_time - start_time) * 1e3 > time_limit)
-              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
-              inspect_thread.kill
+              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", caller.to_a, trace_point)
             end
 
             if (check_memory_limit)
@@ -192,22 +195,23 @@ module Debugger
               start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
 
               if (curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-                curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
-                inspect_thread.kill
+                curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", caller.to_a, trace_point)
               end
             end
           end
-        end.enable {
-          result = value.send exec_method
-        }
+        end
+        trace_point.enable
+        result = value.send exec_method
+        trace_point.disable
       }
       inspect_thread.join
-      inspect_thread.kill
       return result
     rescue MemoryLimitError, TimeLimitError => e
-      print_debug(e.message + "\n" + e.backtrace)
-
+      e.trace_point.disable
+      print_debug(e.message + "\n" + e.backtrace.map{|l| "\t#{l}"}.join("\n"))
       return overflow_message_type.call(e)
+    ensure
+      inspect_thread.kill if inspect_thread && inspect_thread.alive?
     end
 
     def print_variable(name, value, kind)
@@ -231,7 +235,6 @@ module Debugger
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
 
         value_str = exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::EXCEPTION_MESSAGE) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
         end
