@@ -53,7 +53,7 @@ end
 def get_child_pids(pid)
   return [] unless command_exists 'pgrep'
 
-  pids = Set.new
+  pids = Array.new
 
   q = Queue.new
   q.push(pid)
@@ -66,7 +66,7 @@ def get_child_pids(pid)
     pipe.readlines.each do |child|
       child_pid = child.strip.to_i
       q.push(child_pid)
-      pids.add(child_pid)
+      pids << child_pid
     end
   end
 
@@ -83,16 +83,9 @@ def filter_ruby_processes(pids)
     ruby_processes.add(pid.to_i)
   end
 
-  non_ruby_processes = Array.new
+  pids, non_ruby_processes = pids.partition{|pid| ruby_processes.include? pid}
 
-  pids.each do |pid|
-    if (!ruby_processes.include? pid)
-      pids.delete(pid)
-      non_ruby_processes.add(pid)
-    end
-  end
-
-  DebugPrinter.print_debug("The following child processes was added to attach: #{pids.to_a.join(', ')}") if(!pids.empty?)
+  DebugPrinter.print_debug("The following child processes was added to attach: #{pids.join(', ')}") if(!pids.empty?)
 
   DebugPrinter.print_debug("The following child are not ruby processes: #{non_ruby_processes.join(', ')}") if(!non_ruby_processes.empty?)
 
