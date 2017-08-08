@@ -83,11 +83,11 @@ def filter_ruby_processes(pids)
     ruby_processes.add(pid.to_i)
   end
 
-  pids, non_ruby_processes = pids.partition{|pid| ruby_processes.include? pid}
+  pids, non_ruby_processes = pids.partition {|pid| ruby_processes.include? pid}
 
-  DebugPrinter.print_debug("The following child processes was added to attach: #{pids.join(', ')}") if(!pids.empty?)
+  DebugPrinter.print_debug("The following child processes was added to attach: #{pids.join(', ')}") if (!pids.empty?)
 
-  DebugPrinter.print_debug("The following child are not ruby processes: #{non_ruby_processes.join(', ')}") if(!non_ruby_processes.empty?)
+  DebugPrinter.print_debug("The following child are not ruby processes: #{non_ruby_processes.join(', ')}") if (!non_ruby_processes.empty?)
 
   pids
 end
