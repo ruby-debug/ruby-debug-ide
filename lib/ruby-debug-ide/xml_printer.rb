@@ -207,8 +207,7 @@ module Debugger
       inspect_thread.kill
       return result
     rescue MemoryLimitError, TimeLimitError => e
-      print_debug(e.message + "\n" + e.backtrace.join("\n"))
-
+      print_debug(e.message + "\n" + e.backtrace.map{|l| "\t#{l}"}.join("\n"))
       return overflow_message_type.call(e)
     end
 
