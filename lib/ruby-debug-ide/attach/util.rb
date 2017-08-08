@@ -1,6 +1,7 @@
 require 'ruby-debug-ide/attach/lldb'
 require 'ruby-debug-ide/attach/gdb'
 require 'socket'
+require 'set'
 
 def attach_and_return_thread(options, pid, debugger_loader_path, argv)
   Thread.new(argv) do |argv|
@@ -52,7 +53,7 @@ end
 def get_child_pids(pid)
   return [] unless command_exists 'pgrep'
 
-  pids = Array.new
+  pids = Set.new
 
   q = Queue.new
   q.push(pid)
@@ -65,7 +66,29 @@ def get_child_pids(pid)
     pipe.readlines.each do |child|
       child_pid = child.strip.to_i
       q.push(child_pid)
-      pids << child_pid
+      pids.add(child_pid)
+    end
+  end
+
+  filter_ruby_processes(pids)
+end
+
+def filter_ruby_processes(pids)
+  pipe = IO.popen(%Q(lsof -c ruby | awk '{print $2 ":" $9}' | grep -E 'bin/ruby([[:digit:]]+\.?)*$'))
+
+  ruby_processes = Set.new
+
+  pipe.readlines.each do |process|
+    pid = process.split(/:/).first
+    ruby_processes.add(pid.to_i)
+  end
+
+  pids.each do |pid|
+    if(!ruby_processes.include? pid)
+      $stderr.puts "Process with pid:#{pid} was filtered, because is not a ruby process.\n"
+      pids.delete(pid)
+    else
+      $stderr.puts "Process with pid:#{pid} was added to the attach.\n"
     end
   end
 
