@@ -168,6 +168,8 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
+      return value.send exec_method if(RUBY_VERSION < '2.0')
+
       check_memory_limit = true
       if (defined?(JRUBY_VERSION) || ENV['DEBUGGER_MEMORY_LIMIT'].to_i <= 0)
         check_memory_limit = false
