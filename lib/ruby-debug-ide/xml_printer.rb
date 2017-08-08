@@ -1,7 +1,9 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
-require 'objspace'
+if (!defined?(JRUBY_VERSION))
+  require 'objspace'
+end
 
 module Debugger
 
@@ -15,7 +17,7 @@ module Debugger
     attr_reader :message
     attr_reader :backtrace
 
-    def initialize(message, backtrace = '')
+    def initialize(message, backtrace = [])
       @message = message
       @backtrace = backtrace
     end
@@ -25,7 +27,7 @@ module Debugger
     attr_reader :message
     attr_reader :backtrace
 
-    def initialize(message, backtrace = '')
+    def initialize(message, backtrace = [])
       @message = message
       @backtrace = backtrace
     end
@@ -183,7 +185,7 @@ module Debugger
             curr_time = Time.now.to_f
 
             if ((curr_time - start_time) * 1e3 > time_limit)
-              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
+              curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", caller.to_a)
               inspect_thread.kill
             end
 
@@ -192,7 +194,7 @@ module Debugger
               start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
 
               if (curr_alloc_size - start_alloc_size > 1e6 * memory_limit)
-                curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", "#{caller.map {|l| "\t#{l}"}.join("\n")}")
+                curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", caller.to_a)
                 inspect_thread.kill
               end
             end
@@ -205,8 +207,7 @@ module Debugger
       inspect_thread.kill
       return result
     rescue MemoryLimitError, TimeLimitError => e
-      print_debug(e.message + "\n" + e.backtrace)
-
+      print_debug(e.message + "\n" + e.backtrace.map{|l| "\t#{l}"}.join("\n"))
       return overflow_message_type.call(e)
     end
 
@@ -231,7 +232,6 @@ module Debugger
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
 
         value_str = exec_with_allocation_control(value, ENV['DEBUGGER_MEMORY_LIMIT'].to_i, ENV['INSPECT_TIME_LIMIT'].to_i, :to_s, OverflowMessageType::EXCEPTION_MESSAGE) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
-
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
         end
