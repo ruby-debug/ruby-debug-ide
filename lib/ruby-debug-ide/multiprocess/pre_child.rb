@@ -16,7 +16,8 @@ module Debugger
             'tracing'     => false,
             'int_handler' => true,
             'cli_debug'   => (ENV['DEBUGGER_CLI_DEBUG'] == 'true'),
-            'notify_dispatcher' => true
+            'notify_dispatcher' => true,
+            'evaluation_timeout' => 10
         )
 
         if(options.ignore_port)
@@ -43,6 +44,7 @@ module Debugger
         # set options
         Debugger.keep_frame_binding = options.frame_bind
         Debugger.tracing = options.tracing
+        Debugger.evaluation_timeout = options.evaluation_timeout
         Debugger.cli_debug = options.cli_debug
         Debugger.prepare_debugger(options)
       end
