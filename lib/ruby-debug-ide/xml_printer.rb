@@ -164,14 +164,14 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
-      return value.send exec_method if(RUBY_VERSION < '2.0')
+      return value.send exec_method if RUBY_VERSION < '2.0'
 
       check_memory_limit = !defined?(JRUBY_VERSION) && ENV['DEBUGGER_MEMORY_LIMIT'].to_i > 0
       curr_thread = Thread.current
 
       result = nil
       inspect_thread = DebugThread.start do
-        start_alloc_size = ObjectSpace.memsize_of_all if (check_memory_limit)
+        start_alloc_size = ObjectSpace.memsize_of_all if check_memory_limit
         start_time = Time.now.to_f
 
         trace_point = TracePoint.new(:c_call, :call) do | |
@@ -186,7 +186,7 @@ module Debugger
 
           if check_memory_limit
             curr_alloc_size = ObjectSpace.memsize_of_all
-            start_alloc_size = curr_alloc_size if (curr_alloc_size < start_alloc_size)
+            start_alloc_size = curr_alloc_size if curr_alloc_size < start_alloc_size
 
             if curr_alloc_size - start_alloc_size > 1e6 * memory_limit
               curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", caller.to_a, trace_point)
