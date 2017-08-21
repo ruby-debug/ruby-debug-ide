@@ -13,7 +13,7 @@ module Debugger
     SPECIAL_SYMBOL_MESSAGE = lambda {|e| '<?>'}
   end
 
-  class MemoryLimitError < StandardError
+  class ExecError < StandardError
     attr_reader :message
     attr_reader :trace_point
     attr_reader :backtrace
@@ -25,17 +25,9 @@ module Debugger
     end
   end
 
-  class TimeLimitError < StandardError
-    attr_reader :message
-    attr_reader :trace_point
-    attr_reader :backtrace
+  class MemoryLimitError < ExecError; end
 
-    def initialize(message, trace_point, backtrace = [])
-      @message = message
-      @trace_point = trace_point
-      @backtrace = backtrace
-    end
-  end
+  class TimeLimitError < ExecError; end
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
@@ -205,7 +197,7 @@ module Debugger
       end
       inspect_thread.join
       return result
-    rescue MemoryLimitError, TimeLimitError => e
+    rescue ExecError => e
       e.trace_point.disable
       print_debug(e.message + "\n" + e.backtrace.map {|l| "\t#{l}"}.join("\n"))
       return overflow_message_type.call(e)
