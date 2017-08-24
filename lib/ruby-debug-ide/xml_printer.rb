@@ -25,9 +25,19 @@ module Debugger
     end
   end
 
-  class MemoryLimitError < ExecError; end
+  class JrubyTimeLimitError < StandardError
+    attr_reader :message
 
-  class TimeLimitError < ExecError; end
+    def initialize(message)
+      @message = message
+    end
+  end
+
+  class MemoryLimitError < ExecError;
+  end
+
+  class TimeLimitError < ExecError;
+  end
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
@@ -163,10 +173,28 @@ module Debugger
       end
     end
 
+    def jruby_timeout(sec)
+      return yield if sec == nil or sec.zero?
+      if Thread.respond_to?(:critical) and Thread.critical
+        raise ThreadError, "timeout within critical session"
+      end
+      begin
+        x = Thread.current
+        y = DebugThread.start {
+          sleep sec
+          x.raise JrubyTimeLimitError.new("Timeout: evaluation took longer than #{sec} seconds.") if x.alive?
+        }
+        yield sec
+      ensure
+        y.kill if y and y.alive?
+      end
+    end
+
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
       return value.send exec_method if RUBY_VERSION < '2.0'
 
-      check_memory_limit = !defined?(JRUBY_VERSION) && ENV['DEBUGGER_MEMORY_LIMIT'].to_i > 0
+      return jruby_timeout(time_limit/1e3) {value.send exec_method} if defined?(JRUBY_VERSION)
+
       curr_thread = Thread.current
 
       result = nil
@@ -184,13 +212,11 @@ module Debugger
             curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", trace_point, caller.to_a)
           end
 
-          if check_memory_limit
-            curr_alloc_size = ObjectSpace.memsize_of_all
-            start_alloc_size = curr_alloc_size if curr_alloc_size < start_alloc_size
+          curr_alloc_size = ObjectSpace.memsize_of_all
+          start_alloc_size = curr_alloc_size if curr_alloc_size < start_alloc_size
 
-            if curr_alloc_size - start_alloc_size > 1e6 * memory_limit
-              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", trace_point, caller.to_a)
-            end
+          if curr_alloc_size - start_alloc_size > 1e6 * memory_limit
+            curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", trace_point, caller.to_a)
           end
         end
         trace_point.enable
@@ -202,6 +228,9 @@ module Debugger
     rescue ExecError => e
       e.trace_point.disable
       print_debug(e.message + "\n" + e.backtrace.map {|l| "\t#{l}"}.join("\n"))
+      return overflow_message_type.call(e)
+    rescue JrubyTimeLimitError => e
+      print_debug(e.message)
       return overflow_message_type.call(e)
     ensure
       inspect_thread.kill if inspect_thread && inspect_thread.alive?
