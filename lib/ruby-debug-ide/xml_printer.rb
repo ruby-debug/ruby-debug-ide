@@ -191,9 +191,8 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
-      return value.send exec_method if RUBY_VERSION < '2.0'
-
       return jruby_timeout(time_limit/1e3) {value.send exec_method} if defined?(JRUBY_VERSION)
+      return value.send exec_method if RUBY_VERSION < '2.0'
 
       curr_thread = Thread.current
 
