@@ -171,7 +171,7 @@ module Debugger
       end
     end
 
-    def exec_with_timeout(sec)
+    def exec_with_timeout(sec, error_message)
       return yield if sec == nil or sec.zero?
       if Thread.respond_to?(:critical) and Thread.critical
         raise ThreadError, "timeout within critical session"
@@ -180,7 +180,7 @@ module Debugger
         x = Thread.current
         y = DebugThread.start {
           sleep sec
-          x.raise SimpleTimeLimitError.new("Timeout: evaluation took longer than #{sec} seconds.") if x.alive?
+          x.raise SimpleTimeLimitError.new(error_message) if x.alive?
         }
         yield sec
       ensure
@@ -190,7 +190,7 @@ module Debugger
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
       return value.send exec_method if !Debugger.trace_to_s
-      return exec_with_timeout(time_limit * 1e-3) {value.send exec_method} if defined?(JRUBY_VERSION) || memory_limit <= 0 || (RUBY_VERSION < '2.0' && time_limit > 0)
+      return exec_with_timeout(time_limit * 1e-3, "Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.") {value.send exec_method} if defined?(JRUBY_VERSION) || memory_limit <= 0 || (RUBY_VERSION < '2.0' && time_limit > 0)
 
 
       curr_thread = Thread.current
