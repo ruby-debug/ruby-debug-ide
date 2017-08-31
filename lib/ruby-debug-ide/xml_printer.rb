@@ -190,7 +190,7 @@ module Debugger
 
     def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
       return exec_with_timeout(time_limit * 1e-3) {value.send exec_method} if defined?(JRUBY_VERSION) || memory_limit <= 0 || (RUBY_VERSION < '2.0' && time_limit > 0)
-      return value.send exec_method if RUBY_VERSION < '2.0'
+      return value.send exec_method if !Debugger.trace_to_s
 
       curr_thread = Thread.current
       control_thread = Debugger.control_thread
