@@ -37,7 +37,7 @@ EOB
   opts.separator ""
   opts.separator "Options:"
 
-  Debugger.trace_to_s = true
+  Debugger.trace_to_s = false
   opts.on("--evaluation-control", "trace to_s evaluation") do
     Debugger.trace_to_s = true
   end
