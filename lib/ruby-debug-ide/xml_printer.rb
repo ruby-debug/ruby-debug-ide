@@ -13,7 +13,7 @@ module Debugger
     SPECIAL_SYMBOL_MESSAGE = lambda {|e| '<?>'}
   end
 
-  class ExecError < StandardError
+  class ExecError
     attr_reader :message
     attr_reader :backtrace
 
