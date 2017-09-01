@@ -13,21 +13,29 @@ module Debugger
     SPECIAL_SYMBOL_MESSAGE = lambda {|e| '<?>'}
   end
 
-  class ExecError < StandardError
+  class ExecError
     attr_reader :message
-    attr_reader :trace_point
     attr_reader :backtrace
 
-    def initialize(message, trace_point, backtrace = [])
+    def initialize(message, backtrace = [])
       @message = message
-      @trace_point = trace_point
       @backtrace = backtrace
     end
   end
 
-  class MemoryLimitError < ExecError; end
+  class SimpleTimeLimitError < StandardError
+    attr_reader :message
 
-  class TimeLimitError < ExecError; end
+    def initialize(message)
+      @message = message
+    end
+  end
+
+  class MemoryLimitError < ExecError;
+  end
+
+  class TimeLimitError < ExecError;
+  end
 
   class XmlPrinter # :nodoc:
     class ExceptionProxy
@@ -163,48 +171,76 @@ module Debugger
       end
     end
 
-    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
-      return value.send exec_method if RUBY_VERSION < '2.0'
+    def exec_with_timeout(sec, error_message)
+      return yield if sec == nil or sec.zero?
+      if Thread.respond_to?(:critical) and Thread.critical
+        raise ThreadError, "timeout within critical session"
+      end
+      begin
+        x = Thread.current
+        y = DebugThread.start {
+          sleep sec
+          x.raise SimpleTimeLimitError.new(error_message) if x.alive?
+        }
+        yield sec
+      ensure
+        y.kill if y and y.alive?
+      end
+    end
 
-      check_memory_limit = !defined?(JRUBY_VERSION) && ENV['DEBUGGER_MEMORY_LIMIT'].to_i > 0
+    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
+      return value.send exec_method if !Debugger.trace_to_s
+      return exec_with_timeout(time_limit * 1e-3, "Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.") {value.send exec_method} if defined?(JRUBY_VERSION) || memory_limit <= 0 || (RUBY_VERSION < '2.0' && time_limit > 0)
+
+
       curr_thread = Thread.current
+      control_thread = Debugger.control_thread
 
       result = nil
+
+      trace_queue = Queue.new
+
       inspect_thread = DebugThread.start do
-        start_alloc_size = ObjectSpace.memsize_of_all if check_memory_limit
+        start_alloc_size = ObjectSpace.memsize_of_all
         start_time = Time.now.to_f
 
-        trace_point = TracePoint.new(:c_call, :call) do | |
-          next unless Thread.current == inspect_thread
-          next unless rand > 0.75
-
+        trace_point = TracePoint.new(:c_call, :call) do |tp|
           curr_time = Time.now.to_f
 
           if (curr_time - start_time) * 1e3 > time_limit
-            curr_thread.raise TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", trace_point, caller.to_a)
+            trace_queue << TimeLimitError.new("Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.", caller.to_a)
+            trace_point.disable
+            inspect_thread.kill
           end
 
-          if check_memory_limit
-            curr_alloc_size = ObjectSpace.memsize_of_all
-            start_alloc_size = curr_alloc_size if curr_alloc_size < start_alloc_size
+          next unless rand > 0.75
 
-            if curr_alloc_size - start_alloc_size > 1e6 * memory_limit
-              curr_thread.raise MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", trace_point, caller.to_a)
-            end
+          curr_alloc_size = ObjectSpace.memsize_of_all
+          start_alloc_size = curr_alloc_size if curr_alloc_size < start_alloc_size
+
+          if curr_alloc_size - start_alloc_size > 1e6 * memory_limit
+            trace_queue << MemoryLimitError.new("Out of memory: evaluation of #{exec_method} took more than #{memory_limit}mb.", caller.to_a)
+            trace_point.disable
+            inspect_thread.kill
           end
         end
         trace_point.enable
         result = value.send exec_method
+        trace_queue << result
         trace_point.disable
       end
-      inspect_thread.join
-      return result
-    rescue ExecError => e
-      e.trace_point.disable
-      print_debug(e.message + "\n" + e.backtrace.map {|l| "\t#{l}"}.join("\n"))
+
+      while(mes = trace_queue.pop)
+        if(mes.is_a? TimeLimitError or mes.is_a? MemoryLimitError)
+          print_debug(mes.message + "\n" + mes.backtrace.map {|l| "\t#{l}"}.join("\n"))
+          return overflow_message_type.call(mes)
+        else
+          return mes
+        end
+      end
+    rescue SimpleTimeLimitError => e
+      print_debug(e.message)
       return overflow_message_type.call(e)
-    ensure
-      inspect_thread.kill if inspect_thread && inspect_thread.alive?
     end
 
     def print_variable(name, value, kind)

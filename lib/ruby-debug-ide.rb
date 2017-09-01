@@ -29,22 +29,22 @@ module Debugger
     end
 
     def cleanup_backtrace(backtrace)
-       cleared = []
-       return cleared unless backtrace
-       backtrace.each do |line|
-         if line.index(File.expand_path(File.dirname(__FILE__) + "/..")) == 0
-           next
-         end
-         if line.index("-e:1") == 0
-           break
-         end
-         cleared << line
-       end
-       cleared
+      cleared = []
+      return cleared unless backtrace
+      backtrace.each do |line|
+        if line.index(File.expand_path(File.dirname(__FILE__) + "/..")) == 0
+          next
+        end
+        if line.index("-e:1") == 0
+          break
+        end
+        cleared << line
+      end
+      cleared
     end
 
     attr_accessor :attached
-    attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
+    attr_accessor :cli_debug, :xml_debug, :evaluation_timeout, :trace_to_s
     attr_accessor :control_thread
     attr_reader :interface
     # protocol extensions
