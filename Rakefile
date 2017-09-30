@@ -40,3 +40,20 @@ task :changelog, :since_c, :until_c do |t,args|
 
   puts changelog_content
 end
+
+desc "generate Markdown document from texinfo (require: `makeinfo` command)"
+task :gendoc do
+  content = `makeinfo --plaintext doc/protocol-spec.texi`
+  File.open("doc/protocol-spec.md", "w") do |f|
+    ## fix headers
+    content.gsub!(/^(\d+\.\d+\.\d+\.\d+[^\n]*)\n(\.+)$/m){ "#### #{$1}" }
+    content.gsub!(/^(\d+\.\d+\.\d+[^\n]*)\n(\-+)$/m){ "### #{$1}" }
+    content.gsub!(/^(\=+)$/){ len = $1.size; "-" * len }
+    content.gsub!(/^(\*+)$/){ len = $1.size; "=" * len }
+
+    ## add an empty line between item and code
+    content.gsub!(/^(Event example:)\n(\s+)/m){ $1+"\n\n"+$2 }
+
+    f.write(content)
+  end
+end
