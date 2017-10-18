@@ -30,7 +30,7 @@ module Debugger
       end
 
       incomplete = true
-      if /\A\s*\Z/m =~ last_statement
+      if /\A\s*\Z/m =~ last_statement || !last_statement.end_with?("\n\n")
         incomplete = false
       end
 
