@@ -1,3 +1,4 @@
+require 'timeout'
 module Timeout
   class << self
     module_eval {
