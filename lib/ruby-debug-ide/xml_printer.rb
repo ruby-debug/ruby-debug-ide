@@ -2,7 +2,7 @@ require 'stringio'
 require 'cgi'
 require 'monitor'
 if (!defined?(JRUBY_VERSION))
-  require 'objspace'
+  include ObjectSpace
 end
 
 module Debugger
