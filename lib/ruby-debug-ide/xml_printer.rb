@@ -1,8 +1,8 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
-if (!defined?(JRUBY_VERSION))
-  include ObjectSpace
+if (!defined?(JRUBY_VERSION) && RUBY_VERSION >= "2.0")
+  require 'objspace'
 end
 
 module Debugger
