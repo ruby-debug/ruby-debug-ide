@@ -1,7 +1,7 @@
 require 'stringio'
 require 'cgi'
 require 'monitor'
-if (!defined?(JRUBY_VERSION) && RUBY_VERSION >= "2.0")
+if (!defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.0')
   require 'objspace'
 end
 
