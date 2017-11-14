@@ -9,7 +9,7 @@ module Debugger
     end
 
     def execute
-      string_to_parse = Command.unescape_incoming(@match.post_match) + "\n\n\n"
+      string_to_parse = Command.unescape_incoming(@match.post_match) + " \n\n\n"
       total_lines = string_to_parse.count("\n") + 1
 
       lexer = RubyLex.new
@@ -30,7 +30,7 @@ module Debugger
       end
 
       incomplete = true
-      if /\A\s*\Z/m =~ last_statement || !last_statement.end_with?("\n\n")
+      if /\A\s*\Z/m =~ last_statement
         incomplete = false
       end
 
