@@ -42,12 +42,6 @@ EOF
   spec.extensions << "ext/mkrf_conf.rb" unless ENV['NO_EXT']
   spec.add_dependency("rake", ">= 0.8.1")
 
-  if RUBY_VERSION < '2.0' || defined?(JRUBY_VERSION)
-    spec.add_dependency 'ruby-debug-base'
-  else
-    spec.add_dependency 'debase', '~> 0.2.2.beta11'
-  end
-
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
   spec.rubyforge_project = 'debug-commons'
