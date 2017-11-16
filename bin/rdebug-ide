@@ -49,7 +49,11 @@ EOB
 
   ENV['INSPECT_TIME_LIMIT'] = '100'
   opts.on("-t", "--time-limit LIMIT", Integer, "evaluation time limit in milliseconds (default: 100)") do |limit|
-    ENV['INSPECT_TIME_LIMIT'] = limit.to_s
+    if(limit <= 0)
+      Debugger.trace_to_s = false
+    else
+      ENV['INSPECT_TIME_LIMIT'] = limit.to_s
+    end
   end
 
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
