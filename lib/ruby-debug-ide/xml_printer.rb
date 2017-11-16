@@ -150,7 +150,7 @@ module Debugger
           if k.class.name == "String"
             name = '\'' + k + '\''
           else
-            name = exec_with_allocation_control(k, Debugger.debugger_memory_limit, Debugger.inspect_time_limit, :to_s, OverflowMessageType::EXCEPTION_MESSAGE)
+            name = exec_with_allocation_control(k, :to_s, OverflowMessageType::EXCEPTION_MESSAGE)
           end
           print_variable(name, hash[k], 'instance')
         }
@@ -185,8 +185,11 @@ module Debugger
       end
     end
 
-    def exec_with_allocation_control(value, memory_limit, time_limit, exec_method, overflow_message_type)
+    def exec_with_allocation_control(value, exec_method, overflow_message_type)
       return value.send exec_method unless Debugger.trace_to_s
+
+      memory_limit = Debugger.debugger_memory_limit
+      time_limit = Debugger.inspect_time_limit
 
       if defined?(JRUBY_VERSION) || RUBY_VERSION < '2.0' || memory_limit <= 0
         return exec_with_timeout(time_limit * 1e-3, "Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.") { value.send exec_method }
@@ -258,7 +261,7 @@ module Debugger
       else
         has_children = !value.instance_variables.empty? || !value.class.class_variables.empty?
 
-        value_str = exec_with_allocation_control(value, Debugger.debugger_memory_limit, Debugger.inspect_time_limit, :to_s, OverflowMessageType::EXCEPTION_MESSAGE) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
+        value_str = exec_with_allocation_control(value, :to_s, OverflowMessageType::EXCEPTION_MESSAGE) || 'nil' rescue "<#to_s method raised exception: #{$!}>"
         unless value_str.is_a?(String)
           value_str = "ERROR: #{value.class}.to_s method returns #{value_str.class}. Should return String."
         end
@@ -484,7 +487,7 @@ module Debugger
     def compact_array_str(value)
       slice = value[0..10]
 
-      compact = exec_with_allocation_control(slice, Debugger.debugger_memory_limit, Debugger.inspect_time_limit, :inspect, OverflowMessageType::NIL_MESSAGE)
+      compact = exec_with_allocation_control(slice, :inspect, OverflowMessageType::NIL_MESSAGE)
 
       if compact && value.size != slice.size
         compact[0..compact.size - 2] + ", ...]"
@@ -496,14 +499,14 @@ module Debugger
       keys_strings = Hash.new
 
       slice = value.sort_by do |k, _|
-        keys_string = exec_with_allocation_control(k, Debugger.debugger_memory_limit, Debugger.inspect_time_limit, :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
+        keys_string = exec_with_allocation_control(k, :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
         keys_strings[k] = keys_string
         keys_string
       end[0..5]
 
       compact = slice.map do |kv|
         key_string = keys_strings[kv[0]]
-        value_string = exec_with_allocation_control(kv[1], Debugger.debugger_memory_limit, Debugger.inspect_time_limit, :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
+        value_string = exec_with_allocation_control(kv[1], :to_s, OverflowMessageType::SPECIAL_SYMBOL_MESSAGE)
         "#{key_string}: #{handle_binary_data(value_string)}"
       end.join(", ")
       "{" + compact + (slice.size != value.size ? ", ..." : "") + "}"
