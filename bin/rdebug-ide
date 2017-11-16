@@ -20,6 +20,9 @@ options = OpenStruct.new(
     'int_handler' => true,
     'dispatcher_port' => -1,
     'evaluation_timeout' => 10,
+    'trace_to_s' => false,
+    'debugger_memory_limit' => 10,
+    'inspect_time_limit' => 100,
     'rm_protocol_extensions' => false,
     'catchpoint_deleted_event' => false,
     'value_as_nested_element' => false,
@@ -45,19 +48,20 @@ EOB
   opts.on('--evaluation-timeout TIMEOUT', Integer,'evaluation timeout in seconds (default: 10)') do |timeout|
     options.evaluation_timeout = timeout
   end
-  Debugger.trace_to_s = false
-  opts.on("--evaluation-control", "trace to_s evaluation") do
-    Debugger.trace_to_s = true
-  end
+  opts.on("--evaluation-control", "trace to_s evaluation") {options.trace_to_s = true}
 
-  ENV['DEBUGGER_MEMORY_LIMIT'] = '10'
   opts.on("-m", "--memory-limit LIMIT", Integer, "evaluation memory limit in mb (default: 10)") do |limit|
-    ENV['DEBUGGER_MEMORY_LIMIT'] = limit.to_s
+    if defined?(JRUBY_VERSION) || RUBY_VERSION < '2.0'
+      $stderr.puts "Evaluation memory limit is ineffective in JRuby and MRI < 2.0"
+      limit = 0
+    end
+    options.debugger_memory_limit = limit
+    options.trace_to_s ||= limit > 0
   end
 
-  ENV['INSPECT_TIME_LIMIT'] = '100'
   opts.on("-t", "--time-limit LIMIT", Integer, "evaluation time limit in milliseconds (default: 100)") do |limit|
-    ENV['INSPECT_TIME_LIMIT'] = limit.to_s
+    options.inspect_time_limit = limit
+    options.trace_to_s ||= limit > 0
   end
 
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
@@ -157,6 +161,9 @@ end
 Debugger.keep_frame_binding = options.frame_bind
 Debugger.tracing = options.tracing
 Debugger.evaluation_timeout = options.evaluation_timeout
+Debugger.trace_to_s = options.trace_to_s && (options.debugger_memory_limit > 0 || options.inspect_time_limit > 0)
+Debugger.debugger_memory_limit = options.debugger_memory_limit
+Debugger.inspect_time_limit = options.inspect_time_limit
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 
