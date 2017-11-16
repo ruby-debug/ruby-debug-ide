@@ -37,6 +37,14 @@ EOB
   opts.separator ""
   opts.separator "Options:"
 
+  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
+  opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp|
+    options.dispatcher_port = dp
+  end
+  opts.on('--evaluation-timeout TIMEOUT', Integer,'evaluation timeout in seconds (default: 10)') do |timeout|
+    options.evaluation_timeout = timeout
+  end
   Debugger.trace_to_s = false
   opts.on("--evaluation-control", "trace to_s evaluation") do
     Debugger.trace_to_s = true
@@ -52,14 +60,6 @@ EOB
     ENV['INSPECT_TIME_LIMIT'] = limit.to_s
   end
 
-  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
-  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
-  opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp|
-    options.dispatcher_port = dp
-  end
-  opts.on('--evaluation-timeout TIMEOUT', Integer,'evaluation timeout in seconds (default: 10)') do |timeout|
-    options.evaluation_timeout = timeout
-  end
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
