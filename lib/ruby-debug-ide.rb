@@ -112,7 +112,7 @@ module Debugger
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
           server = TCPServer.new(host, port)
-          print_greeting_msg($stderr, host, port)
+          print_greeting_msg($stderr, host, port) if defined? IDE_VERSION
           notify_dispatcher(port) if notify_dispatcher
           while (session = server.accept)
             $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug

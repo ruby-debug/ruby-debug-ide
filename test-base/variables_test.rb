@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
@@ -25,7 +26,7 @@ module VariablesTest
       {:name => "stringA"},
       {:name => "testHashValue"})
     # will receive ''
-    assert_equal("<start test=\"&\"/>", variables[0].value)
+    assert_equal(CGI.escapeHTML("<start test=\"&\"/>"), variables[0].value)
     assert_local(variables[0])
     # the testHashValue contains an example, where the name consists of special
     # characters
@@ -99,10 +100,12 @@ module VariablesTest
   end
 
   def test_variable_instance
-    create_socket ["require 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
+    create_socket ["require_relative 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
     create_test2 ["class Test2", "def initialize", "@y=5", "end", "def to_s", "'test'", "end", "end"]
     run_to("test2.rb", 6)
-    send_ruby("frame 3; v i custom_object")
+    frame_number = 3
+    frame_number -= 1 if Debugger::FRONT_END == "debase"
+    send_ruby("frame #{frame_number}; v i custom_object")
     assert_variables(read_variables, 1,
       {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false})
     send_cont
@@ -128,7 +131,7 @@ module VariablesTest
       {:name => "hash", :hasChildren => true})
     send_ruby("v i hash")
     assert_variables(read_variables, 2,
-      {:name => "'a'", :value => "z", :type => "String"})
+      {:name => CGI.escape_html("'a'"), :value => "z", :type => "String"})
     send_cont
   end
 
