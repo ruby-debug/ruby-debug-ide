@@ -123,7 +123,7 @@ module Debugger
         max_time = Debugger.evaluation_timeout
         @printer.print_debug("Evaluating %s with timeout after %i sec", str, max_time)
 
-        Debugger::TimeoutHandler.do_timeout_monkey
+        Debugger::TimeoutHandler.do_thread_alias
 
         eval_result = nil
 
@@ -131,7 +131,7 @@ module Debugger
           eval_result = eval(to_inspect, b)
         end
 
-        Debugger::TimeoutHandler.undo_timeout_monkey
+        Debugger::TimeoutHandler.undo_thread_alias
 
         return eval_result
       rescue StandardError, ScriptError => e

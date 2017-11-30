@@ -134,9 +134,9 @@ end
 if RUBY_VERSION < "1.9"
    lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
    $: << lib_path unless $:.include? lib_path
-   require 'ruby-debug-ide/timeout_monkeypatch'
+   require 'ruby-debug-ide/thread_alias.rb'
 else
-  require_relative '../lib/ruby-debug-ide/timeout_monkeypatch'
+  require_relative '../lib/ruby-debug-ide/thread_alias'
 end
 
 if options.dispatcher_port != -1
