@@ -198,7 +198,7 @@ module Debugger
       require 'objspace'
       trace_queue = Queue.new
 
-      DebugThread.start do
+      inspect_thread = DebugThread.start do
         start_alloc_size = ObjectSpace.memsize_of_all
         start_time = Time.now.to_f
 
