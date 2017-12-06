@@ -279,7 +279,7 @@ module Debugger
       print("<variable name=\"%s\" %s kind=\"%s\" %s type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\">",
             CGI.escapeHTML(name), build_compact_value_attr(value, value_str), kind,
             build_value_attr(escaped_value_str), value.class,
-            has_children, value.respond_to?(:object_id) ? value.object_id : value.id)
+            has_children, value.object_id)
       print("<value><![CDATA[%s]]></value>", escaped_value_str) if Debugger.value_as_nested_element
       print('</variable>')
     rescue StandardError => e
