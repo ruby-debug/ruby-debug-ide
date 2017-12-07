@@ -199,6 +199,34 @@ module VariablesTest
     send_cont
   end
 
+  def test_to_s_timelimit
+    create_socket ['class A',
+      'def to_s',
+        'a = 1',
+        'loop do',
+          'a = a + 1',
+          'sleep 1',
+          'break if (a > 2)',
+        'end',
+        'a.to_s',
+      'end',
+    'end',
+    'b = Hash.new',
+    'b[A.new] = A.new',
+    'b[1] = A.new',
+    'puts b #bp here']
+    run_to_line(15)
+    send_ruby('v l')
+    assert_variables(read_variables, 1,
+                     {:name => "b", :value => "Hash (2 elements)", :type => "Hash"})
+
+    send_ruby("v i b")
+    assert_variables(read_variables, 2,
+                     {:name => "Timeout: evaluation of to_s took longer than 100ms.", :value => "Timeout: evaluation of to_s took longer than 100ms.", :type => "A"},
+                     {:name => "1", :value => "Timeout: evaluation of to_s took longer than 100ms.", :type => "A"})
+    send_cont
+  end
+
   def assert_xml(expected_xml, actual_xml)
     # XXX is there a better way then html_escape in standard libs?
     assert_equal(ERB::Util.html_escape(expected_xml), actual_xml)
