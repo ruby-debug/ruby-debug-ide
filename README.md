@@ -4,3 +4,4 @@ An interface which glues ruby-debug to IDEs like Eclipse (RDT), NetBeans and Rub
 
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![Gem Version](https://badge.fury.io/rb/ruby-debug-ide.svg)][gem]
+[![Build Status](https://travis-ci.org/ruby-debug/ruby-debug-ide.svg?branch=master)](https://travis-ci.org/ruby-debug/ruby-debug-ide)
