@@ -47,7 +47,7 @@ module VariablesTest
       {:name => "self", :value => "test", :type => "Test", :hasChildren => true})
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false, :kind => "instance"})
+      {:name => "@y", :value => "5", :type => int_type_name, :hasChildren => false, :kind => "instance"})
     send_cont
   end
 
@@ -60,7 +60,7 @@ module VariablesTest
       {:name => "self", :hasChildren => true})
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@@class_var", :value => "55", :type => "Fixnum", :kind => "class"})
+      {:name => "@@class_var", :value => "55", :type => int_type_name, :kind => "class"})
     send_cont
   end
 
@@ -70,7 +70,7 @@ module VariablesTest
     run_to_line(3)
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@@class_var", :value => "55", :type => "Fixnum", :hasChildren => false, :kind => "class"})
+      {:name => "@@class_var", :value => "55", :type => int_type_name, :hasChildren => false, :kind => "class"})
     send_cont
   end
 
@@ -95,7 +95,7 @@ module VariablesTest
     assert_not_nil variables[1].objectId
     send_ruby("v i " + variables[1].objectId) # 'user' variable
     assert_variables(read_variables, 1,
-      {:name => "@id", :value => "22", :type => "Fixnum", :hasChildren => false})
+      {:name => "@id", :value => "22", :type => int_type_name, :hasChildren => false})
     send_cont
   end
 
@@ -107,7 +107,7 @@ module VariablesTest
     frame_number -= 1 if Debugger::FRONT_END == "debase"
     send_ruby("frame #{frame_number}; v i custom_object")
     assert_variables(read_variables, 1,
-      {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false})
+      {:name => "@y", :value => "5", :type => int_type_name, :hasChildren => false})
     send_cont
   end
 
@@ -119,7 +119,7 @@ module VariablesTest
       {:name => "array", :type => "Array", :hasChildren => true})
     send_ruby("v i array")
     assert_variables(read_variables, 2,
-      {:name => "[0]", :value => "1", :type => "Fixnum"})
+      {:name => "[0]", :value => "1", :type => int_type_name})
     send_cont
   end
 
@@ -152,7 +152,7 @@ module VariablesTest
     # get the value
     send_ruby("frame 1 ; v i " + elements[0].objectId)
     assert_variables(read_variables, 1,
-      {:name => "@a", :value => "66", :type => "Fixnum"})
+      {:name => "@a", :value => "66", :type => int_type_name})
     send_cont
   end
 
@@ -179,7 +179,7 @@ module VariablesTest
     create_socket ["class BugExample; def to_s; 1; end; end", "b = BugExample.new", "sleep 0.01"]
     run_to_line(3)
     send_ruby("v local")
-    assert_variables(read_variables, 1, {:value => "ERROR: BugExample.to_s method returns Fixnum. Should return String."})
+    assert_variables(read_variables, 1, {:value => "ERROR: BugExample.to_s method returns #{int_type_name}. Should return String."})
     send_cont
   end
 
@@ -259,6 +259,12 @@ module VariablesTest
         assert_equal(value, vars[i][field], "right value")
       end
     end
+  end
+
+  private
+
+  def int_type_name
+    (Fixnum || Integer).name
   end
 
 end
