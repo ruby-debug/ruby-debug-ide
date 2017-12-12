@@ -1,9 +1,19 @@
 source "http://rubygems.org"
 
-gem "ruby-debug-base", :platforms => [:jruby, :ruby_18, :mingw_18]
-gem "ruby-debug-base19x", ">= 0.11.30.pre4", :platforms => [:ruby_19, :mingw_19]
+# @param [Array<String>] versions compatible ruby versions
+# @return [Array<String>] an array with mri platforms of given versions
+def mries(*versions)
+  versions.flat_map do |v|
+    %w(ruby mingw x64_mingw)
+        .map { |platform| "#{platform}_#{v}".to_sym unless platform == "x64_mingw" && v < "2.0" }
+        .delete_if &:nil?
+  end
+end
+
+gem "ruby-debug-base", :platforms => [:jruby, *mries('18')]
+gem "ruby-debug-base19x", ">= 0.11.30.pre4", :platforms => mries('19')
 if RUBY_VERSION && RUBY_VERSION >= "2.0"
-  gem "debase", ">= 0.2.2.beta12", :platforms => [:ruby_20, :mingw_20, :ruby_21, :mingw_21, :ruby_22, :mingw_22, :ruby_23, :mingw_23, :ruby_24, :mingw_24]
+  gem "debase", ">= 0.2.2.beta12", :platforms => mries('20', '21', '22', '23', '24', '25')
 end
 
 gemspec
