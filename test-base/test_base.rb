@@ -57,7 +57,7 @@ class TestBase < Test::Unit::TestCase
         send_ruby("cont")
       end
       debug "Waiting for the server process to finish..."
-      (config_load('server_start_up_timeout')*4).times do
+      (config_load('server_start_up_timeout')*5).times do
         unless @process_finished
           debug '.'
           sleep 0.25
