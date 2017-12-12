@@ -18,3 +18,17 @@ matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
+
+  exclude:
+    - os: osx
+      rvm: 1.9.3
+    - os: osx
+      rvm: 2.0.0
+
+  include:
+    - os: osx
+      rvm: 1.9.3
+      before_script: rvm install ruby-1.9.3 # not binary
+    - os: osx
+      rvm: 2.0.0
+      before_script: rvm install ruby-2.0.0 # not binary
