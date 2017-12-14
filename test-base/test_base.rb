@@ -141,7 +141,7 @@ class TestBase < Test::Unit::TestCase
 
   def create_test2(lines)
     @test2_name = "test2.rb"
-    @test2_path = create_file(@test2_name, lines)
+    @test2_path = create_file(@test2_name, lines).force_encoding(Encoding::UTF_8)
   end
 
   # Creates test.rb with the given lines, set up @test_name and @test_path
