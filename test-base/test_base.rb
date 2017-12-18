@@ -132,7 +132,8 @@ class TestBase < Test::Unit::TestCase
   end
 
   def create_file(script_name, lines)
-    script_path = File.join(TMP_DIR, script_name)
+    script_path = File.realdirpath(File.join(TMP_DIR, script_name))
+    
     File.open(script_path, "w") do |script|
       script.printf(lines.join("\n"))
     end
