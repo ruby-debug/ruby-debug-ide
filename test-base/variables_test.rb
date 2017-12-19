@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
@@ -25,7 +26,7 @@ module VariablesTest
       {:name => "stringA"},
       {:name => "testHashValue"})
     # will receive ''
-    assert_equal("<start test=\"&\"/>", variables[0].value)
+    assert_equal(CGI.escapeHTML("<start test=\"&\"/>"), variables[0].value)
     assert_local(variables[0])
     # the testHashValue contains an example, where the name consists of special
     # characters
@@ -46,7 +47,7 @@ module VariablesTest
       {:name => "self", :value => "test", :type => "Test", :hasChildren => true})
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false, :kind => "instance"})
+      {:name => "@y", :value => "5", :type => int_type_name, :hasChildren => false, :kind => "instance"})
     send_cont
   end
 
@@ -59,7 +60,7 @@ module VariablesTest
       {:name => "self", :hasChildren => true})
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@@class_var", :value => "55", :type => "Fixnum", :kind => "class"})
+      {:name => "@@class_var", :value => "55", :type => int_type_name, :kind => "class"})
     send_cont
   end
 
@@ -69,7 +70,7 @@ module VariablesTest
     run_to_line(3)
     send_ruby("v i self")
     assert_variables(read_variables, 1,
-      {:name => "@@class_var", :value => "55", :type => "Fixnum", :hasChildren => false, :kind => "class"})
+      {:name => "@@class_var", :value => "55", :type => int_type_name, :hasChildren => false, :kind => "class"})
     send_cont
   end
 
@@ -94,17 +95,19 @@ module VariablesTest
     assert_not_nil variables[1].objectId
     send_ruby("v i " + variables[1].objectId) # 'user' variable
     assert_variables(read_variables, 1,
-      {:name => "@id", :value => "22", :type => "Fixnum", :hasChildren => false})
+      {:name => "@id", :value => "22", :type => int_type_name, :hasChildren => false})
     send_cont
   end
 
   def test_variable_instance
-    create_socket ["require 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
+    create_socket ["require_relative 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
     create_test2 ["class Test2", "def initialize", "@y=5", "end", "def to_s", "'test'", "end", "end"]
     run_to("test2.rb", 6)
-    send_ruby("frame 3; v i custom_object")
+    frame_number = 3
+    frame_number -= 1 if Debugger::FRONT_END == "debase"
+    send_ruby("frame #{frame_number}; v i custom_object")
     assert_variables(read_variables, 1,
-      {:name => "@y", :value => "5", :type => "Fixnum", :hasChildren => false})
+      {:name => "@y", :value => "5", :type => int_type_name, :hasChildren => false})
     send_cont
   end
 
@@ -116,7 +119,7 @@ module VariablesTest
       {:name => "array", :type => "Array", :hasChildren => true})
     send_ruby("v i array")
     assert_variables(read_variables, 2,
-      {:name => "[0]", :value => "1", :type => "Fixnum"})
+      {:name => "[0]", :value => "1", :type => int_type_name})
     send_cont
   end
 
@@ -128,7 +131,7 @@ module VariablesTest
       {:name => "hash", :hasChildren => true})
     send_ruby("v i hash")
     assert_variables(read_variables, 2,
-      {:name => "'a'", :value => "z", :type => "String"})
+      {:name => CGI.escape_html("'a'"), :value => "z", :type => "String"})
     send_cont
   end
 
@@ -149,7 +152,7 @@ module VariablesTest
     # get the value
     send_ruby("frame 1 ; v i " + elements[0].objectId)
     assert_variables(read_variables, 1,
-      {:name => "@a", :value => "66", :type => "Fixnum"})
+      {:name => "@a", :value => "66", :type => int_type_name})
     send_cont
   end
 
@@ -176,7 +179,7 @@ module VariablesTest
     create_socket ["class BugExample; def to_s; 1; end; end", "b = BugExample.new", "sleep 0.01"]
     run_to_line(3)
     send_ruby("v local")
-    assert_variables(read_variables, 1, {:value => "ERROR: BugExample.to_s method returns Fixnum. Should return String."})
+    assert_variables(read_variables, 1, {:value => "ERROR: BugExample.to_s method returns #{int_type_name}. Should return String."})
     send_cont
   end
 
@@ -193,6 +196,34 @@ module VariablesTest
     run_to_line(7)
     send_ruby('v l')
     assert_variables(read_variables, 1)
+    send_cont
+  end
+
+  def test_to_s_timelimit
+    create_socket ['class A',
+      'def to_s',
+        'a = 1',
+        'loop do',
+          'a = a + 1',
+          'sleep 1',
+          'break if (a > 2)',
+        'end',
+        'a.to_s',
+      'end',
+    'end',
+    'b = Hash.new',
+    'b[A.new] = A.new',
+    'b[1] = A.new',
+    'puts b #bp here']
+    run_to_line(15)
+    send_ruby('v l')
+    assert_variables(read_variables, 1,
+                     {:name => "b", :value => "Hash (2 elements)", :type => "Hash"})
+
+    send_ruby("v i b")
+    assert_variables(read_variables, 2,
+                     {:name => "Timeout: evaluation of to_s took longer than 100ms.", :value => "Timeout: evaluation of to_s took longer than 100ms.", :type => "A"},
+                     {:name => "1", :value => "Timeout: evaluation of to_s took longer than 100ms.", :type => "A"})
     send_cont
   end
 
@@ -228,6 +259,12 @@ module VariablesTest
         assert_equal(value, vars[i][field], "right value")
       end
     end
+  end
+
+  private
+
+  def int_type_name
+    (Fixnum || Integer).name
   end
 
 end

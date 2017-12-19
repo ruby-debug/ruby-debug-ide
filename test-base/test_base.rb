@@ -57,7 +57,7 @@ class TestBase < Test::Unit::TestCase
         send_ruby("cont")
       end
       debug "Waiting for the server process to finish..."
-      (config_load('server_start_up_timeout')*4).times do
+      (config_load('server_start_up_timeout')*5).times do
         unless @process_finished
           debug '.'
           sleep 0.25
@@ -86,7 +86,7 @@ class TestBase < Test::Unit::TestCase
     @port = TestBase.find_free_port
     cmd = debug_command(script, @port)
     debug "Starting: #{cmd}\n"
-    
+
     Thread.new do
       if RUBY_VERSION < '1.9'
         (_, p_out, p_err) = Open3.popen3(cmd)
@@ -132,7 +132,8 @@ class TestBase < Test::Unit::TestCase
   end
 
   def create_file(script_name, lines)
-    script_path = File.join(TMP_DIR, script_name)
+    script_path = File.realdirpath(File.join(TMP_DIR, script_name))
+    
     File.open(script_path, "w") do |script|
       script.printf(lines.join("\n"))
     end
@@ -141,7 +142,7 @@ class TestBase < Test::Unit::TestCase
 
   def create_test2(lines)
     @test2_name = "test2.rb"
-    @test2_path = create_file(@test2_name, lines)
+    @test2_path = create_file(@test2_name, lines).force_encoding(Encoding::UTF_8)
   end
 
   # Creates test.rb with the given lines, set up @test_name and @test_path
@@ -222,7 +223,9 @@ class TestBase < Test::Unit::TestCase
     suspension = read_suspension
     assert_equal(exp_file, suspension.file)
     assert_equal(exp_line, suspension.line)
+    exp_frames += 2 if Debugger::FRONT_END == "debase"
     assert_equal(exp_frames, suspension.frames)
+    exp_thread_id += 1 if Debugger::FRONT_END == "debase"
     assert_equal(exp_thread_id, suspension.threadId)
   end
 
@@ -271,6 +274,7 @@ class TestBase < Test::Unit::TestCase
     assert_equal(exp_file, exception.file)
     assert_equal(exp_line, exception.line)
     assert_equal(exp_type, exception.type)
+    exp_thread_id += 1 if Debugger::FRONT_END == "debase"
     assert_equal(exp_thread_id, exception.threadId)
     assert_not_nil(exception.message)
   end

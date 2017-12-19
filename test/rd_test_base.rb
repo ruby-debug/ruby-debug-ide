@@ -24,7 +24,7 @@ class RDTestBase < TestBase
     cmd << " -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" if jruby? and debug_jruby?
     cmd << " -I 'lib:#{File.dirname(script)}' #{@rdebug_ide}" +
       (@verbose_server ? " -d" : "") +
-      " -p #{port} -- '#{script}'"
+        " -p #{port} --evaluation-control --time-limit 100 --memory-limit 0 -- '#{script}'"
   end
 
   def start_debugger

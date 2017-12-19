@@ -14,7 +14,11 @@ module ThreadsAndFrames
     assert_breakpoint_added_no(2)
     send_ruby("w")
     frames = read_frames
-    assert_equal(2, frames.length)
+
+    needed_frame_length = 2
+    needed_frame_length += 2 if Debugger::FRONT_END == "debase"
+    assert_equal(needed_frame_length, frames.length)
+
     frame1 = frames[0]
     assert_equal(@test2_path, frame1.file)
     assert_equal(1, frame1.no)
@@ -27,7 +31,11 @@ module ThreadsAndFrames
     assert_test_breakpoint(4)
     send_ruby("w")
     frames = read_frames
-    assert_equal(1, frames.length)
+
+    needed_frame_length = 1
+    needed_frame_length += 2 if Debugger::FRONT_END == "debase"
+
+    assert_equal(needed_frame_length, frames.length)
     send_cont # test:4 -> test2:3
     assert_breakpoint("test2.rb", 3)
     send_cont # test2:3 -> finish
@@ -42,7 +50,11 @@ module ThreadsAndFrames
         "def calc", "5 + 5", "end", "start_thread()", "calc()"]
     run_to_line(5)
     send_ruby("w")
-    assert_equal(2, read_frames.length)
+
+    needed_length = 2
+    needed_length += 2 if Debugger::FRONT_END == "debase"
+
+    assert_equal(needed_length, read_frames.length)
     send_cont
   end
   
