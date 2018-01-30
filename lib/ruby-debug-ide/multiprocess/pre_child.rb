@@ -11,7 +11,7 @@ module Debugger
             'frame_bind'  => false,
             'host'        => host,
             'load_mode'   => false,
-            'port'        => find_free_port(host),
+            'port'        => Debugger.find_free_port(host),
             'stop'        => false,
             'tracing'     => false,
             'int_handler' => true,
@@ -24,7 +24,7 @@ module Debugger
         )
 
         if(options.ignore_port)
-          options.port = find_free_port(options.host)
+          options.port = Debugger.find_free_port(options.host)
           options.notify_dispatcher = true
         end
       
@@ -53,14 +53,6 @@ module Debugger
         Debugger.inspect_time_limit = options.inspect_time_limit
         Debugger.cli_debug = options.cli_debug
         Debugger.prepare_debugger(options)
-      end
-
-
-      def find_free_port(host)
-        server = TCPServer.open(host, 0)
-        port   = server.addr[1]
-        server.close
-        port
       end
     end
   end

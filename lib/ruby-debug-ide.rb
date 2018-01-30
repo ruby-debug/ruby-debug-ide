@@ -18,6 +18,13 @@ require 'ruby-debug-ide/event_processor'
 module Debugger
 
   class << self
+    def find_free_port(host)
+      server = TCPServer.open(host, 0)
+      port   = server.addr[1]
+      server.close
+      port
+    end
+
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
     def print_debug(*args)
       if Debugger.cli_debug
@@ -111,9 +118,14 @@ module Debugger
           # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
-          server = TCPServer.new(host, port)
-          print_greeting_msg($stderr, host, port) if defined? IDE_VERSION
-          notify_dispatcher(port) if notify_dispatcher
+
+          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port|
+            print_greeting_msg($stderr, host, real_port)
+            TCPServer.new(host, real_port) if defined? IDE_VERSION
+          end
+
+          return unless server
+
           while (session = server.accept)
             $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
@@ -141,8 +153,9 @@ module Debugger
 
     private
 
+    def notify_dispatcher_if_needed(host, port, need_notify)
+      return yield port unless need_notify
 
-    def notify_dispatcher(port)
       return unless ENV['IDE_PROCESS_DISPATCHER']
       acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
       acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
@@ -151,11 +164,19 @@ module Debugger
       3.times do |i|
         begin
           s = TCPSocket.open(acceptor_host, acceptor_port)
+          dispatcher_answer = s.gets.chomp
+
+          if dispatcher_answer == "true"
+            port = Debugger.find_free_port(host)
+          end
+
+          server = yield port
+
           s.print(port)
           s.close
           connected = true
           print_debug "Ide process dispatcher notified about sub-debugger which listens on #{port}\n"
-          return
+          return server
         rescue => bt
           $stderr.puts "#{Process.pid}: connection failed(#{i+1})"
           $stderr.puts "Exception: #{bt}"
@@ -164,7 +185,6 @@ module Debugger
         end unless connected
       end
     end
-
   end
 
   class Exception # :nodoc:
