@@ -13,7 +13,7 @@ end
 gem "ruby-debug-base", :platforms => [:jruby, *mries('18')]
 gem "ruby-debug-base19x", ">= 0.11.32", :platforms => mries('19')
 if RUBY_VERSION && RUBY_VERSION >= "2.0"
-  gem "debase", ">= 0.2.2.beta14", :platforms => mries('20', '21', '22', '23', '24', '25')
+  gem "debase", "~> 0.2.2", :platforms => mries('20', '21', '22', '23', '24', '25')
 end
 
 gemspec
