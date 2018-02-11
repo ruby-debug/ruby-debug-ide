@@ -10,7 +10,7 @@ require 'ruby-debug-ide/ide_processor'
 module Debugger
 
   class << self
-    def print_greeting_msg(stream, host, port)
+    def print_greeting_msg(stream, host, port, debugger_name = "Fast")
       base_gem_name = if defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0'
                         'ruby-debug-base'
                       elsif RUBY_VERSION < '2.0.0'
@@ -31,7 +31,7 @@ module Debugger
         listens_on = "\n"
       end
 
-      msg = "Fast Debugger (ruby-debug-ide #{IDE_VERSION}, #{base_gem_name} #{VERSION}, file filtering is #{file_filtering_support})" + listens_on
+      msg = "#{debugger_name} Debugger (ruby-debug-ide #{IDE_VERSION}, #{base_gem_name} #{VERSION}, file filtering is #{file_filtering_support})" + listens_on
 
       stream.printf msg
     end

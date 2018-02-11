@@ -119,9 +119,10 @@ module Debugger
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
 
-          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port|
-            print_greeting_msg($stderr, host, real_port)
-            TCPServer.new(host, real_port) if defined? IDE_VERSION
+          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed = false|
+            server = TCPServer.new(host, real_port) if defined? IDE_VERSION
+            print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast"
+            server
           end
 
           return unless server
@@ -170,7 +171,7 @@ module Debugger
             port = Debugger.find_free_port(host)
           end
 
-          server = yield port
+          server = yield port, dispatcher_answer == "true"
 
           s.print(port)
           s.close
