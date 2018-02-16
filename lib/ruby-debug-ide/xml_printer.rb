@@ -144,15 +144,24 @@ module Debugger
       end
     end
 
+    class HashItem
+      attr_accessor :key, :value
+
+      def initialize(key, value)
+        @key = key
+        @value = value
+      end
+
+      def to_s
+        "#{key} => #{value}"
+      end
+    end
+
     def print_hash(hash)
       print_element("variables") do
-        hash.keys.each {|k|
-          if k.class.name == "String"
-            name = '\'' + k + '\''
-          else
-            name = exec_with_allocation_control(k, :to_s, OverflowMessageType::EXCEPTION_MESSAGE)
-          end
-          print_variable(name, hash[k], 'instance')
+        hash.keys.each_with_index {|k, i|
+          hash
+          print_variable(i, HashItem.new(k, hash[k]), 'instance')
         }
       end
     end
