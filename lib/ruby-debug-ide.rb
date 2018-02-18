@@ -120,8 +120,8 @@ module Debugger
           host ||= '127.0.0.1'
 
           server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed = false|
-            server = TCPServer.new(host, real_port) if defined? IDE_VERSION
-            print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast"
+            server = TCPServer.new(host, real_port)
+            print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
             server
           end
 
