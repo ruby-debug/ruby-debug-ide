@@ -58,6 +58,26 @@ module InspectTest
     send_cont
   end
 
+  def test_inspect_expr_with_timeout
+    create_socket ["require 'timeout'", "puts 'test'"]
+    run_to_line(2)
+    send_ruby("v inspect (Timeout::timeout(10) { nil })")
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned which is nil.")
+    assert_equal(nil, variables[0].value)
+    send_cont
+  end
+
+  def test_inspect_failing_expr_with_timeout
+    create_socket ["require 'timeout'", "puts 'test'"]
+    run_to_line(2)
+    send_ruby("v inspect (Timeout::timeout(0.1) { sleep 0.2 })")
+    variables = read_variables
+    assert_equal(1, variables.length, "There is one variable returned which is nil.")
+    assert_equal("Timeout::Error", variables[0].type)
+    send_cont
+  end
+
   def test_inspect_multiline_expression
     create_socket ["sleep 0.1"]
     run_to_line(1)
