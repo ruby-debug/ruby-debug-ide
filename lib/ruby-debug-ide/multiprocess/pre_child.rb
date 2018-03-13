@@ -1,6 +1,19 @@
 module Debugger
   module MultiProcess
     class << self
+
+      def set_starter
+        ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB']
+
+        old_opts = ENV['RUBYOPT'] || ''
+        starter = "-r#{File.expand_path(File.dirname(__FILE__))}/starter"
+
+        unless old_opts.include? starter
+          ENV['RUBYOPT'] = starter
+          ENV['RUBYOPT'] += " #{old_opts}" if old_opts != ''
+        end
+      end
+
       def pre_child(options = nil)
         require 'socket'
         require 'ostruct'

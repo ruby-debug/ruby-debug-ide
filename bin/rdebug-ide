@@ -142,13 +142,7 @@ if options.dispatcher_port != -1
   end
   Debugger::MultiProcess.do_monkey
 
-  ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB']
-  old_opts = ENV['RUBYOPT'] || ''
-  starter = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
-  unless old_opts.include? starter
-    ENV['RUBYOPT'] = starter
-    ENV['RUBYOPT'] += " #{old_opts}" if old_opts != ''
-  end
+  Debugger::MultiProcess.set_starter
   ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug.to_s
 end
 
