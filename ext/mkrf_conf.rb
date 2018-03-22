@@ -1,11 +1,6 @@
 jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
 rbx = defined?(RUBY_ENGINE) && 'rbx' == RUBY_ENGINE
 
-def already_installed(dep)
-  !Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep).empty? ||
-  !Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep).empty?    
-end
-
 unless jruby || rbx
   require 'rubygems'
   require 'rubygems/command.rb'
@@ -14,14 +9,14 @@ unless jruby || rbx
 
   begin
     Gem::Command.build_args = ARGV
-    rescue NoMethodError
+  rescue NoMethodError
   end
 
   if RUBY_VERSION < "1.9"
     dep = Gem::Dependency.new("ruby-debug-base", '>=0.10.4')
   elsif RUBY_VERSION < '2.0'
     dep = Gem::Dependency.new("ruby-debug-base19x", '>=0.11.30.pre15')
-  else    
+  else
     dep = Gem::Dependency.new("debase", '> 0')
   end
 
@@ -38,7 +33,7 @@ unless jruby || rbx
       puts e.backtrace.join "\n  "
       exit(1)
     end
-  end unless dep.nil? || already_installed(dep)
+  end unless dep.nil? || dep.matching_specs.any?
 end
 
 # create dummy rakefile to indicate success
