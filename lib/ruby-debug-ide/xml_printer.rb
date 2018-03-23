@@ -442,7 +442,7 @@ module Debugger
     def print_element(name)
       print("<#{name}>")
       begin
-        yield
+        yield if block_given?
       ensure
         print("</#{name}>")
       end
