@@ -6,7 +6,6 @@ if ENV['IDE_PROCESS_DISPATCHER']
   end
   require 'ruby-debug-ide'
   require 'ruby-debug-ide/multiprocess'
-  require 'ruby-debug-ide/thread_alias'
   Debugger::MultiProcess::do_monkey
   Debugger::MultiProcess::pre_child
 end
