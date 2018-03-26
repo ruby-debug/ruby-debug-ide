@@ -4,6 +4,7 @@ else
   require 'debase'
 end
 
+require 'ruby-debug-ide/thread_alias'
 require 'ruby-debug-ide/helper'
 require 'delegate'
 
