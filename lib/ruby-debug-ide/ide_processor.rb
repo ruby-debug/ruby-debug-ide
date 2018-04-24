@@ -90,6 +90,8 @@ module Debugger
         end
       end
     rescue ::Exception
+      # Workaround to Disconnect in Paused State
+      return @interface.command_queue << "finish" if $!.message === 'closed stream'
       @printer.print_debug "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
       @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil

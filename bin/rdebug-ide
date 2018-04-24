@@ -28,7 +28,8 @@ options = OpenStruct.new(
     'value_as_nested_element' => false,
     'attach_mode' => false,
     'cli_debug' => false,
-    'key_value_mode' => false
+    'key_value_mode' => false,
+    'server_mode' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -84,6 +85,9 @@ EOB
   opts.on("--key-value", "Key/Value presentation of hash items") do
     options.key_value_mode = true
   end
+  opts.on("--server-mode", "Tells that rdebug-ide is working in server mode") do
+    options.server_mode = true
+  end
   opts.on("--ignore-port", "Generate another port") do
     options.ignore_port = true
   end
@@ -137,13 +141,7 @@ end
 
 if options.dispatcher_port != -1
   ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
-  if RUBY_VERSION < "1.9"
-    lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
-    $: << lib_path unless $:.include? lib_path
-    require 'ruby-debug-ide/multiprocess'
-  else
-    require_relative '../lib/ruby-debug-ide/multiprocess'
-  end
+  Debugger.require_multiprocess
   Debugger::MultiProcess.do_monkey
 
   ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB']
@@ -171,8 +169,11 @@ Debugger.inspect_time_limit = options.inspect_time_limit
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
 Debugger.key_value_mode = options.key_value_mode
+Debugger.server_mode = options.server_mode
 
 if options.attach_mode
+  Debugger.require_multiprocess
+
   if Debugger::FRONT_END == "debase"
     Debugger.init_variables
   end

@@ -136,11 +136,13 @@ module Debugger
     end
 
     def execute
+      Debugger.require_multiprocess
+      interface.command_queue << "finish" if Debugger.server_mode
       Debugger.stop
       Debugger.interface.close
       Debugger::MultiProcess.undo_monkey
       Debugger.control_thread = nil
-      Thread.current.exit #@control_thread is a current thread
+      Thread.current.exit unless Debugger.server_mode #@control_thread is a current thread
     end
 
     class << self

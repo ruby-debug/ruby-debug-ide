@@ -18,6 +18,16 @@ require 'ruby-debug-ide/event_processor'
 module Debugger
 
   class << self
+    def require_multiprocess
+      if RUBY_VERSION < "1.9"
+        lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
+        $: << lib_path unless $:.include? lib_path
+        require 'ruby-debug-ide/multiprocess'
+      else
+        require_relative '../lib/ruby-debug-ide/multiprocess'
+      end
+    end
+
     def find_free_port(host)
       server = TCPServer.open(host, 0)
       port   = server.addr[1]
@@ -58,6 +68,7 @@ module Debugger
     attr_reader :interface
     # protocol extensions
     attr_accessor :catchpoint_deleted_event, :value_as_nested_element
+    attr_accessor :server_mode
 
 
     #
@@ -89,7 +100,7 @@ module Debugger
 
       # wait for 'start' command
       @mutex.synchronize do
-        @proceed.wait(@mutex)
+        @proceed.wait(@mutex) unless server_mode
       end
     end
 
