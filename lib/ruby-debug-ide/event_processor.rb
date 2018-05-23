@@ -57,6 +57,7 @@ require 'ruby-debug-ide/xml_printer'
        @printer.print_debug("Threads equal: %s", Thread.current == context.thread)
        IdeCommandProcessor.new(@interface).process_commands
        InspectCommand.clear_references
+       Debugger.remove_pause_flags if Debugger.respond_to?(:remove_pause_flags)
        @printer.print_debug("Resumed Thread %s", context.thread.to_s)
        @line = nil
        @file = nil
