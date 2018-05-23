@@ -9,6 +9,14 @@ module Debugger
     end
 
     def execute
+
+      #only for debase versions > 0.2.3.beta1
+      if Debugger.respond_to?(:thread_context)
+        Thread.list.each do |th|
+          Debugger.thread_context th unless th.is_a? DebugThread
+        end
+      end
+
       Debugger.contexts.each do |c|
         unless c.respond_to?(:pause)
           print_msg "Not implemented"
