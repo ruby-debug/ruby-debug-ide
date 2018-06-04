@@ -82,9 +82,9 @@ class TestBase < Test::Unit::TestCase
     config_load('debug_jruby')
   end
 
-  def start_ruby_process(script)
+  def start_ruby_process(script, additional_opts = '')
     @port = TestBase.find_free_port
-    cmd = debug_command(script, @port)
+    cmd = debug_command(script, @port, additional_opts)
     debug "Starting: #{cmd}\n"
 
     Thread.new do
@@ -147,10 +147,10 @@ class TestBase < Test::Unit::TestCase
 
   # Creates test.rb with the given lines, set up @test_name and @test_path
   # variables and then start the process.
-  def create_socket(lines)
+  def create_socket(lines, additional_opts = '')
     @test_name = "test.rb"
     @test_path = create_file(@test_name, lines)
-    start_ruby_process(@test_path)
+    start_ruby_process(@test_path, additional_opts)
   end
 
   def socket
