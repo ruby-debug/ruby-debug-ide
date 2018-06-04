@@ -199,22 +199,64 @@ module VariablesTest
     send_cont
   end
 
+  def test_new_hash_presentation
+    create_socket ['class A',
+                   '  def to_s',
+                   '    "A instance"',
+                   '  end',
+                   'end',
+
+                   'class C',
+                   '  def to_s',
+                   '    "C instance"',
+                   '  end',
+                   'end',
+
+                   'b = Hash.new',
+                   'c = C.new',
+                   'a = A.new',
+                   'b[1] = a',
+                   'b[a] = "1"',
+                   'b[c] = a',
+                   'puts b #bp here'], '--key-value'
+    run_to_line(17)
+    send_ruby('v l')
+    assert_variables(read_variables, 3,
+                     {:name => "a", :value => "A instance",:type => "A"},
+                     {:name => "b", :value => "Hash (3 elements)", :type => "Hash"},
+                     {:name => "c", :value => "C instance", :type => "C"})
+
+    send_ruby("v i b")
+
+    assert_variables(read_variables, 6,
+                     {:name => "key", :value => "1"},
+                     {:name => "value", :value => "A instance", :type => "A"},
+
+                     {:name => "key", :value => "A instance", :type => "A"},
+                     {:name => "value", :value => "1", :type => "String"},
+
+                     {:name => "key", :value => "C instance", :type => "C"},
+                     {:name => "value", :value => "A instance", :type => "A"})
+    send_cont
+  end
+
   def test_to_s_timelimit
     create_socket ['class A',
-      'def to_s',
-        'a = 1',
-        'loop do',
-          'a = a + 1',
-          'sleep 1',
-          'break if (a > 2)',
-        'end',
-        'a.to_s',
-      'end',
-    'end',
-    'b = Hash.new',
-    'b[A.new] = A.new',
-    'b[1] = A.new',
-    'puts b #bp here']
+                    'def to_s',
+                      'a = 1',
+                      'loop do',
+                        'a = a + 1',
+                        'sleep 1',
+                        'break if (a > 2)',
+                      'end',
+                      'a.to_s',
+                    'end',
+                   'end',
+
+                   'b = Hash.new',
+                   'b[A.new] = A.new',
+                   'b[1] = A.new',
+                   'puts b #bp here'], '--evaluation-control --time-limit 100 --memory-limit 0'
     run_to_line(15)
     send_ruby('v l')
     assert_variables(read_variables, 1,

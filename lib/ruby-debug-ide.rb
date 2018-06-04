@@ -51,6 +51,7 @@ module Debugger
     end
 
     attr_accessor :attached
+    attr_accessor :key_value_mode
     attr_accessor :cli_debug, :xml_debug, :evaluation_timeout
     attr_accessor :trace_to_s, :debugger_memory_limit, :inspect_time_limit
     attr_accessor :control_thread
