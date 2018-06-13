@@ -28,7 +28,8 @@ options = OpenStruct.new(
     'value_as_nested_element' => false,
     'attach_mode' => false,
     'cli_debug' => false,
-    'gdb_wrapper_pid' => nil
+    'gdb_wrapper_pid' => nil,
+    'key_value_mode' => false
 )
 
 opts = OptionParser.new do |opts|
@@ -82,6 +83,9 @@ EOB
   end
   opts.on("--attach-mode", "Tells that rdebug-ide is working in attach mode") do
     options.attach_mode = true
+  end
+  opts.on("--key-value", "Key/Value presentation of hash items") do
+    options.key_value_mode = true
   end
   opts.on("--ignore-port", "Generate another port") do
     options.ignore_port = true
@@ -169,6 +173,7 @@ Debugger.debugger_memory_limit = options.debugger_memory_limit
 Debugger.inspect_time_limit = options.inspect_time_limit
 Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
 Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
+Debugger.key_value_mode = options.key_value_mode
 
 if options.attach_mode
   at_exit {Process.kill('INT', options.gdb_wrapper_pid)} if options.gdb_wrapper_pid
