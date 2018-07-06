@@ -120,7 +120,7 @@ module Debugger
           # "localhost" and nil have problems on some systems.
           host ||= '127.0.0.1'
 
-          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed = false|
+          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
             s = TCPServer.new(host, real_port)
             print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
             s
