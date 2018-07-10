@@ -28,7 +28,6 @@ options = OpenStruct.new(
     'value_as_nested_element' => false,
     'attach_mode' => false,
     'cli_debug' => false,
-    'gdb_wrapper_pid' => nil,
     'key_value_mode' => false
 )
 
@@ -44,8 +43,6 @@ EOB
 
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}
-  opts.on("-gdbp", "--gdb-wrapper-pid PID", Integer, "Pid of corresponding gdb_wrapper (for attach case)") {|pid| options.gdb_wrapper_pid = pid}
-
   opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp|
     options.dispatcher_port = dp
   end
@@ -176,7 +173,6 @@ Debugger.value_as_nested_element = options.value_as_nested_element || options.rm
 Debugger.key_value_mode = options.key_value_mode
 
 if options.attach_mode
-  at_exit {Process.kill('INT', options.gdb_wrapper_pid)} if options.gdb_wrapper_pid
   if Debugger::FRONT_END == "debase"
     Debugger.init_variables
   end

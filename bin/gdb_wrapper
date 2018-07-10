@@ -65,10 +65,7 @@ unless options.ruby_path
   exit 1
 end
 
-main_process_argv = ARGV
-main_process_argv << '--gdb-wrapper-pid' << "#{Process.pid}"
-argv = '["' + main_process_argv * '", "' + '"]'
-
+argv = '["' + ARGV * '", "' + '"]'
 child_argv = '["' + ARGV * '", "' + "', '--ignore-port" + '"]'
 debugger_loader_path = File.expand_path(File.dirname(__FILE__)) + '/../lib/ruby-debug-ide/attach/debugger_loader'
 
