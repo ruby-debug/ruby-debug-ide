@@ -69,6 +69,10 @@ module InspectTest
   end
 
   def test_inspect_failing_expr_with_timeout
+    if RUBY_VERSION < "1.9"
+      @process_finished = true
+      return
+    end
     create_socket ["require 'timeout'", "puts 'test'"]
     run_to_line(2)
     send_ruby("v inspect (Timeout::timeout(0.1) { sleep 0.2 })")
