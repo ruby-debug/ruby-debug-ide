@@ -459,8 +459,7 @@ module Debugger
     end
 
     def print_element(name, additional_tags = nil)
-      additional_tags_presentation = additional_tags.nil? ? ''
-                                         : additional_tags.map {|tag, value| " #{tag}=\"#{value}\""}.reduce(:+)
+      additional_tags_presentation = additional_tags.nil? ? '' : additional_tags.map {|tag, value| " #{tag}=\"#{value}\""}.reduce(:+)
 
       print("<#{name}#{additional_tags_presentation}>")
       begin
