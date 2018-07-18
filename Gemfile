@@ -10,7 +10,9 @@ def mries(*versions)
   end.flatten
 end
 
-gem "ruby-debug-base", :platforms =>  [:jruby, *mries('18')]
+if RUBY_VERSION < '1.9' || defined?(JRUBY_VERSION)
+  gem "ruby-debug-base", :platforms =>  [:jruby, *mries('18')]
+end
 
 if RUBY_VERSION && RUBY_VERSION >= "1.9"
   gem "ruby-debug-base19x", ">= 0.11.32", :platforms => mries('19')
