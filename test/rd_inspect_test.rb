@@ -9,3 +9,7 @@ class RDInspectTest < RDTestBase
 
 end
 
+class RDUNIXInspectTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include InspectTest
+end

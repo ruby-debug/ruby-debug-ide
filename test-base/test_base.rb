@@ -7,6 +7,7 @@ require 'fileutils'
 require 'socket'
 require 'readers'
 require 'test/unit'
+require 'thread'
 require 'tmpdir'
 require 'open3'
 require 'yaml'
@@ -24,6 +25,14 @@ class TestBase < Test::Unit::TestCase
     @port = nil
     @parser = nil
     @fast_fail = nil
+    @socket_path = nil
+  end
+
+  module UseUNIXDomainSocket
+    def setup
+      super
+      @use_unix_socket = true
+    end
   end
 
   def setup
@@ -36,6 +45,9 @@ class TestBase < Test::Unit::TestCase
 
     # XXX: tmpdir unique to test, probably parse out from self.name
     FileUtils.mkdir_p(TMP_DIR)
+
+    @use_unix_socket = false
+    @socket_path = nil
   end
   
   # Loads key from the _config_._yaml_ file.
@@ -83,8 +95,12 @@ class TestBase < Test::Unit::TestCase
   end
 
   def start_ruby_process(script, additional_opts = '')
-    @port = TestBase.find_free_port
-    cmd = debug_command(script, @port, additional_opts)
+    if !@use_unix_socket
+      @port = TestBase.find_free_port
+    else
+      @socket_path = TestBase.next_socket_path
+    end
+    cmd = debug_command(script, @port, @socket_path, additional_opts)
     debug "Starting: #{cmd}\n"
 
     Thread.new do
@@ -131,6 +147,17 @@ class TestBase < Test::Unit::TestCase
     end
   end
 
+  @@socket_path_seq_mutex = Mutex.new
+  @@socket_path_sequence_num = 0
+  def self.next_socket_path
+    seq_num = @@socket_path_seq_mutex.synchronize do
+      i = @@socket_path_sequence_num
+      @@socket_path_sequence_num += 1
+      i
+    end
+    File.join(TMP_DIR, "d#{seq_num}.sock")
+  end
+
   def create_file(script_name, lines)
     file = File.join(TMP_DIR, script_name)
     script_path = RUBY_VERSION >= "1.9" ? File.realdirpath(file) : file.to_s
@@ -161,9 +188,16 @@ class TestBase < Test::Unit::TestCase
       debug "Trying to connect to the debugger..."
       (config_load('server_start_up_timeout')*4).downto(1) do |i|
         begin
-          @socket = TCPSocket.new("127.0.0.1", @port)
+          if @socket_path
+            @socket = UNIXSocket.new(@socket_path)
+          else
+            @socket = TCPSocket.new("127.0.0.1", @port)
+          end
           break
         rescue Errno::ECONNREFUSED
+          debug '.'
+          sleep 0.5
+        rescue Errno::ENOENT
           debug '.'
           sleep 0.5
         end
