@@ -173,7 +173,7 @@ module Debugger
       if filename.index(File::SEPARATOR) || File::ALT_SEPARATOR && filename.index(File::ALT_SEPARATOR)
         filename = File.expand_path(filename)
       end
-      if (RUBY_VERSION < '1.9') || (RbConfig::CONFIG['host_os'] =~ /mswin/)
+      if (RUBY_VERSION < '1.9') || Debugger.is_windows
         filename
       else
         filename = File.realpath(filename) rescue filename

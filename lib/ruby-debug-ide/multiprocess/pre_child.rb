@@ -5,13 +5,11 @@ module Debugger
         require 'socket'
         require 'ostruct'
 
-        host = ENV['DEBUGGER_HOST']
-
         options ||= OpenStruct.new(
             'frame_bind'  => false,
-            'host'        => host,
+            'host'        => ENV['DEBUGGER_HOST'],
             'load_mode'   => false,
-            'port'        => Debugger.find_free_port(host),
+            'port'        => ENV['DEBUGGER_PORT'],
             'stop'        => false,
             'tracing'     => false,
             'int_handler' => true,
@@ -23,8 +21,7 @@ module Debugger
             'inspect_time_limit' => 100
         )
 
-        if(options.ignore_port)
-          options.port = Debugger.find_free_port(options.host)
+        if options.ignore_port
           options.notify_dispatcher = true
         end
       
