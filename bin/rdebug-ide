@@ -17,6 +17,7 @@ options = OpenStruct.new(
     'port'        => 1234,
     'stop'        => false,
     'tracing'     => false,
+    'skip_wait_for_start' => false,
     'int_handler' => true,
     'dispatcher_port' => -1,
     'evaluation_timeout' => 10,
@@ -67,6 +68,7 @@ EOB
 
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
+  opts.on("--skip_wait_for_start", "skip wait for 'start' command") {options.skip_wait_for_start = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.cli_debug = true
