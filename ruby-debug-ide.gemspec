@@ -45,7 +45,4 @@ EOF
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
   spec.rubyforge_project = 'debug-commons'
-
-  # rdoc
-  spec.has_rdoc = false
 end
