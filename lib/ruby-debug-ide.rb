@@ -166,6 +166,7 @@ module Debugger
 
       3.times do |i|
         begin
+          $stderr.puts "#{Process.pid}: go create dispatcher socket #{acceptor_host} #{acceptor_port}"
           s = TCPSocket.open(acceptor_host, acceptor_port)
           dispatcher_answer = s.gets.chomp
 
