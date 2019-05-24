@@ -1,3 +1,4 @@
+install_dir = File.expand_path("../../../..", __FILE__)
 jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
 rbx = defined?(RUBY_ENGINE) && 'rbx' == RUBY_ENGINE
 
@@ -27,11 +28,11 @@ unless jruby || rbx
 
   begin
     puts "Installing base gem"
-    inst = Gem::DependencyInstaller.new :prerelease => dep.prerelease?
+    inst = Gem::DependencyInstaller.new :prerelease => dep.prerelease?, :install_dir => install_dir
     inst.install dep
   rescue
     begin
-      inst = Gem::DependencyInstaller.new(:prerelease => true)
+      inst = Gem::DependencyInstaller.new(:prerelease => true, :install_dir => install_dir)
       inst.install dep
     rescue Exception => e
       puts e
