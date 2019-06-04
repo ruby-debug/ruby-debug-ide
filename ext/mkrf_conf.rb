@@ -28,7 +28,7 @@ unless jruby || rbx
 
   begin
     puts "Installing base gem"
-    inst = Gem::DependencyInstaller.new :prerelease => dep.prerelease?, :install_dir => install_dir
+    inst = Gem::DependencyInstaller.new(:prerelease => dep.prerelease?, :install_dir => install_dir)
     inst.install dep
   rescue
     begin
