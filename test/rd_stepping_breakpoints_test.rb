@@ -34,3 +34,7 @@ class RDSteppingAndBreakpointsTest < RDTestBase
 
 end
 
+class RDUNIXSteppingAndBreakpointsTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include SteppingAndBreakpointsTest
+end

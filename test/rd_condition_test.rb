@@ -9,3 +9,7 @@ class RDConditionTest < RDTestBase
 
 end
 
+class RDUNIXConditionTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include ConditionTest
+end

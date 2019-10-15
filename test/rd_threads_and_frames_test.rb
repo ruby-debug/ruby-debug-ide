@@ -9,3 +9,7 @@ class RDThreadsAndFrames < RDTestBase
 
 end
 
+class RDUNIXThreadsAndFrames < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include ThreadsAndFrames
+end
