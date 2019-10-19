@@ -38,8 +38,6 @@ EOF
   spec.bindir = "bin"
   spec.executables = ["rdebug-ide", "gdb_wrapper"]
   spec.files = FILES
-
-  spec.extensions << "ext/mkrf_conf.rb" unless ENV['NO_EXT']
   spec.add_dependency("rake", ">= 0.8.1")
 
   spec.required_ruby_version = '>= 1.8.2'
