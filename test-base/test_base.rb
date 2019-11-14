@@ -132,8 +132,9 @@ class TestBase < Test::Unit::TestCase
   end
 
   def create_file(script_name, lines)
-    script_path = File.realdirpath(File.join(TMP_DIR, script_name))
-    
+    file = File.join(TMP_DIR, script_name)
+    script_path = RUBY_VERSION >= "1.9" ? File.realdirpath(file) : file.to_s
+
     File.open(script_path, "w") do |script|
       script.printf(lines.join("\n"))
     end
@@ -142,7 +143,9 @@ class TestBase < Test::Unit::TestCase
 
   def create_test2(lines)
     @test2_name = "test2.rb"
-    @test2_path = create_file(@test2_name, lines).force_encoding(Encoding::UTF_8)
+    @test2_path = create_file(@test2_name, lines)
+
+    @test2_path = @test2_path.force_encoding(Encoding::UTF_8) if RUBY_VERSION >= "1.9"
   end
 
   # Creates test.rb with the given lines, set up @test_name and @test_path

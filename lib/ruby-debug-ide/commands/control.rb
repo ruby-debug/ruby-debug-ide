@@ -22,13 +22,13 @@ module Debugger
 
       def help(cmd)
         %{
-          q[uit]\texit from debugger, 
+          q[uit]\texit from debugger,
           exit\talias to quit
         }
       end
     end
   end
-  
+
   class RestartCommand < Command # :nodoc:
     self.control = true
 
@@ -39,7 +39,7 @@ module Debugger
       $
       /x
     end
-    
+
     def execute
       if not defined? Debugger::RDEBUG_SCRIPT or not defined? Debugger::ARGV
         print "We are not in a context we can restart from.\n"
@@ -64,7 +64,7 @@ module Debugger
 
       def help(cmd)
         %{
-          restart|R [args] 
+          restart|R [args]
           Restart the program. This is is a re-exec - all debugger state
           is lost. If command arguments are passed those are used.
         }
@@ -78,7 +78,7 @@ module Debugger
     def regexp
       /^\s*(start)(\s+ \S+ .*)?$/x
     end
-    
+
     def execute
       @printer.print_debug("Starting: running program script")
       Debugger.run_prog_script #Debugger.prog_script_running?
@@ -102,23 +102,23 @@ module Debugger
     self.event = false
     self.control = true
     self.need_context = true
-    
+
     def regexp
       /^\s*i(?:nterrupt)?\s*$/
     end
-    
+
     def execute
       unless Debugger.interrupt_last
         context = Debugger.thread_context(Thread.main)
         context.interrupt
       end
     end
-    
+
     class << self
       def help_command
         'interrupt'
       end
-      
+
       def help(cmd)
         %{
           i[nterrupt]\tinterrupt the program
@@ -137,12 +137,12 @@ module Debugger
 
     def execute
       Debugger.require_multiprocess
-      interface.command_queue << "finish" if Debugger.server_mode
+      interface.command_queue << "finish" if Debugger.skip_wait_for_start
       Debugger.stop
       Debugger.interface.close
       Debugger::MultiProcess.undo_monkey
       Debugger.control_thread = nil
-      Thread.current.exit unless Debugger.server_mode #@control_thread is a current thread
+      Thread.current.exit unless Debugger.skip_wait_for_start #@control_thread is a current thread
     end
 
     class << self

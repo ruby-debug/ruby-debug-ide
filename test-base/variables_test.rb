@@ -100,7 +100,9 @@ module VariablesTest
   end
 
   def test_variable_instance
-    create_socket ["require_relative 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
+    require_string = RUBY_VERSION < "1.9" ? "require" : "require_relative"
+
+    create_socket ["#{require_string} 'test2.rb'", "custom_object=Test2.new", "puts custom_object"]
     create_test2 ["class Test2", "def initialize", "@y=5", "end", "def to_s", "'test'", "end", "end"]
     run_to("test2.rb", 6)
     frame_number = 3
@@ -130,8 +132,9 @@ module VariablesTest
     assert_variables(read_variables, 1,
       {:name => "hash", :hasChildren => true})
     send_ruby("v i hash")
+    expected_name = CGI::escapeHTML("'a'")
     assert_variables(read_variables, 2,
-      {:name => CGI.escape_html("'a'"), :value => "z", :type => "String"})
+      {:name => expected_name, :value => "z", :type => "String"})
     send_cont
   end
 
@@ -228,7 +231,13 @@ module VariablesTest
 
     send_ruby("v i b")
 
-    assert_variables(read_variables, 6,
+    variables = []
+
+    read_variables.each_slice(2) do |var|
+      variables << var
+    end
+
+    assert_variables(variables.sort_by{|a| a[0].value}.flatten, 6,
                      {:name => "key", :value => "1"},
                      {:name => "value", :value => "A instance", :type => "A"},
 
@@ -241,6 +250,11 @@ module VariablesTest
   end
 
   def test_to_s_timelimit
+    #no TracePointApi for old versions
+    if RUBY_VERSION <= "1.9"
+      @process_finished = true
+      return
+    end
     create_socket ['class A',
                     'def to_s',
                       'a = 1',

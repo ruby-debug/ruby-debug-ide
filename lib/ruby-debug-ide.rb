@@ -68,7 +68,7 @@ module Debugger
     attr_reader :interface
     # protocol extensions
     attr_accessor :catchpoint_deleted_event, :value_as_nested_element
-    attr_accessor :server_mode
+    attr_accessor :skip_wait_for_start
 
 
     #
@@ -100,8 +100,8 @@ module Debugger
 
       # wait for 'start' command
       @mutex.synchronize do
-        @proceed.wait(@mutex) unless server_mode
-      end
+        @proceed.wait(@mutex)
+      end unless options.skip_wait_for_start
     end
 
     def debug_program(options)
