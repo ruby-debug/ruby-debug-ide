@@ -161,6 +161,11 @@ module Debugger
           else
             name = exec_with_allocation_control(k, :to_s, OverflowMessageType::EXCEPTION_MESSAGE)
           end
+
+          if k.nil?
+            name = 'nil'
+          end
+
           print_variable(name, v, 'instance')
         }
       end
