@@ -23,7 +23,7 @@ module Debugger
         return unless pos
         breakpoints.each do |b|
           if b.id == pos 
-            b.expr = @match[2].empty? ? nil : @match[2]
+            b.expr = @match[2].empty? ? nil : Command.unescape_incoming(@match[2])
             print_contdition_set(b.id)
             break
           end
