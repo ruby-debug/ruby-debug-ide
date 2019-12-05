@@ -73,17 +73,23 @@ module Debugger
       end
     end
 
-    def start_server(host = nil, port = 1234, notify_dispatcher = false, socket_path: nil)
-      return if started?
-      start
-      start_control(host, port, notify_dispatcher, socket_path: socket_path)
+    def start_server(host = nil, port = 1234, notify_dispatcher = false)
+      _start_server_common(host, port, nil, notify_dispatcher)
+    end
+
+    def start_server_unix(socket_path, notify_dispatcher = false)
+      _start_server_common(nil, 0, socket_path, notify_dispatcher)
     end
 
     def prepare_debugger(options)
       @mutex = Mutex.new
       @proceed = ConditionVariable.new
 
-      start_server(options.host, options.port, options.notify_dispatcher, socket_path: options.socket_path)
+      if options.socket_path.nil?
+        start_server(options.host, options.port, options.notify_dispatcher)
+      else
+        start_server_unix(options.socket_path, options.notify_dispatcher)
+      end
 
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
 
@@ -111,7 +117,23 @@ module Debugger
       end
     end
 
-    def start_control(host, port, notify_dispatcher, socket_path: nil)
+    def start_control(host, port, notify_dispatcher)
+      _start_control_common(host, port, nil, notify_dispatcher)
+    end
+
+    def start_control_unix(socket_path, notify_dispatcher)
+      _start_control_common(nil, 0, socket_path, notify_dispatcher)
+    end
+
+    private
+
+    def _start_server_common(host, port, socket_path, notify_dispatcher)
+      return if started?
+      start
+      _start_control_common(host, port, socket_path, notify_dispatcher)
+    end
+
+    def _start_control_common(host, port, socket_path, notify_dispatcher)
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
@@ -130,7 +152,7 @@ module Debugger
             raise "Cannot specify host and socket_file at the same time" if host
             File.delete(socket_path) if File.exist?(socket_path)
             server = UNIXServer.new(socket_path)
-            print_greeting_msg $stderr, nil, nil, "Fast", socket_path: socket_path if defined? IDE_VERSION
+            print_greeting_msg $stderr, nil, nil, "Fast", socket_path if defined? IDE_VERSION
           end
 
           return unless server
@@ -165,8 +187,6 @@ module Debugger
         end
       end
     end
-
-    private
 
     def notify_dispatcher_if_needed(host, port, need_notify)
       return yield port unless need_notify
