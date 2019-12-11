@@ -8,3 +8,8 @@ class RDSteppingAndBreakpointsTest < RDTestBase
   include BasicTest
 
 end
+
+class RDUNIXSteppingAndBreakpointsTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include BasicTest
+end

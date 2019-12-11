@@ -74,16 +74,22 @@ module Debugger
     end
 
     def start_server(host = nil, port = 1234, notify_dispatcher = false)
-      return if started?
-      start
-      start_control(host, port, notify_dispatcher)
+      _start_server_common(host, port, nil, notify_dispatcher)
+    end
+
+    def start_server_unix(socket_path, notify_dispatcher = false)
+      _start_server_common(nil, 0, socket_path, notify_dispatcher)
     end
 
     def prepare_debugger(options)
       @mutex = Mutex.new
       @proceed = ConditionVariable.new
 
-      start_server(options.host, options.port, options.notify_dispatcher)
+      if options.socket_path.nil?
+        start_server(options.host, options.port, options.notify_dispatcher)
+      else
+        start_server_unix(options.socket_path, options.notify_dispatcher)
+      end
 
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
 
@@ -112,24 +118,53 @@ module Debugger
     end
 
     def start_control(host, port, notify_dispatcher)
+      _start_control_common(host, port, nil, notify_dispatcher)
+    end
+
+    def start_control_unix(socket_path, notify_dispatcher)
+      _start_control_common(nil, 0, socket_path, notify_dispatcher)
+    end
+
+    private
+
+    def _start_server_common(host, port, socket_path, notify_dispatcher)
+      return if started?
+      start
+      _start_control_common(host, port, socket_path, notify_dispatcher)
+    end
+
+    def _start_control_common(host, port, socket_path, notify_dispatcher)
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
         begin
-          # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
-          # "localhost" and nil have problems on some systems.
-          host ||= '127.0.0.1'
+          if socket_path.nil?
+            # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
+            # "localhost" and nil have problems on some systems.
+            host ||= '127.0.0.1'
 
-          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
-            s = TCPServer.new(host, real_port)
-            print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
-            s
+            server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
+              s = TCPServer.new(host, real_port)
+              print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
+              s
+            end
+          else
+            raise "Cannot specify host and socket_file at the same time" if host
+            File.delete(socket_path) if File.exist?(socket_path)
+            server = UNIXServer.new(socket_path)
+            print_greeting_msg $stderr, nil, nil, "Fast", socket_path if defined? IDE_VERSION
           end
 
           return unless server
 
           while (session = server.accept)
-            $stderr.puts "Connected from #{session.peeraddr[2]}" if Debugger.cli_debug
+            if Debugger.cli_debug
+              if session.peeraddr == 'AF_INET'
+                $stderr.puts "Connected from #{session.peeraddr[2]}"
+              else
+                $stderr.puts "Connected from local client"
+              end
+            end
             dispatcher = ENV['IDE_PROCESS_DISPATCHER']
             if dispatcher
               ENV['IDE_PROCESS_DISPATCHER'] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
@@ -152,8 +187,6 @@ module Debugger
         end
       end
     end
-
-    private
 
     def notify_dispatcher_if_needed(host, port, need_notify)
       return yield port unless need_notify

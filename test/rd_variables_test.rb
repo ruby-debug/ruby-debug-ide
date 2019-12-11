@@ -9,3 +9,7 @@ class RDVariablesTest < RDTestBase
 
 end
 
+class RDUNIXVariablesTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include VariablesTest
+end

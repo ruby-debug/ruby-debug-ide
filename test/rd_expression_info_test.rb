@@ -9,3 +9,7 @@ class RDExpressionInfoTest < RDTestBase
 
 end
 
+class RDUNIXExpressionInfoTest < RDTestBase
+  include TestBase::UseUNIXDomainSocket
+  include ExpressionInfoTest
+end

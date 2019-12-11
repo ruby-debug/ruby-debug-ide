@@ -29,7 +29,8 @@ options = OpenStruct.new(
     'value_as_nested_element' => false,
     'attach_mode' => false,
     'cli_debug' => false,
-    'key_value_mode' => false
+    'key_value_mode' => false,
+    'socket_path' => nil
 )
 
 opts = OptionParser.new do |opts|
@@ -99,6 +100,9 @@ EOB
   end
   opts.on("--value-as-nested-element", "Allow to pass variable's value as nested element instead of attribute") do
     options.value_as_nested_element = true
+  end
+  opts.on("--socket-path PATH", "Listen for debugger on the given UNIX domain socket path") do |path|
+    options.socket_path = path
   end
   opts.separator ""
   opts.separator "Common options:"

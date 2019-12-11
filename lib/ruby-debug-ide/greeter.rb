@@ -10,7 +10,7 @@ require 'ruby-debug-ide/ide_processor'
 module Debugger
 
   class << self
-    def print_greeting_msg(stream, host, port, debugger_name = "Fast")
+    def print_greeting_msg(stream, host, port, debugger_name = "Fast", socket_path = nil)
       base_gem_name = if defined?(JRUBY_VERSION) || RUBY_VERSION < '1.9.0'
                         'ruby-debug-base'
                       elsif RUBY_VERSION < '2.0.0'
@@ -27,6 +27,8 @@ module Debugger
 
       if host && port
         listens_on = " listens on #{host}:#{port}\n"
+      elsif socket_path
+        listens_on = " listens on #{socket_path}\n"
       else
         listens_on = "\n"
       end
