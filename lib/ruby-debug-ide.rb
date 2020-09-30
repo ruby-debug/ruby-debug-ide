@@ -19,16 +19,20 @@ module Debugger
 
   class << self
     def find_free_port(host)
-      possible_port_numbers = (584300..584320).to_a.shuffle
+      possible_port_numbers = (58430..58450).to_a.shuffle
 
       possible_port_numbers.each do |ppn|
+        $stderr.print "Checking if port is free: #{ppn}\n"
         begin
           server = TCPServer.open(host, ppn)
           port   = server.addr[1]
           server.close
+
+          $stderr.print "Port #{ppn} is free.\n"
+
           return port
         rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-          # Do nothing, try again.
+          $stderr.print "Port #{ppn} is in use.\n"
         end
       end
 
