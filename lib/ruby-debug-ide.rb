@@ -31,7 +31,7 @@ module Debugger
           $stderr.print "Port #{ppn} is free.\n"
 
           return port
-        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+        rescue Errno::EADDRINUSE
           $stderr.print "Port #{ppn} is in use.\n"
         end
       end
