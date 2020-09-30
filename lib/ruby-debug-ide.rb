@@ -19,10 +19,21 @@ module Debugger
 
   class << self
     def find_free_port(host)
-      server = TCPServer.open(host, 58438)
-      port   = server.addr[1]
-      server.close
-      port
+      possible_port_numbers = (584300..584320).to_a.shuffle
+
+      possible_port_numbers.each do |ppn|
+        begin
+          server = TCPServer.open(host, ppn)
+          port   = server.addr[1]
+          server.close
+          return port
+        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+          # Do nothing, try again.
+        end
+      end
+
+      # Tried all the ports.
+      raise "Unable to find free port."
     end
 
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
