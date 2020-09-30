@@ -19,7 +19,7 @@ module Debugger
 
   class << self
     def find_free_port(host)
-      server = TCPServer.open(host, 0)
+      server = TCPServer.open(host, 58438)
       port   = server.addr[1]
       server.close
       port
