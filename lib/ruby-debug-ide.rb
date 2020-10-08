@@ -19,24 +19,29 @@ module Debugger
 
   class << self
     def find_free_port(host)
+      # All the possible ports randomly sorted.
       possible_port_numbers = (58430..58450).to_a.shuffle
 
+      # Loop over each port until we find an open port.
       possible_port_numbers.each do |ppn|
-        $stderr.print "Checking if port is free: #{ppn}\n"
         begin
+          print_debug("Checking if port is free: #{ppn}\n")
+
           server = TCPServer.open(host, ppn)
           port   = server.addr[1]
           server.close
 
-          $stderr.print "Port #{ppn} is free.\n"
-
+          # Open port found.
+          print_debug("Port #{ppn} is free.\n")
           return port
         rescue ArgumentError
-          $stderr.print "Port #{ppn} is in use.\n"
+          # Port is in use.  Swallow the error and try
+          # another port.
+          print_debug("Port #{ppn} is in use.\n")
         end
       end
 
-      # Tried all the ports.
+      # Tried all the ports and couldn't find a free one.
       raise "Unable to find free port."
     end
 
