@@ -1,11 +1,13 @@
 source "http://rubygems.org"
 
-if RUBY_VERSION && RUBY_VERSION < '1.9'
-  gem "ruby-debug-base"
-elsif RUBY_VERSION < "2.0"
-  gem "ruby-debug-base19x", ">= 0.11.32"
-else RUBY_VERSION >= "2.0"
-  gem "debase", ">= 0.2.2"
+if RUBY_VERSION
+  if RUBY_VERSION < '1.9'
+    gem "ruby-debug-base"
+  elsif RUBY_VERSION < "2.0"
+    gem "ruby-debug-base19x", ">= 0.11.32"
+  else RUBY_VERSION >= "2.0"
+    gem "debase", ">= 0.2.2"
+  end
 end
 
 gemspec
