@@ -29,3 +29,23 @@ ports:
   - "26162:26162"
 ```
 Note that all ports above should be exposed in the Dockerfile.
+
+## Configure Local Development Environment
+To run the Ruby Debug IDE code locally first pull the code and then install the gems:
+
+```shell
+bundle install
+``` 
+
+Then run the tests:
+
+```shell
+rake
+```
+
+If you get an error when running the tests about [debase](https://rubygems.org/gems/debase), [ruby-debug-bas19x](https://rubygems.org/gems/ruby-debug-base19x), or [ruby-debug-base](https://rubygems.org/gems/ruby-debug-base) missing then try manually installing the missing gem and running the tests again.  What gem you install depends on the version of Ruby you are using, see [above](#install-debugging-gems).
+
+```shell
+gem install [debase|ruby-debug-base19x|ruby-debug-base]
+```
+

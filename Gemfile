@@ -19,7 +19,7 @@ if RUBY_VERSION && RUBY_VERSION >= "1.9"
 end
 
 if RUBY_VERSION && RUBY_VERSION >= "2.0"
-  gem "debase", "~> 0.2", ">= 0.2.2", :platforms => mries('20', '21', '22', '23', '24', '25')
+  gem "debase", "~> 0.2", ">= 0.2.2", :platforms => mries('20', '21', '22', '23', '24', '25', '26')
 end
 
 gemspec
@@ -35,4 +35,3 @@ group :test do
     gem "test-unit"
   end
 end
-
