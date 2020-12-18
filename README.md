@@ -27,5 +27,6 @@ ports:
   - "1234:1234"
   - "3000:3000"
   - "26162:26162"
+  - "58430-58450:58430-58450" # Sub-process ports for multi-process servers (Unicon, Passenger, etc).
 ```
 Note that all ports above should be exposed in the Dockerfile.

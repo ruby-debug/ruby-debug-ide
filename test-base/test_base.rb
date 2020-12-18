@@ -96,7 +96,7 @@ class TestBase < Test::Unit::TestCase
 
   def start_ruby_process(script, additional_opts = '')
     if !@use_unix_socket
-      @port = TestBase.find_free_port
+      @port = Debugger.find_free_port('127.0.0.1')
     else
       @socket_path = TestBase.next_socket_path
     end
@@ -135,16 +135,6 @@ class TestBase < Test::Unit::TestCase
   
   def start_debugger
     @started = true
-  end
-  
-  def TestBase.find_free_port(port = 1098)
-    begin
-      TCPServer.new('127.0.0.1', port).close
-      return port
-    rescue Errno::EADDRINUSE
-      # use another port
-      return find_free_port(port + 1)
-    end
   end
 
   @@socket_path_seq_mutex = Mutex.new
