@@ -34,7 +34,7 @@ module Debugger
           # Open port found.
           print_debug("Port #{ppn} is free.\n")
           return port
-        rescue ArgumentError
+        rescue StandardError
           # Port is in use.  Swallow the error and try
           # another port.
           print_debug("Port #{ppn} is in use.\n")
