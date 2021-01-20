@@ -41,7 +41,7 @@ jobs:
           curl -sSL https://get.rvm.io | bash -s stable
           source ~/.rvm/scripts/rvm
           rvm --version
-          rvm install ${{ matrix.ruby-version }}
+          rvm install ${{ matrix.ruby-version }} --binary
           rvm --default use ${{ matrix.ruby-version }}
           gem install bundler --version 1.17.3
           bundle install
