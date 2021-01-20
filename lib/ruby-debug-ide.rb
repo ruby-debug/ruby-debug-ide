@@ -96,7 +96,8 @@ module Debugger
       # wait for 'start' command
       @mutex.synchronize do
         @proceed.wait(@mutex)
-      end unless options.skip_wait_for_start
+      end
+      #end unless options.skip_wait_for_start
     end
 
     def debug_program(options)
