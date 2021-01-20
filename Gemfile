@@ -25,7 +25,7 @@ group :development, :test do
   #
   #  https://github.com/rubygems/bundler/issues/3492
   #
-  gem "bundler > 1.9"
+  gem "bundler", "> 1.9"
 
   if RUBY_VERSION < "1.9"
     gem "test-unit", "~> 2.1.2"
