@@ -15,4 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: bundle exec rake
+      - run: |
+          bundle install
+          bundle exec rake
