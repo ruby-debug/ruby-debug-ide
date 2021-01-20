@@ -2,19 +2,39 @@ name: CI
 on: [push]
 
 jobs:
-  build:
-    name: Build job
-    runs-on: ubuntu-20.04
+  # build:
+  #   name: Build job
+  #   runs-on: ubuntu-20.04
+
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       ruby-version: [1.9.3-p551, 2.0.0-p648, 2.1.10, 2.2.10, 2.3.8, 2.4.10, 2.5.8, 2.6.6, 2.7.2, 3.0.0]
+
+  #   container: ruby:${{ matrix.ruby-version }}
+
+  #   steps:
+  #     - uses: actions/checkout@v2      
+  #     - run: gem install bundler
+  #     - run: bundle install
+  #     - run: rake
+  
+  rvm-build:
+    name: RVM Build
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        ruby-version: [1.9.3-p551, 2.0.0-p648, 2.1.10, 2.2.10, 2.3.8, 2.4.10, 2.5.8, 2.6.6, 2.7.2, 3.0.0]
-
-    container: ruby:${{ matrix.ruby-version }}
-
+        os: [ubuntu-20.0, macos-10.15, windows-2019]
+        ruby-version: [1.9.3, 2.0.0, 2.1.10, 2.2.10, 2.3.8, 2.4.10, 2.5.8, 2.6.6, 2.7.2, 3.0.0]
+  
     steps:
-      - uses: actions/checkout@v2      
-      - run: gem install bundler
-      - run: bundle install
+      - uses: actions/checkout@v2
+      - run: \curl -sSL https://get.rvm.io | bash -s stable
+      - run: |
+          rvm install ${{ matrix.ruby-version }}
+          rvm --default use ${{ matrix.ruby-version }}
+      - run: gem install bundler --version 1.17.3
+      - run: gem bundle install
       - run: rake
