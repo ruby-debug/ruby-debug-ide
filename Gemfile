@@ -12,11 +12,9 @@ end
 
 gemspec
 
-group :development do
+group :development, :test do
   gem "bundler"
-end
 
-group :test do
   if RUBY_VERSION < "1.9"
     gem "test-unit", "~> 2.1.2"
   else
