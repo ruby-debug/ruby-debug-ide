@@ -10,8 +10,8 @@ jobs:
       matrix:
         ruby-version: [1.9.3-p551-slim, 2.0.0-p648-slim, 2.1.10-slim, 2.2.10-slim, 2.3.8-slim, 2.4.10-slim, 2.5.8-slim, 2.6.6-slim, 2.7.2-slim, 3.0.0-slim]
 
-    runs-on: ruby:${{ ruby-version }}
-    
+    runs-on: ruby:${{ matrix.ruby-version }}
+
     steps:
       - uses: actions/checkout@v2
       - run: bundle exec rake
