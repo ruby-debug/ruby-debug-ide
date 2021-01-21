@@ -19,6 +19,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2      
-      - run: gem install bundler --version 1.17.3
-      - run: bundle install
-      - run: rake
+      - run: |
+          gem install bundler -v 1.17.3
+          bundle install
+          rake
