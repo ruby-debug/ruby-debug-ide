@@ -11,8 +11,7 @@ require 'delegate'
 module Debugger
 
   class Command < SimpleDelegator # :nodoc:
-    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
-      defined?(SubcmdStruct)
+    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless defined?(SubcmdStruct)
 
     # Find param in subcmds. param id downcased and can be abbreviated
     # to the minimum length listed in the subcommands
@@ -20,7 +19,7 @@ module Debugger
       param.downcase!
       for try_subcmd in subcmds do
         if (param.size >= try_subcmd.min) and
-            (try_subcmd.name[0..param.size-1] == param)
+          (try_subcmd.name[0..param.size-1] == param)
           return try_subcmd
         end
       end
@@ -31,20 +30,25 @@ module Debugger
       def commands
         @commands ||= []
       end
-      
+
       DEF_OPTIONS = {
-        :event => true, 
-        :control => false, 
+        :event => true,
+        :control => false,
         :unknown => false,
         :need_context => false,
       }
-      
+
+      # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
+      # "localhost" and nil have problems on some systems.
+      DEFAULT_HOST = '127.0.0.1'
+      DEFAULT_PORT = 1234
+
       def inherited(klass)
         DEF_OPTIONS.each do |o, v|
           klass.options[o] = v if klass.options[o].nil?
         end
         commands << klass
-      end 
+      end
 
       def load_commands
         dir = File.dirname(__FILE__)
@@ -55,7 +59,15 @@ module Debugger
           include mod
         end
       end
-      
+
+      def host
+        host_and_port_from_environment.first || DEFAULT_HOST
+      end
+
+      def port
+        host_and_port_from_environment.last || DEFAULT_PORT
+      end
+
       def method_missing(meth, *args, &block)
         if meth.to_s =~ /^(.+?)=$/
           @options[$1.intern] = args.first
@@ -67,7 +79,7 @@ module Debugger
           end
         end
       end
-      
+
       def options
         @options ||= {}
       end
@@ -81,13 +93,22 @@ module Debugger
       def file_filter_supported?
         defined?(Debugger.file_filter)
       end
+
+      private
+
+      def host_and_port_from_environment
+        return [] unless ENV['IDE_PROCESS_DISPATCHER']
+        host, port = ENV['IDE_PROCESS_DISPATCHER'].split(':')
+        return [] unless port
+        [host, port.to_i]
+      end
     end
-    
+
     def initialize(state, printer)
       @state, @printer = state, printer
       super @printer
     end
-    
+
     def match(input)
       @match = regexp.match(input)
     end
@@ -108,7 +129,7 @@ module Debugger
     def timeout(sec)
       return yield if sec == nil or sec.zero?
       if Thread.respond_to?(:critical) and Thread.critical
-        raise ThreadError, "timeout within critical session"      
+        raise ThreadError, "timeout within critical session"
       end
       begin
         x = Thread.current
@@ -142,7 +163,7 @@ module Debugger
 
         return eval_result
       rescue StandardError, ScriptError => e
-        @printer.print_exception(e, @state.binding) 
+        @printer.print_exception(e, @state.binding)
         throw :debug_error
       end
     end
@@ -155,7 +176,7 @@ module Debugger
         nil
       end
     end
-    
+
     def get_binding
       @state.context.frame_binding(@state.frame_pos)
     end
@@ -182,6 +203,6 @@ module Debugger
       end
     end
   end
-  
+
   Command.load_commands
 end

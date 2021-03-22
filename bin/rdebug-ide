@@ -12,9 +12,9 @@ $stdout.sync=true
 
 options = OpenStruct.new(
     'frame_bind'  => false,
-    'host'        => nil,
+    'host'        => Debugger::Command.host,
     'load_mode'   => false,
-    'port'        => 1234,
+    'port'        => Debugger::Command.port,
     'stop'        => false,
     'tracing'     => false,
     'skip_wait_for_start' => false,
@@ -142,7 +142,7 @@ else
 end
 
 if options.dispatcher_port != -1
-  ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
+  ENV['IDE_PROCESS_DISPATCHER'] ||= options.dispatcher_port.to_s
   if RUBY_VERSION < "1.9"
     lib_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
     $: << lib_path unless $:.include? lib_path
