@@ -22,7 +22,7 @@ if RUBY_VERSION && ("2.0".."2.5").include?(RUBY_VERSION)
   gem "debase", "~> 0.2", ">= 0.2.2", :platforms => mries('20', '21', '22', '23', '24', '25')
 end
 
-if RUBY_VERSION && RUBY_VERSION >= "2.5"
+if RUBY_VERSION && RUBY_VERSION > "2.5"
   gem "debase", "~> 0.2.4"
 end
 
