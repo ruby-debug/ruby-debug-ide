@@ -8,7 +8,7 @@ module Debugger
         end
 
         Object.const_set :OldThread, ::Thread
-        Object.send :remove_const, :Thread
+        Object.__send__ :remove_const, :Thread
         Object.const_set :Thread, ::Debugger::DebugThread
       end
 
@@ -18,9 +18,9 @@ module Debugger
           return
         end
 
-        Object.send :remove_const, :Thread
+        Object.__send__ :remove_const, :Thread
         Object.const_set :Thread, ::OldThread
-        Object.send :remove_const, :OldThread
+        Object.__send__ :remove_const, :OldThread
       end
     end
   end
