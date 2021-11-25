@@ -5,6 +5,7 @@ defaults:
   run: 
     shell: bash
 
+# Comment to trigger build.
 jobs:
   build:
     name: Build job
