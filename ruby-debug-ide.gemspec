@@ -40,7 +40,19 @@ EOF
   spec.files = FILES
 
   spec.extensions << "ext/mkrf_conf.rb" unless ENV['NO_EXT']
-  spec.add_dependency("rake", ">= 0.8.1")
+
+  if RUBY_VERSION < "2.0"
+    spec.add_dependency("rake", "< 12.3")
+  elsif RUBY_VERSION < "2.1"
+    spec.add_dependency("rake", "< 13.0")
+  else
+    spec.add_dependency("rake", ">= 0.8.1")
+  end
+
+  # REXML needs to be installed vai a gem for Ruby 3.0+.
+  if RUBY_VERSION >= "3.0"
+    spec.add_dependency("rexml")
+  end
 
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
