@@ -21,30 +21,39 @@ jobs:
         include:
           - ruby-version: 1.9.3-p551
             bundler-version: 1.17.3
+            run-linter: false
 
           - ruby-version: 2.0.0-p648
             bundler-version: 1.17.3
+            run-linter: false
 
           - ruby-version: 2.1.10
             bundler-version: 1.17.3
+            run-linter: false
 
           - ruby-version: 2.2.10
             bundler-version: 1.17.3
+            run-linter: true
 
           - ruby-version: 2.3.8
             bundler-version: 2.2.32
+            run-linter: true
 
           - ruby-version: 2.4.10
             bundler-version: 2.2.32
+            run-linter: true
 
           - ruby-version: 2.5.8
             bundler-version: 2.2.32
+            run-linter: true
 
           - ruby-version: 2.6.6
             bundler-version: 2.2.32
+            run-linter: true
 
           - ruby-version: 3.0.0
             bundler-version: 2.2.32
+            run-linter: true
 
     container: ruby:${{ matrix.ruby-version }}
 
@@ -57,6 +66,7 @@ jobs:
              bundle install
 
       - name: Linting
+        if: ${{ matrix.run-linter }}
         run: bundle exec standardrb
 
       - name: Unit Tests
