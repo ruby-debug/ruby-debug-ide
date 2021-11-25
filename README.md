@@ -54,6 +54,22 @@ docker-compose run app bash
 
 Note: The gems are not installed until the container is run and the [docker-entrypoint.sh](docker-entrypoint.sh) is called.
 
+### Linting
+
+Linting is done by [Standard](https://github.com/testdouble/standard).  To check that the code if formatted correctly run:
+
+```bash
+> standardrb
+root@4e275fb7b6e1:/app# standardrb
+WARNING: this project is being migrated to standard gradually via `/app/.standard_todo.yml` and is ignoring these files:
+  Rakefile
+  ext/mkrf_conf.rb
+  lib/ruby-debug-ide.rb
+  <more files>
+```
+
+When working on a file remove it from the [.standard_todo.yml](.standard_todo.yml) file.
+
 ### Tests
 
 Once you have your development environment setup make sure the tests all pass:
