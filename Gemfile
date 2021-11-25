@@ -33,6 +33,9 @@ group :development, :test do
     gem "test-unit"
   end
 
+  # Minimum Ruby version for Standard.  That said the old
+  # versions of Standard might not support all the features
+  # such as the to-do file.
   if RUBY_VERSION >= "2.2.0"
     gem "standard"
   end

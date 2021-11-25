@@ -33,15 +33,15 @@ jobs:
 
           - ruby-version: 2.2.10
             bundler-version: 1.17.3
-            run-linter: true
+            run-linter: false
 
           - ruby-version: 2.3.8
             bundler-version: 2.2.32
-            run-linter: true
+            run-linter: false
 
           - ruby-version: 2.4.10
             bundler-version: 2.2.32
-            run-linter: true
+            run-linter: false
 
           - ruby-version: 2.5.8
             bundler-version: 2.2.32
