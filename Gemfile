@@ -1,5 +1,7 @@
 source "http://rubygems.org"
 
+gemspec
+
 # Need to limit Debase to 0.2.2 for Ruby 2.0 so the tests
 # pass but it appears that Debase 2.4 will work when Debase
 # is using in a project.  The error in the tests is:
@@ -18,8 +20,6 @@ if RUBY_VERSION
   end
 end
 
-gemspec
-
 group :development, :test do
   # Bundler 1.9.0 has an error on Ruby 1.9.3:
   #
@@ -31,5 +31,12 @@ group :development, :test do
     gem "test-unit", "~> 2.1.2"
   else
     gem "test-unit"
+  end
+
+  # Minimum Ruby version for Standard.  That said the old
+  # versions of Standard might not support all the features
+  # such as the to-do file.
+  if RUBY_VERSION >= "2.2.0"
+    gem "standard"
   end
 end
