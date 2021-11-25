@@ -1,5 +1,10 @@
 name: CI
-on: [pull_request]
+on:
+  push:
+    branches: [ master, release* ]
+    tags: [v*]
+  pull_request:
+    branches: [ master, release* ]
 
 defaults:
   run: 
