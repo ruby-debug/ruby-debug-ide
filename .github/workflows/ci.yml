@@ -5,7 +5,6 @@ defaults:
   run: 
     shell: bash
 
-# Comment to trigger build.
 jobs:
   build:
     name: Build job
@@ -15,12 +14,16 @@ jobs:
       fail-fast: false
       matrix:
         ruby-version: [1.9.3-p551, 2.0.0-p648, 2.1.10, 2.2.10, 2.3.8, 2.4.10, 2.5.8, 2.6.6, 2.7.2, 3.0.0]
+        bundler-version: [2.2.32]
+        include:
+          - ruby-version: 1.9.3-p551
+            bundler-version: 1.17.3
 
     container: ruby:${{ matrix.ruby-version }}
 
     steps:
       - uses: actions/checkout@v2      
       - run: |
-          gem install bundler -v 1.17.3
+          gem install bundler -v ${{ bundler-version }}
           bundle install
           bundle exec rake
