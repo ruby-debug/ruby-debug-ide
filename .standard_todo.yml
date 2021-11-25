@@ -1,0 +1,482 @@
+# Auto generated files with errors to ignore.
+# Remove from this list as you refactor files.
+---
+ignore:
+- Rakefile:
+  - Style/StringLiterals
+  - Style/HashSyntax
+  - Layout/SpaceAfterComma
+  - Layout/SpaceAroundOperators
+  - Style/EmptyLiteral
+  - Performance/UnfreezeString
+  - Lint/UselessAssignment
+  - Performance/RegexpMatch
+  - Performance/ReverseEach
+  - Layout/TrailingEmptyLines
+- ext/mkrf_conf.rb:
+  - Style/StringLiterals
+  - Style/YodaCondition
+  - Style/RedundantFileExtensionInRequire
+  - Style/ConditionalAssignment
+  - Style/MultilineIfModifier
+  - Style/HashSyntax
+  - Lint/RescueException
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide.rb:
+  - Style/StringLiterals
+  - Lint/RedundantRequireStatement
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/ExtraSpacing
+  - Layout/EmptyLines
+  - Lint/AssignmentInCondition
+  - Style/SafeNavigation
+  - Style/MultilineIfModifier
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/RedundantBegin
+  - Style/StderrPuts
+  - Layout/SpaceAroundOperators
+- lib/ruby-debug-ide/attach/debugger_loader.rb:
+  - Style/Dir
+  - Style/StringLiterals
+  - Layout/TrailingWhitespace
+- lib/ruby-debug-ide/attach/gdb.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/ExtraSpacing
+  - Performance/RegexpMatch
+- lib/ruby-debug-ide/attach/lldb.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/EmptyLinesAroundMethodBody
+  - Performance/RegexpMatch
+- lib/ruby-debug-ide/attach/native_debugger.rb:
+  - Layout/EmptyLinesAroundClassBody
+  - Style/StringLiterals
+  - Layout/SpaceInsideBlockBraces
+  - Performance/StringReplacement
+  - Style/PercentLiteralDelimiters
+  - Performance/RegexpMatch
+  - Layout/EmptyLinesAroundMethodBody
+  - Style/NilComparison
+- lib/ruby-debug-ide/attach/process_thread.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Style/StderrPuts
+- lib/ruby-debug-ide/attach/util.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundBlockBody
+  - Style/StderrPuts
+  - Style/SafeNavigation
+  - Style/EmptyLiteral
+  - Style/WhileUntilDo
+  - Style/BarePercentLiterals
+  - Performance/RedundantSplitRegexpArgument
+  - Layout/SpaceInsideBlockBraces
+  - Style/StringLiteralsInInterpolation
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/command.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/SpaceAroundOperators
+  - Style/For
+  - Style/AndOr
+  - Style/RedundantReturn
+  - Layout/TrailingWhitespace
+  - Style/HashSyntax
+  - Style/TrailingCommaInHashLiteral
+  - Lint/NonDeterministicRequireOrder
+  - Performance/RegexpMatch
+  - Style/MissingRespondToMissing
+  - Style/IfInsideElse
+  - Style/NilComparison
+  - Style/SafeNavigation
+  - Style/RedundantBegin
+  - Layout/SpaceAroundKeyword
+  - Security/Eval
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/IdenticalConditionalBranches
+  - Style/RescueModifier
+  - Style/SelfAssignment
+- lib/ruby-debug-ide/commands/breakpoints.rb:
+  - Layout/TrailingWhitespace
+  - Style/IfInsideElse
+  - Performance/RegexpMatch
+  - Style/ClassCheck
+  - Style/ConditionalAssignment
+  - Style/StringLiterals
+  - Style/PercentLiteralDelimiters
+  - Style/UnlessElse
+  - Layout/IndentationWidth
+  - Lint/NonLocalExitFromIterator
+- lib/ruby-debug-ide/commands/catchpoint.rb:
+  - Layout/TrailingWhitespace
+  - Style/Not
+  - Style/StringLiterals
+  - Style/YodaCondition
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/condition.rb:
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/TrailingWhitespace
+  - Style/Not
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/YodaCondition
+  - Style/StringLiterals
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/control.rb:
+  - Style/RedundantBegin
+  - Style/PercentLiteralDelimiters
+  - Layout/TrailingWhitespace
+  - Style/Not
+  - Style/AndOr
+  - Style/ConditionalAssignment
+  - Style/StringLiterals
+  - Layout/LeadingCommentSpace
+  - Layout/EmptyLines
+  - Layout/EmptyLineBetweenDefs
+- lib/ruby-debug-ide/commands/enable.rb:
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/YodaCondition
+  - Layout/TrailingWhitespace
+  - Layout/SpaceAroundOperators
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/MultilineIfModifier
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Style/StringLiterals
+  - Layout/MultilineArrayBraceLayout
+  - Style/TrailingCommaInArrayLiteral
+  - Layout/BlockAlignment
+  - Style/Not
+  - Style/LineEndConcatenation
+  - Style/PercentLiteralDelimiters
+  - Style/For
+  - Style/RedundantReturn
+- lib/ruby-debug-ide/commands/eval.rb:
+  - Layout/LeadingCommentSpace
+  - Layout/TrailingWhitespace
+  - Style/PercentLiteralDelimiters
+  - Style/StringLiterals
+  - Style/RescueModifier
+- lib/ruby-debug-ide/commands/expression_info.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/ParenthesesAroundCondition
+  - Performance/RegexpMatch
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/file_filtering.rb:
+  - Style/StringLiterals
+  - Style/YodaCondition
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/commands/frame.rb:
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/ConditionalAssignment
+  - Style/MultilineIfThen
+  - Layout/TrailingWhitespace
+  - Style/PercentLiteralDelimiters
+  - Style/StringLiterals
+  - Style/UnlessElse
+  - Style/Not
+- lib/ruby-debug-ide/commands/inspect.rb:
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/EmptyLineBetweenDefs
+  - Layout/TrailingWhitespace
+  - Layout/EmptyComment
+- lib/ruby-debug-ide/commands/jump.rb:
+  - Layout/EndOfLine
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/RescueModifier
+  - Style/StringLiterals
+  - Style/AndOr
+- lib/ruby-debug-ide/commands/load.rb:
+  - Layout/TrailingWhitespace
+  - Naming/VariableName
+  - Lint/RescueException
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/commands/pause.rb:
+  - Layout/EndOfLine
+  - Layout/EmptyLinesAroundModuleBody
+  - Lint/NonLocalExitFromIterator
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/set_type.rb:
+  - Layout/EndOfLine
+  - Layout/EmptyLinesAroundModuleBody
+  - Security/Eval
+  - Lint/RescueType
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/stepping.rb:
+  - Layout/TrailingWhitespace
+  - Style/StringLiterals
+  - Style/PercentLiteralDelimiters
+- lib/ruby-debug-ide/commands/threads.rb:
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/StringLiterals
+  - Style/PercentLiteralDelimiters
+  - Style/EmptyCaseCondition
+  - Layout/TrailingWhitespace
+- lib/ruby-debug-ide/commands/variables.rb:
+  - Layout/TrailingWhitespace
+  - Style/UnlessElse
+  - Style/ClassCheck
+  - Style/StringLiterals
+  - Style/PercentLiteralDelimiters
+  - Style/ConditionalAssignment
+  - Style/TernaryParentheses
+  - Style/ParenthesesAroundCondition
+  - Style/RescueModifier
+  - Lint/UnderscorePrefixedVariableName
+- lib/ruby-debug-ide/event_processor.rb:
+  - Style/StringLiterals
+  - Layout/IndentationConsistency
+  - Layout/TrailingWhitespace
+  - Layout/IndentationWidth
+- lib/ruby-debug-ide/greeter.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Style/ConditionalAssignment
+- lib/ruby-debug-ide/helper.rb:
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/SpaceAroundEqualsInParameterDefault
+  - Style/AndOr
+  - Style/RedundantReturn
+  - Security/Eval
+  - Style/EvalWithLocation
+  - Lint/RescueException
+  - Layout/TrailingWhitespace
+- lib/ruby-debug-ide/ide_processor.rb:
+  - Style/StringLiterals
+  - Style/StringLiteralsInInterpolation
+  - Layout/ExtraSpacing
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Style/WhileUntilDo
+  - Lint/RescueException
+  - Style/RescueModifier
+  - Performance/RedundantSplitRegexpArgument
+  - Style/EachWithObject
+  - Style/IfInsideElse
+  - Style/CharacterLiteral
+  - Layout/SpaceAfterComma
+  - Layout/TrailingWhitespace
+  - Layout/SpaceBeforeComment
+  - Lint/AssignmentInCondition
+  - Layout/EmptyLinesAroundClassBody
+- lib/ruby-debug-ide/interface.rb:
+  - Lint/RedundantRequireStatement
+  - Style/StringLiterals
+  - Layout/EmptyLines
+  - Layout/EmptyLineBetweenDefs
+  - Layout/TrailingWhitespace
+  - Layout/SpaceInsideParens
+  - Layout/EmptyLinesAroundClassBody
+- lib/ruby-debug-ide/multiprocess.rb:
+  - Style/StringLiterals
+  - Layout/SpaceInsideBlockBraces
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/multiprocess/monkey.rb:
+  - Layout/SpaceAroundEqualsInParameterDefault
+  - Style/BarePercentLiterals
+  - Layout/TrailingWhitespace
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/multiprocess/pre_child.rb:
+  - Style/StringLiterals
+  - Layout/ArgumentAlignment
+  - Layout/FirstArgumentIndentation
+  - Layout/HashAlignment
+  - Layout/ClosingParenthesisIndentation
+  - Layout/SpaceAroundKeyword
+  - Layout/TrailingWhitespace
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/multiprocess/starter.rb:
+  - Style/StringLiterals
+  - Performance/RegexpMatch
+  - Style/ColonMethodCall
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/multiprocess/unmonkey.rb:
+  - Style/BarePercentLiterals
+  - Style/PercentLiteralDelimiters
+  - Style/RedundantPercentQ
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/thread_alias.rb:
+  - Style/StringLiterals
+  - Layout/TrailingEmptyLines
+- lib/ruby-debug-ide/version.rb:
+  - Layout/SpaceAroundOperators
+  - Style/StringLiterals
+- lib/ruby-debug-ide/xml_printer.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/NilLambda
+  - Layout/SpaceInsideBlockBraces
+  - Style/Semicolon
+  - Performance/RegexpMatch
+  - Layout/EmptyLinesAroundAccessModifier
+  - Style/MissingRespondToMissing
+  - Style/EvalWithLocation
+  - Layout/ArgumentAlignment
+  - Style/HashSyntax
+  - Style/ConditionalAssignment
+  - Style/ClassEqualityComparison
+  - Style/NilComparison
+  - Style/AndOr
+  - Style/SafeNavigation
+  - Layout/SpaceAroundKeyword
+  - Style/RedundantReturn
+  - Layout/SpaceInsideStringInterpolation
+  - Style/RescueModifier
+  - Style/RescueStandardError
+  - Style/MultilineIfModifier
+  - Style/ColonMethodCall
+  - Lint/RescueException
+  - Style/ParenthesesAroundCondition
+  - Style/EmptyLiteral
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/TrailingEmptyLines
+- ruby-debug-ide.gemspec:
+  - Style/StringLiterals
+  - Layout/ArrayAlignment
+  - Layout/MultilineArrayBraceLayout
+  - Layout/HeredocIndentation
+  - Layout/ClosingHeredocIndentation
+  - Gemspec/DateAssignment
+- test-base/basic_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/TrailingEmptyLines
+- test-base/catchpoint_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+- test-base/condition_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/TrailingEmptyLines
+- test-base/enable_disable_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+- test-base/expression_info_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/TrailingEmptyLines
+- test-base/inspect_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/ArrayAlignment
+  - Layout/TrailingEmptyLines
+- test-base/readers.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/EmptyLinesAroundClassBody
+  - Style/AndOr
+  - Layout/TrailingWhitespace
+- test-base/stepping_breakpoints_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/TrailingEmptyLines
+- test-base/test_base.rb:
+  - Style/StringLiterals
+  - Lint/RedundantRequireStatement
+  - Layout/EmptyLinesAroundClassBody
+  - Style/RedundantSelf
+  - Layout/TrailingWhitespace
+  - Layout/SpaceAroundEqualsInParameterDefault
+  - Lint/DeprecatedClassMethods
+  - Style/ParenthesesAroundCondition
+  - Style/Not
+  - Layout/SpaceAroundOperators
+  - Style/ClassMethods
+  - Style/RedundantBegin
+  - Style/RedundantReturn
+  - Style/AndOr
+  - Style/ConditionalAssignment
+  - Style/OrAssignment
+- test-base/threads_and_frames_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Layout/ArrayAlignment
+  - Layout/TrailingWhitespace
+  - Layout/TrailingEmptyLines
+- test-base/variables_test.rb:
+  - Style/Encoding
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundModuleBody
+  - Style/HashSyntax
+  - Layout/ArrayAlignment
+  - Style/ColonMethodCall
+  - Layout/TrailingWhitespace
+  - Layout/ArgumentAlignment
+  - Layout/SpaceAfterComma
+  - Layout/SpaceBeforeBlockBraces
+  - Layout/SpaceInsideBlockBraces
+  - Layout/EmptyLinesAroundArguments
+  - Layout/LeadingCommentSpace
+  - Lint/UnifiedInteger
+  - Layout/TrailingEmptyLines
+- test/rd_basic_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/TrailingEmptyLines
+- test/rd_catchpoint_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/rd_condition_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/rd_enable_disable_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/rd_expression_info_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/rd_inspect_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/rd_stepping_breakpoints_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/SpaceAfterComma
+  - Layout/TrailingEmptyLines
+- test/rd_test_base.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Style/AndOr
+  - Style/LineEndConcatenation
+  - Layout/SpaceAroundEqualsInParameterDefault
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Style/RedundantInterpolation
+  - Layout/MultilineOperationIndentation
+  - Lint/DeprecatedClassMethods
+- test/rd_threads_and_frames_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/TrailingEmptyLines
+- test/rd_variables_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+- test/regression/rd_frame_segfault_test.rb:
+  - Style/StringLiterals
+  - Layout/ArrayAlignment
+  - Layout/MultilineArrayBraceLayout
+  - Layout/TrailingEmptyLines
+- test/ruby-debug/unescape_incoming_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/TrailingEmptyLines
+- test/ruby-debug/xml_printer_test.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLinesAroundClassBody
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Layout/MultilineArrayBraceLayout
+  - Layout/SpaceAfterComma
+  - Layout/LeadingCommentSpace
+  - Style/StringLiteralsInInterpolation
+  - Layout/TrailingWhitespace
