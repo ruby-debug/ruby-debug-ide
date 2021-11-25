@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+      - bundler-data:/usr/local/bundle
+    ports:
+      - "1234:1234" # RubyMine
+    
+volumes:
+  bundler-data:

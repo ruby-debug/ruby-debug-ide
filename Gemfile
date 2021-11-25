@@ -13,7 +13,7 @@ if RUBY_VERSION
     gem "ruby-debug-base19x", ">= 0.11.32"
   elsif RUBY_VERSION < "2.1"
     gem "debase", "<= 0.2.2"
-  else RUBY_VERSION >= "2.1"
+  else
     gem "debase", ">= 0.2.2"
   end
 end
