@@ -49,6 +49,11 @@ EOF
     spec.add_dependency("rake", ">= 0.8.1")
   end
 
+  # REXML needs to be installed vai a gem for Ruby 3.0+.
+  if RUBY_VERSION >= "3.0"
+    spec.add_dependency("rexml")
+  end
+
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = DateTime.now
 end
