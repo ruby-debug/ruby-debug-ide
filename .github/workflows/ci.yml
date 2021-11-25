@@ -24,6 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2      
       - run: |
-          gem install bundler -v ${{ bundler-version }}
+          gem install bundler -v ${{ matrix.bundler-version }}
           bundle install
           bundle exec rake
