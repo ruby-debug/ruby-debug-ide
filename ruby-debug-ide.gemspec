@@ -30,8 +30,8 @@ EOF
 
   spec.version = RUBY_DEBUG_IDE_VERSION
 
-  spec.author = "Markus Barchfeld, Martin Krauskopf, Mark Moseley, JetBrains RubyMine Team"
-  spec.email = "rubymine-feedback@jetbrains.com"
+  spec.author = "Markus Barchfeld, Martin Krauskopf, Mark Moseley, Alexandr Evstigneev"
+  spec.email = "hurricup@gmail.com"
   spec.license = "MIT"
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"

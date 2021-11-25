@@ -40,3 +40,54 @@ task :changelog, :since_c, :until_c do |t,args|
 
   puts changelog_content
 end
+
+desc "Generates travis.yaml"
+task :gen_travis do
+  versions = []
+
+  def versions.add(major:, minor:, include_macos: true)
+    self << { major: major, minor: [minor], include_macos: include_macos }
+  end
+
+  versions.add major: '3.0', minor: 1
+  versions.add major: '2.7', minor: 3
+  versions.add major: '2.6', minor: 7
+  versions.add major: '2.5', minor: 9
+  versions.add major: '2.4', minor: 10
+  versions.add major: '2.3', minor: 8, include_macos: false
+  versions.add major: '2.2', minor: 10, include_macos: false
+  versions.add major: '2.1', minor: 10, include_macos: false
+  versions.add major: '2.0', minor: 0, include_macos: false
+  versions.add major: '1.9', minor: 3, include_macos: false
+  versions.add major: '1.8', minor: 7, include_macos: false
+
+  puts <<EOM
+language: ruby
+dist: trusty
+matrix:
+  fast_finish: true
+  include:
+EOM
+
+  loop do
+    found_some = false
+
+    versions.each do |version|
+      minor = version[:minor].pop
+      if minor
+        found_some = true
+        full_version = "#{version[:major]}.#{minor}"
+        puts <<EOM
+    - os: linux
+      rvm: #{full_version}
+EOM
+        puts <<EOM if version[:include_macos]
+    - os: osx
+      rvm: #{full_version}
+EOM
+      end
+    end
+
+    break unless found_some
+  end
+end

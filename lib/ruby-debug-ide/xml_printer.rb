@@ -208,13 +208,13 @@ module Debugger
     end
 
     def exec_with_allocation_control(value, exec_method, overflow_message_type)
-      return value.send exec_method unless Debugger.trace_to_s
+      return value.__send__ exec_method unless Debugger.trace_to_s
 
       memory_limit = Debugger.debugger_memory_limit
       time_limit = Debugger.inspect_time_limit
 
       if defined?(JRUBY_VERSION) || RUBY_VERSION < '2.0' || memory_limit <= 0
-        return exec_with_timeout(time_limit * 1e-3, "Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.") { value.send exec_method }
+        return exec_with_timeout(time_limit * 1e-3, "Timeout: evaluation of #{exec_method} took longer than #{time_limit}ms.") { value.__send__ exec_method }
       end
 
       require 'objspace'
@@ -245,7 +245,7 @@ module Debugger
           end
         end
         trace_point.enable
-        result = value.send exec_method
+        result = value.__send__ exec_method
         trace_queue << result
         trace_point.disable
       end
