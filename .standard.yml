@@ -1,0 +1,8 @@
+# Oldest version of Ruby supported by the Debugger.
+ruby_version: 1.9.3
+
+# Ignore some rules that are only valid in
+# newer versions of Ruby.
+ignore:
+  - '**/*':
+    - Style/SafeNavigation
