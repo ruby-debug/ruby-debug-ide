@@ -13,11 +13,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby-version: [1.9.3-p551, 2.0.0-p648, 2.1.10, 2.2.10, 2.3.8, 2.4.10, 2.5.8, 2.6.6, 2.7.2, 3.0.0]
-        bundler-version: [2.2.32]
         include:
           - ruby-version: 1.9.3-p551
             bundler-version: 1.17.3
+
+          - ruby-version: 2.0.0-p648
+            bundler-version: 1.17.3
+
+          - ruby-version: 2.1.10
+            bundler-version: 1.17.3
+
+          - ruby-version: 2.2.10
+            bundler-version: 1.17.3
+
+          - ruby-version: 2.3.8
+            bundler-version: 2.2.32
+
+          - ruby-version: 2.4.10
+            bundler-version: 2.2.32
+
+          - ruby-version: 2.5.8
+            bundler-version: 2.2.32
+
+          - ruby-version: 2.6.6
+            bundler-version: 2.2.32
+
+          - ruby-version: 3.0.0
+            bundler-version: 2.2.32
 
     container: ruby:${{ matrix.ruby-version }}
 
