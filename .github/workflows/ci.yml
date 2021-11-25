@@ -49,8 +49,15 @@ jobs:
     container: ruby:${{ matrix.ruby-version }}
 
     steps:
-      - uses: actions/checkout@v2      
-      - run: |
-          gem install bundler -v ${{ matrix.bundler-version }}
-          bundle install
-          bundle exec rake
+      - uses: actions/checkout@v2
+
+      - name: Install Bundler and gems
+        run: |
+             gem install bundler -v ${{ matrix.bundler-version }}
+             bundle install
+
+      - name: Linting
+        run: bundle exec standardrb
+
+      - name: Unit Tests
+        run: bundle exec rake
