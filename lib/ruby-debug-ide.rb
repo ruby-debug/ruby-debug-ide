@@ -1,28 +1,48 @@
-require 'pp'
-require 'stringio'
+require "pp"
+require "stringio"
 require "socket"
-require 'thread'
-if RUBY_VERSION < '2.0' || defined?(JRUBY_VERSION)
-  require 'ruby-debug-base'
+if RUBY_VERSION < "2.0" || defined?(JRUBY_VERSION)
+  require "ruby-debug-base"
   Debugger::FRONT_END = "ruby-debug-base"
 else
-  require 'debase'
+  require "debase"
   Debugger::FRONT_END = "debase"
 end
 
-require 'ruby-debug-ide/greeter'
-require 'ruby-debug-ide/xml_printer'
-require 'ruby-debug-ide/ide_processor'
-require 'ruby-debug-ide/event_processor'
+require "ruby-debug-ide/greeter"
+require "ruby-debug-ide/xml_printer"
+require "ruby-debug-ide/ide_processor"
+require "ruby-debug-ide/event_processor"
 
 module Debugger
-
   class << self
     def find_free_port(host)
-      server = TCPServer.open(host, 0)
-      port   = server.addr[1]
-      server.close
-      port
+      # All the possible ports randomly sorted.
+      possible_port_numbers = (58430..58450).to_a.shuffle
+
+      # Loop over each port until we find an open port.
+      possible_port_numbers.each do |ppn|
+        # rubocop: disable Style/RedundantBegin
+        begin
+          print_debug("Checking if port is free: #{ppn}\n")
+
+          server = TCPServer.open(host, ppn)
+          port = server.addr[1]
+          server.close
+
+          # Open port found.
+          print_debug("Port #{ppn} is free.\n")
+          return port
+        rescue
+          # Port is in use.  Swallow the error and try
+          # another port.
+          print_debug("Port #{ppn} is in use.\n")
+        end
+        # rubocop: enable Style/RedundantBegin
+      end
+
+      # Tried all the ports and couldn't find a free one.
+      raise "Unable to find free port."
     end
 
     # Prints to the stderr using printf(*args) if debug logging flag (-d) is on.
@@ -59,13 +79,12 @@ module Debugger
     # protocol extensions
     attr_accessor :catchpoint_deleted_event, :value_as_nested_element
 
-
     #
     # Interrupts the last debugged thread
     #
     def interrupt_last
       skip do
-        if context = last_context
+        if (context = last_context)
           return nil unless context.thread.alive?
           context.interrupt
         end
@@ -94,9 +113,11 @@ module Debugger
       raise "Control thread did not start (#{@control_thread}}" unless @control_thread && @control_thread.alive?
 
       # wait for 'start' command
-      @mutex.synchronize do
-        @proceed.wait(@mutex)
-      end unless options.skip_wait_for_start
+      unless options.skip_wait_for_start
+        @mutex.synchronize do
+          @proceed.wait(@mutex)
+        end
+      end
     end
 
     def debug_program(options)
@@ -106,7 +127,7 @@ module Debugger
       bt = debug_load(abs_prog_script, options.stop, options.load_mode)
       if bt && !bt.is_a?(SystemExit)
         $stderr.print "Uncaught exception: #{bt}\n"
-        $stderr.print Debugger.cleanup_backtrace(bt.backtrace).map{|l| "\t#{l}"}.join("\n"), "\n"
+        $stderr.print Debugger.cleanup_backtrace(bt.backtrace).map { |l| "\t#{l}" }.join("\n"), "\n"
       end
     end
 
@@ -136,12 +157,14 @@ module Debugger
     def _start_control_common(host, port, socket_path, notify_dispatcher)
       raise "Debugger is not started" unless started?
       return if @control_thread
+
       @control_thread = DebugThread.new do
+        # rubocop: disable Style/RedundantBegin
         begin
           if socket_path.nil?
             # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
             # "localhost" and nil have problems on some systems.
-            host ||= '127.0.0.1'
+            host ||= "127.0.0.1"
 
             server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
               s = TCPServer.new(host, real_port)
@@ -159,16 +182,16 @@ module Debugger
 
           while (session = server.accept)
             if Debugger.cli_debug
-              if session.peeraddr == 'AF_INET'
-                $stderr.puts "Connected from #{session.peeraddr[2]}"
+              if session.peeraddr == "AF_INET"
+                warn "Connected from #{session.peeraddr[2]}"
               else
-                $stderr.puts "Connected from local client"
+                warn "Connected from local client"
               end
             end
-            dispatcher = ENV['IDE_PROCESS_DISPATCHER']
+            dispatcher = ENV["IDE_PROCESS_DISPATCHER"]
             if dispatcher
-              ENV['IDE_PROCESS_DISPATCHER'] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
-              ENV['DEBUGGER_HOST'] = host
+              ENV["IDE_PROCESS_DISPATCHER"] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
+              ENV["DEBUGGER_HOST"] = host
             end
             begin
               @interface = RemoteInterface.new(session)
@@ -185,39 +208,42 @@ module Debugger
           $stderr.printf "Fatal exception in DebugThread loop: #{$!.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
           exit 2
         end
+        # rubocop: enable Style/RedundantBegin
       end
     end
 
     def notify_dispatcher_if_needed(host, port, need_notify)
       return yield port unless need_notify
 
-      return unless ENV['IDE_PROCESS_DISPATCHER']
-      acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
-      acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
+      return unless ENV["IDE_PROCESS_DISPATCHER"]
+      acceptor_host, acceptor_port = ENV["IDE_PROCESS_DISPATCHER"].split(":")
+      acceptor_host, acceptor_port = "127.0.0.1", acceptor_host unless acceptor_port
       connected = false
 
       3.times do |i|
-        begin
-          s = TCPSocket.open(acceptor_host, acceptor_port)
-          dispatcher_answer = s.gets.chomp
+        unless connected
+          begin
+            s = TCPSocket.open(acceptor_host, acceptor_port)
+            dispatcher_answer = s.gets.chomp
 
-          if dispatcher_answer == "true"
-            port = Debugger.find_free_port(host)
+            if dispatcher_answer == "true"
+              port = Debugger.find_free_port(host)
+            end
+
+            server = yield port, dispatcher_answer == "true"
+
+            s.print(port)
+            s.close
+            connected = true
+            print_debug "Ide process dispatcher notified about sub-debugger which listens on #{port}\n"
+            return server
+          rescue => bt
+            warn "#{Process.pid}: connection failed(#{i + 1})"
+            warn "Exception: #{bt}"
+            warn bt.backtrace.map { |l| "\t#{l}" }.join("\n")
+            sleep 0.3
           end
-
-          server = yield port, dispatcher_answer == "true"
-
-          s.print(port)
-          s.close
-          connected = true
-          print_debug "Ide process dispatcher notified about sub-debugger which listens on #{port}\n"
-          return server
-        rescue => bt
-          $stderr.puts "#{Process.pid}: connection failed(#{i+1})"
-          $stderr.puts "Exception: #{bt}"
-          $stderr.puts bt.backtrace.map { |l| "\t#{l}" }.join("\n")
-          sleep 0.3
-        end unless connected
+        end
       end
     end
   end
