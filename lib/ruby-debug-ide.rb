@@ -154,52 +154,54 @@ module Debugger
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
-        if socket_path.nil?
-          # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
-          # "localhost" and nil have problems on some systems.
-          host ||= "127.0.0.1"
+        begin
+          if socket_path.nil?
+            # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
+            # "localhost" and nil have problems on some systems.
+            host ||= "127.0.0.1"
 
-          server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
-            s = TCPServer.new(host, real_port)
-            print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
-            s
+            server = notify_dispatcher_if_needed(host, port, notify_dispatcher) do |real_port, port_changed|
+              s = TCPServer.new(host, real_port)
+              print_greeting_msg $stderr, host, real_port, port_changed ? "Subprocess" : "Fast" if defined? IDE_VERSION
+              s
+            end
+          else
+            raise "Cannot specify host and socket_file at the same time" if host
+            File.delete(socket_path) if File.exist?(socket_path)
+            server = UNIXServer.new(socket_path)
+            print_greeting_msg $stderr, nil, nil, "Fast", socket_path if defined? IDE_VERSION
           end
-        else
-          raise "Cannot specify host and socket_file at the same time" if host
-          File.delete(socket_path) if File.exist?(socket_path)
-          server = UNIXServer.new(socket_path)
-          print_greeting_msg $stderr, nil, nil, "Fast", socket_path if defined? IDE_VERSION
-        end
 
-        return unless server
+          return unless server
 
-        while (session = server.accept)
-          if Debugger.cli_debug
-            if session.peeraddr == "AF_INET"
-              warn "Connected from #{session.peeraddr[2]}"
-            else
-              warn "Connected from local client"
+          while (session = server.accept)
+            if Debugger.cli_debug
+              if session.peeraddr == "AF_INET"
+                warn "Connected from #{session.peeraddr[2]}"
+              else
+                warn "Connected from local client"
+              end
+            end
+            dispatcher = ENV["IDE_PROCESS_DISPATCHER"]
+            if dispatcher
+              ENV["IDE_PROCESS_DISPATCHER"] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
+              ENV["DEBUGGER_HOST"] = host
+            end
+            begin
+              @interface = RemoteInterface.new(session)
+              self.handler = EventProcessor.new(interface)
+              IdeControlCommandProcessor.new(interface).process_commands
+            rescue StandardError, ScriptError => ex
+              bt = ex.backtrace
+              $stderr.printf "#{Process.pid}: Exception in DebugThread loop: #{ex.message}(#{ex.class})\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
+              exit 1
             end
           end
-          dispatcher = ENV["IDE_PROCESS_DISPATCHER"]
-          if dispatcher
-            ENV["IDE_PROCESS_DISPATCHER"] = "#{session.peeraddr[2]}:#{dispatcher}" unless dispatcher.include?(":")
-            ENV["DEBUGGER_HOST"] = host
-          end
-          begin
-            @interface = RemoteInterface.new(session)
-            self.handler = EventProcessor.new(interface)
-            IdeControlCommandProcessor.new(interface).process_commands
-          rescue StandardError, ScriptError => ex
-            bt = ex.backtrace
-            $stderr.printf "#{Process.pid}: Exception in DebugThread loop: #{ex.message}(#{ex.class})\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
-            exit 1
-          end
+        rescue
+          bt = $!.backtrace
+          $stderr.printf "Fatal exception in DebugThread loop: #{$!.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
+          exit 2
         end
-      rescue
-        bt = $!.backtrace
-        $stderr.printf "Fatal exception in DebugThread loop: #{$!.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
-        exit 2
       end
     end
 
