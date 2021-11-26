@@ -5,4 +5,4 @@ ruby_version: 1.9.3
 # newer versions of Ruby.
 ignore:
   - '**/*':
-    - Style/SafeNavigation
+    - Style/SafeNavigation # The & nil check is not available until Ruby 2.3.

@@ -22,19 +22,23 @@ module Debugger
 
       # Loop over each port until we find an open port.
       possible_port_numbers.each do |ppn|
-        print_debug("Checking if port is free: #{ppn}\n")
+        # rubocop: disable Style/RedundantBegin
+        begin
+          print_debug("Checking if port is free: #{ppn}\n")
 
-        server = TCPServer.open(host, ppn)
-        port = server.addr[1]
-        server.close
+          server = TCPServer.open(host, ppn)
+          port = server.addr[1]
+          server.close
 
-        # Open port found.
-        print_debug("Port #{ppn} is free.\n")
-        return port
-      rescue
-        # Port is in use.  Swallow the error and try
-        # another port.
-        print_debug("Port #{ppn} is in use.\n")
+          # Open port found.
+          print_debug("Port #{ppn} is free.\n")
+          return port
+        rescue
+          # Port is in use.  Swallow the error and try
+          # another port.
+          print_debug("Port #{ppn} is in use.\n")
+        end
+        # rubocop: enable Style/RedundantBegin
       end
 
       # Tried all the ports and couldn't find a free one.
@@ -153,7 +157,9 @@ module Debugger
     def _start_control_common(host, port, socket_path, notify_dispatcher)
       raise "Debugger is not started" unless started?
       return if @control_thread
+
       @control_thread = DebugThread.new do
+        # rubocop: disable Style/RedundantBegin
         begin
           if socket_path.nil?
             # 127.0.0.1 seemingly works with all systems and with IPv6 as well.
@@ -202,6 +208,7 @@ module Debugger
           $stderr.printf "Fatal exception in DebugThread loop: #{$!.message}\nBacktrace:\n#{bt ? bt.join("\n  from: ") : "<none>"}\n"
           exit 2
         end
+        # rubocop: enable Style/RedundantBegin
       end
     end
 
