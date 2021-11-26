@@ -16,6 +16,11 @@ require "ruby-debug-ide/event_processor"
 
 module Debugger
   class << self
+    ##
+    # Finds a free port to use.  The port range is limited to
+    # a known range of 58430 to 58450 so Docker/firewall
+    # ports can be opened.  Useful when debugging a Rails
+    # application that uses multiple process like Unicorn.
     def find_free_port(host)
       # All the possible ports randomly sorted.
       possible_port_numbers = (58430..58450).to_a.shuffle
