@@ -1,8 +1,6 @@
 install_dir = File.expand_path("../../../..", __FILE__)
-jruby = defined?(JRUBY_VERSION) || (defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
-rbx = defined?(RUBY_ENGINE) && 'rbx' == RUBY_ENGINE
 
-unless jruby || rbx
+if !defined?(RUBY_ENGINE) || RUBY_ENGINE == 'ruby'
   require 'rubygems'
   require 'rubygems/command.rb'
   require 'rubygems/dependency.rb'
