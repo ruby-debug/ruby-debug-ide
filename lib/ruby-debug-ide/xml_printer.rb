@@ -382,7 +382,7 @@ module Debugger
     end
 
     def print_eval(exp, value)
-      print "<eval expression=\"%s\" value=\"%s\" />", CGI.escapeHTML(exp), value
+      print "<eval expression=\"%s\" value=\"%s\" />", CGI.escapeHTML(exp), CGI.escapeHTML(value)
     end
 
     def print_pp(value)
