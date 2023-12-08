@@ -73,7 +73,7 @@ module Debugger
       end
     end
 
-    def start_server(host = nil, port = 1234, notify_dispatcher = false)
+    def start_server(host = nil, port = Debugger::Command::DEFAULT_PORT, notify_dispatcher = false)
       _start_server_common(host, port, nil, notify_dispatcher)
     end
 
@@ -193,7 +193,7 @@ module Debugger
 
       return unless ENV['IDE_PROCESS_DISPATCHER']
       acceptor_host, acceptor_port = ENV['IDE_PROCESS_DISPATCHER'].split(":")
-      acceptor_host, acceptor_port = '127.0.0.1', acceptor_host unless acceptor_port
+      acceptor_host, acceptor_port = Debugger::Command::DEFAULT_HOST, acceptor_host unless acceptor_port
       connected = false
 
       3.times do |i|
