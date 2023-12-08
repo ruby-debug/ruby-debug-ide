@@ -18,6 +18,7 @@ options = OpenStruct.new(
     'stop'        => false,
     'tracing'     => false,
     'skip_wait_for_start' => false,
+    'keep_process_alive' => false,
     'int_handler' => true,
     'dispatcher_port' => -1,
     'evaluation_timeout' => 10,
@@ -70,6 +71,7 @@ EOB
   opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("--skip_wait_for_start", "skip wait for 'start' command") {options.skip_wait_for_start = true}
+  opts.on("--keep-process-alive", "don't exit the process when debugger is exited") {options.keep_process_alive = true}
   opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.cli_debug = true
@@ -165,6 +167,10 @@ end
 if options.int_handler
   # install interruption handler
   trap('INT') { Debugger.interrupt_last }
+end
+
+if options.keep_process_alive
+  ENV['DEBUGGER_KEEP_PROCESS_ALIVE'] = "true"
 end
 
 # set options
