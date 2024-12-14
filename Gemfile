@@ -14,12 +14,12 @@ if RUBY_VERSION < '1.9' || defined?(JRUBY_VERSION)
   gem "ruby-debug-base", :platforms =>  [:jruby, *mries('18')]
 end
 
-if RUBY_VERSION && RUBY_VERSION >= "1.9"
-  gem "ruby-debug-base19x", ">= 0.11.32", :platforms => mries('19')
+if RUBY_VERSION && RUBY_VERSION >= "1.9" && RUBY_VERSION > "2.0"
+  gem "ruby-debug-base19x", ">= 0.11.32"
 end
 
 if RUBY_VERSION && RUBY_VERSION >= "2.0"
-  gem "debase", "~> 0.2", ">= 0.2.2", :platforms => mries('20', '21', '22', '23', '24', '25')
+  gem "debase", "~> 0.2", ">= 0.2.8"
 end
 
 gemspec
