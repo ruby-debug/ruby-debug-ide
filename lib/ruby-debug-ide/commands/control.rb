@@ -8,10 +8,16 @@ module Debugger
 
     def execute
       begin
-        @printer.print_msg("finished")
-        @printer.print_debug("Exiting debugger.")
+        if ENV['DEBUGGER_KEEP_PROCESS_ALIVE'] == "true"
+          @delegate_sd_obj.interface.closing = true
+          Debugger.breakpoints.clear
+          @delegate_sd_obj.interface.command_queue << 'c'
+        else
+          @printer.print_msg("finished")
+          @printer.print_debug("Exiting debugger.")
+        end
       ensure
-        exit! # exit -> exit!: No graceful way to stop threads...
+        exit! unless ENV['DEBUGGER_KEEP_PROCESS_ALIVE'] == "true" # exit -> exit!: No graceful way to stop threads...
       end
     end
 
