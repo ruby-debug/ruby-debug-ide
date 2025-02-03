@@ -19,7 +19,7 @@ if RUBY_VERSION && RUBY_VERSION >= "1.9" && RUBY_VERSION < "2.0"
 end
 
 if RUBY_VERSION && RUBY_VERSION >= "2.0"
-  gem "debase", "~> 0.2", ">= 0.2.8"
+  gem "debase", "~> 0.2", ">= 0.2.9"
 end
 
 gemspec
