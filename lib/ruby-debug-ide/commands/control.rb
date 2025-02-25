@@ -11,7 +11,7 @@ module Debugger
         @printer.print_msg("finished")
         @printer.print_debug("Exiting debugger.")
       ensure
-        exit! # exit -> exit!: No graceful way to stop threads...
+        exit! unless ENV['DEBUGGER_KEEP_PROCESS_ALIVE'] == "true" # exit -> exit!: No graceful way to stop threads...
       end
     end
 
