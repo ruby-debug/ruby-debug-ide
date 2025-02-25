@@ -10,10 +10,12 @@ module Debugger
 
   class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
+    attr_accessor :closing
 
     def initialize(socket)
       @socket = socket
       @command_queue = Queue.new
+      @closing = false
     end
     
     def read_command
@@ -23,7 +25,7 @@ module Debugger
     end
 
     def print(*args)
-      @socket.printf(*args)
+      @socket.printf(*args) unless (@closing && ENV['DEBUGGER_KEEP_PROCESS_ALIVE'])
     end
     
     def close
