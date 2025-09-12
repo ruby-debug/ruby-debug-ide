@@ -124,7 +124,7 @@ module Debugger
 
     def debug_eval(str, b = get_binding)
       begin
-        str = str.to_s
+        str = str.to_s.dup
         str.force_encoding('UTF-8') if(RUBY_VERSION >= '2.0')
         to_inspect = Command.unescape_incoming(str)
         max_time = Debugger.evaluation_timeout
