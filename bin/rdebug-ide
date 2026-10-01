@@ -1,37 +1,17 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'optparse'
-require "ostruct"
 if RUBY_VERSION < "1.9"
   require 'ruby-debug-ide'
+  require 'ruby-debug-ide/options'
 else
   require_relative '../lib/ruby-debug-ide'
+  require_relative '../lib/ruby-debug-ide/options'
 end
 
 $stdout.sync=true
 
-options = OpenStruct.new(
-    'frame_bind'  => false,
-    'host'        => nil,
-    'load_mode'   => false,
-    'port'        => 1234,
-    'stop'        => false,
-    'tracing'     => false,
-    'skip_wait_for_start' => false,
-    'int_handler' => true,
-    'dispatcher_port' => -1,
-    'evaluation_timeout' => 10,
-    'trace_to_s' => false,
-    'debugger_memory_limit' => 10,
-    'inspect_time_limit' => 100,
-    'rm_protocol_extensions' => false,
-    'catchpoint_deleted_event' => false,
-    'value_as_nested_element' => false,
-    'attach_mode' => false,
-    'cli_debug' => false,
-    'key_value_mode' => false,
-    'socket_path' => nil
-)
+options = Debugger::DebuggerOptions.new
 
 opts = OptionParser.new do |opts|
   opts.banner = <<EOB

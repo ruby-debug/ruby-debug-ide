@@ -1,29 +1,21 @@
+require_relative '../options'
+
 module Debugger
   module MultiProcess
+
     class << self
       def pre_child(options = nil)
         require 'socket'
-        require 'ostruct'
 
         host = ENV['DEBUGGER_HOST']
 
-        options ||= OpenStruct.new(
-            'frame_bind'  => false,
-            'host'        => host,
-            'load_mode'   => false,
-            'port'        => Debugger.find_free_port(host),
-            'stop'        => false,
-            'tracing'     => false,
-            'int_handler' => true,
-            'cli_debug'   => (ENV['DEBUGGER_CLI_DEBUG'] == 'true'),
-            'notify_dispatcher' => true,
-            'evaluation_timeout' => 10,
-            'trace_to_s' => false,
-            'debugger_memory_limit' => 10,
-            'inspect_time_limit' => 100
-        )
+        options ||= Debugger::DebuggerOptions.new
+        options.host = host
+        options.port = Debugger.find_free_port(host)
+        options.cli_debug = ENV['DEBUGGER_CLI_DEBUG'] == 'true'
+        options.notify_dispatcher = true
 
-        if(options.ignore_port)
+        if options.ignore_port
           options.port = Debugger.find_free_port(options.host)
           options.notify_dispatcher = true
         end

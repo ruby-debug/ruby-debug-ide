@@ -2,17 +2,21 @@
 
 require 'optparse'
 require 'thread'
-require 'ostruct'
 
 $stdout.sync = true
 $stderr.sync = true
 
-options = OpenStruct.new(
-    'pid' => nil,
-    'sdk_path' => nil,
-    'uid' => nil,
-    'gems_to_include' => []
-)
+class GdbWrapperOptions
+  attr_accessor :pid, :gems_to_include, :uid, :sdk_path
+  def initialize
+    @pid = nil
+    @sdk_path = nil
+    @uid = nil
+    @gems_to_include = []
+  end
+end
+
+options = GdbWrapperOptions.new
 
 module DebugPrinter
 
@@ -41,7 +45,7 @@ EOB
   end
 
   opts.on('--ruby-path RUBY_PATH', 'path to ruby interpreter') do |ruby_path|
-    options.ruby_path = ruby_path
+    options.sdk_path = ruby_path
   end
 
   opts.on('--uid UID', 'uid which this process should set after executing gdb attach') do |uid|
@@ -60,7 +64,7 @@ unless options.pid
   exit 1
 end
 
-unless options.ruby_path
+unless options.sdk_path
   $stderr.puts 'You should specify path to the ruby interpreter'
   exit 1
 end
